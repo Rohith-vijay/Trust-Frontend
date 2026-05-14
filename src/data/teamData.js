@@ -1,0 +1,73 @@
+// teamData.js — Trust members
+export const teamMembers = [
+  {
+    id: 1,
+    name: "K. Prakasa Rao",
+    role: "Founder & Chairman",
+    photo: null,
+    initials: "KP",
+    tagline: "Visionary leader & founding pillar",
+    bio: "K. Prakasa Rao laid the foundation of K.V.G Shanmuka Sai Charitable Trust with a vision to serve the underprivileged. His lifelong commitment to social welfare and community development has shaped every initiative the trust has undertaken.",
+    achievements: [
+      "Founded the trust and established its core mission",
+      "Organized 100+ community welfare drives",
+      "Built partnerships with local government bodies",
+    ],
+  },
+  {
+    id: 2,
+    name: "V. David Raju",
+    role: "Vice Chairman",
+    photo: null,
+    initials: "VD",
+    tagline: "Strategic thinker & community builder",
+    bio: "V. David Raju brings strategic leadership and operational expertise to the trust. He has been instrumental in expanding the trust's reach across multiple districts and in forging partnerships with other charitable organizations.",
+    achievements: [
+      "Expanded trust operations to 5 districts",
+      "Led fundraising campaigns raising ₹10L+",
+      "Mentored the next generation of volunteers",
+    ],
+  },
+  {
+    id: 3,
+    name: "K.V. Krishna Priya",
+    role: "Treasurer",
+    photo: null,
+    initials: "KV",
+    tagline: "Guardian of trust finances & transparency",
+    bio: "K.V. Krishna Priya manages the trust's finances with utmost transparency and accountability. Her meticulous approach to budgeting and fund allocation ensures every rupee is used for maximum community impact.",
+    achievements: [
+      "Maintained 100% financial transparency since founding",
+      "Streamlined fund allocation for key programs",
+      "Coordinated disaster relief fund management",
+    ],
+  },
+  {
+    id: 4,
+    name: "K. Rohith Vijay",
+    role: "Secretary",
+    photo: null,
+    initials: "KR",
+    tagline: "Driving operations & digital outreach",
+    bio: "K. Rohith Vijay serves as Secretary of the trust, managing day-to-day operations, communications, and the trust's digital presence. He ensures smooth coordination between all members and spearheads technology-driven outreach strategies.",
+    achievements: [
+      "Built the trust's official website & digital systems",
+      "Coordinated all trust operations and member activities",
+      "Grew social media reach by 300%",
+    ],
+  },
+  {
+    id: 5,
+    name: "Naghul Khan",
+    role: "Volunteer Coordinator",
+    photo: null,
+    initials: "NK",
+    tagline: "Rallying people for a cause",
+    bio: "Naghul Khan leads the volunteer wing of the trust, recruiting, training, and coordinating volunteers for all events and campaigns. His energy and people skills have built a strong, dedicated volunteer community.",
+    achievements: [
+      "Built a network of 150+ active volunteers",
+      "Organized training programs for new recruits",
+      "Led on-ground coordination for major drives",
+    ],
+  },
+];

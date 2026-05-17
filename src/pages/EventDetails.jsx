@@ -50,7 +50,7 @@ function EventDetails() {
     event.videos ||
     [];
 
-  const headerImage = event.image || photos[0] || null;
+  const headerImage = event.bannerUrl || event.image || photos[0] || null;
 
   const displayDate = event.eventDate
     ? new Date(event.eventDate).toLocaleDateString("en-IN", {

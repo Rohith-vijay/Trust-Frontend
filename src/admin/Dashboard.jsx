@@ -39,7 +39,7 @@ const Dashboard = () => {
   const [storyForm, setStoryForm] = useState({ title: "", description: "", imageUrl: "", category: "" });
   const [memberForm, setMemberForm] = useState({ name: "", role: "", tagline: "", bio: "", imageUrl: "" });
   const [eventForm, setEventForm] = useState({
-    title: "", description: "", location: "", eventDate: "", registrationDeadline: "", maxVolunteers: "",
+    title: "", description: "", location: "", eventDate: "", registrationDeadline: "", maxVolunteers: "", bannerUrl: ""
   });
   const [heroInput, setHeroInput] = useState("");
 
@@ -845,6 +845,7 @@ const Dashboard = () => {
                     <input type="number" value={eventForm.maxVolunteers} onChange={(e) => setEventForm(p => ({ ...p, maxVolunteers: e.target.value }))} placeholder="50" className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/30" />
                   </div>
                 </div>
+                <input value={eventForm.bannerUrl} onChange={(e) => setEventForm(p => ({ ...p, bannerUrl: e.target.value }))} placeholder="Banner Image URL" className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/30" />
                 <textarea value={eventForm.description} onChange={(e) => setEventForm(p => ({ ...p, description: e.target.value }))} placeholder="Event Description" required rows={3} className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/30" />
                 <button type="submit" className="bg-primary text-white px-4 py-2 rounded-lg text-sm font-semibold hover:brightness-90 transition">+ Create Event</button>
               </form>

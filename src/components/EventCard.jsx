@@ -20,7 +20,7 @@ const EventCard = React.memo(({ event }) => {
 
   // Resolve image — backend media array or legacy `image` field
   const imageUrl =
-    event.image || event.media?.[0]?.mediaUrl || null;
+    event.bannerUrl || event.image || event.media?.[0]?.mediaUrl || null;
 
   // Resolve date — backend ISO string or legacy date string
   const displayDate = event.eventDate

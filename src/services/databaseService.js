@@ -187,6 +187,17 @@ const databaseService = {
     const response = await api.get("/donations", { params });
     return response.data;
   },
+
+  getMyDonations: async () => {
+    const response = await api.get("/donations/my");
+    return response.data;
+  },
+
+  // ─── Activities / Audit Logs (Admin) ────────────────────────
+  getActivities: async () => {
+    const response = await api.get("/admin/activities");
+    return response.data;
+  },
 };
 
 export default databaseService;

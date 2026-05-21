@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { pageVariants, pageTransition, sectionVariants, cardHover } from "../constants/motionVariants";
+import { pageVariants, pageTransition } from "../constants/motionVariants";
 import { useNavigate } from "react-router-dom";
 import databaseService from "../services/databaseService";
+import { Typography, Card, CardContent, Button, CircularProgress } from "@mui/material";
+import VolunteerActivismIcon from '@mui/icons-material/VolunteerActivism';
+import HandshakeIcon from '@mui/icons-material/Handshake';
 
 const DEFAULT_PILLARS = [
   { title: "Education Expansion", desc: "Increasing access to quality education in underserved regions." },
@@ -32,9 +35,7 @@ function Vision() {
   const navigate = useNavigate();
 
   const [heroTitle, setHeroTitle] = useState("Our Vision for the Future");
-  const [heroSubtitle, setHeroSubtitle] = useState(
-    "We imagine a world where every community thrives through education, health, and opportunity—driven by compassion and clear goals."
-  );
+  const [heroSubtitle, setHeroSubtitle] = useState("We imagine a world where every community thrives through education, health, and opportunity.");
   const [mission, setMission] = useState("");
   const [pillars, setPillars] = useState(DEFAULT_PILLARS);
   const [roadmap, setRoadmap] = useState(DEFAULT_ROADMAP);
@@ -45,32 +46,24 @@ function Vision() {
     const fetchContent = async () => {
       try {
         const content = await databaseService.getAllPageContent();
-
         if (content.VISION_HERO_TITLE) setHeroTitle(content.VISION_HERO_TITLE);
         if (content.VISION_HERO_SUBTITLE) setHeroSubtitle(content.VISION_HERO_SUBTITLE);
         if (content.VISION_MISSION) setMission(content.VISION_MISSION);
-
         if (content.VISION_PILLARS) {
           try {
             const parsed = JSON.parse(content.VISION_PILLARS);
             if (Array.isArray(parsed) && parsed.length > 0) setPillars(parsed);
-          } catch (e) {
-            console.warn("Could not parse VISION_PILLARS, using defaults");
-          }
+          } catch (e) {}
         }
-
         if (content.VISION_ROADMAP) {
           const lines = content.VISION_ROADMAP.split("\n").map(l => l.trim()).filter(Boolean);
           if (lines.length > 0) setRoadmap(lines);
         }
-
         if (content.VISION_IMPACTS) {
           try {
             const parsed = JSON.parse(content.VISION_IMPACTS);
             if (Array.isArray(parsed) && parsed.length > 0) setImpacts(parsed);
-          } catch (e) {
-            console.warn("Could not parse VISION_IMPACTS, using defaults");
-          }
+          } catch (e) {}
         }
       } catch (err) {
         console.error("Failed to fetch vision content:", err);
@@ -78,17 +71,27 @@ function Vision() {
         setLoading(false);
       }
     };
-
     fetchContent();
   }, []);
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center py-32">
-        <div className="w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
+      <div className="flex flex-col justify-center items-center py-32 min-h-screen">
+        <CircularProgress size={48} thickness={4} />
+        <Typography sx={{ mt: 3, color: 'text.secondary' }}>Loading vision...</Typography>
       </div>
     );
   }
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } }
+  };
 
   return (
     <motion.div
@@ -97,119 +100,147 @@ function Vision() {
       animate="animate"
       exit="exit"
       transition={pageTransition}
-      className="py-20 bg-warmBg text-dark"
+      className="bg-gray-50 text-dark min-h-screen"
     >
       {/* Hero */}
-      <motion.section
-        variants={sectionVariants}
-        className="relative text-center py-32 bg-logo-glow"
-      >
-        <div className="absolute inset-0 bg-logo-glow" />
-        <div className="relative z-10 max-w-3xl mx-auto px-6">
-          <h1 className="text-5xl md:text-6xl font-bold mb-4 text-primary">
+      <section className="relative text-center py-32 overflow-hidden bg-white">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5" />
+        <motion.div 
+          className="relative z-10 max-w-4xl mx-auto px-6"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+        >
+          <Typography variant="h2" component="h1" sx={{ fontWeight: 900, color: 'primary.main', mb: 3, fontSize: { xs: '2.5rem', md: '4rem' } }}>
             {heroTitle}
-          </h1>
-          <p className="text-lg md:text-xl opacity-90">
+          </Typography>
+          <Typography variant="h6" color="text.secondary" sx={{ fontWeight: 400, lineHeight: 1.6 }}>
             {heroSubtitle}
-          </p>
-        </div>
-      </motion.section>
+          </Typography>
+        </motion.div>
+      </section>
 
       {/* Mission statement */}
       {mission && (
         <motion.section
-          variants={sectionVariants}
-          className="py-12 px-6 max-w-3xl mx-auto text-center"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="py-16 px-6 max-w-4xl mx-auto -mt-10 relative z-20"
         >
-          <p className="text-lg text-gray-700 leading-relaxed italic border-l-4 border-primary pl-4 text-left">
-            {mission}
-          </p>
+          <Card elevation={0} sx={{ borderRadius: 6, p: { xs: 4, md: 6 }, boxShadow: '0 20px 40px rgba(0,0,0,0.05)', border: '1px solid rgba(0,0,0,0.03)' }}>
+            <Typography variant="h5" sx={{ fontStyle: 'italic', color: 'text.primary', lineHeight: 1.8, textAlign: 'center', fontWeight: 500 }}>
+              "{mission}"
+            </Typography>
+          </Card>
         </motion.section>
       )}
 
-      {/* Long-term goals */}
-      <motion.section
-        variants={sectionVariants}
-        className="py-20 px-6 max-w-6xl mx-auto"
-      >
-        <h2 className="text-3xl font-bold text-center mb-12 text-primary">
-          Long‑Term Goals
-        </h2>
-        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-          {pillars.map((p, idx) => (
-            <motion.div
-              key={idx}
-              className="bg-white p-6 rounded-lg shadow-md"
-              whileHover={cardHover}
-              transition={{ duration: 0.3 }}
-            >
-              <h3 className="text-xl font-semibold mb-2 text-primary">
-                {p.title}
-              </h3>
-              <p className="text-gray-700 text-sm">{p.desc}</p>
-            </motion.div>
-          ))}
-        </div>
-      </motion.section>
+      <div className="max-w-7xl mx-auto px-6 py-16 space-y-32">
+        {/* Long-term goals */}
+        <motion.section
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-100px" }}
+        >
+          <Typography variant="h3" component="h2" align="center" sx={{ fontWeight: 800, color: 'primary.main', mb: 8 }}>
+            Long‑Term Goals
+          </Typography>
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {pillars.map((p, idx) => (
+              <motion.div key={idx} variants={itemVariants} whileHover={{ y: -5 }}>
+                <Card elevation={0} sx={{ height: '100%', borderRadius: 4, border: '1px solid rgba(0,0,0,0.06)', transition: 'box-shadow 0.3s ease', '&:hover': { boxShadow: '0 10px 30px rgba(0,0,0,0.08)' } }}>
+                  <CardContent sx={{ p: 4 }}>
+                    <Typography variant="h6" sx={{ fontWeight: 700, color: 'text.primary', mb: 2 }}>{p.title}</Typography>
+                    <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.7 }}>{p.desc}</Typography>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+        </motion.section>
 
-      {/* Roadmap */}
-      <motion.section
-        variants={sectionVariants}
-        className="py-20 px-6 max-w-4xl mx-auto"
-      >
-        <h2 className="text-3xl font-bold text-center mb-12 text-primary">
-          5‑Year Roadmap
-        </h2>
-        <ol className="border-l-2 border-primary ml-4 space-y-6">
-          {roadmap.map((item, idx) => (
-            <li key={idx} className="pl-4">
-              <p className="text-gray-700">{item}</p>
-            </li>
-          ))}
-        </ol>
-      </motion.section>
-
-      {/* Impact Projection */}
-      <motion.section
-        variants={sectionVariants}
-        className="py-20 px-6 max-w-5xl mx-auto bg-neutralLight rounded-lg"
-      >
-        <h2 className="text-3xl font-bold text-center mb-12 text-primary">
-          Impact Projections
-        </h2>
-        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4 text-center">
-          {impacts.map((i, idx) => (
-            <div key={idx}>
-              <p className="text-2xl font-bold text-primary">{i.value}</p>
-              <p className="text-gray-600 text-sm">{i.label}</p>
+        {/* Roadmap & Impacts */}
+        <div className="grid lg:grid-cols-2 gap-16">
+          <motion.section
+            initial={{ opacity: 0, x: -30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
+            <Typography variant="h4" component="h2" sx={{ fontWeight: 800, color: 'primary.main', mb: 6 }}>
+              5‑Year Roadmap
+            </Typography>
+            <div className="relative pl-6 space-y-8 border-l-2 border-primary/20">
+              {roadmap.map((item, idx) => (
+                <div key={idx} className="relative">
+                  <div className="absolute -left-[31px] top-1 w-4 h-4 rounded-full bg-primary border-4 border-white" />
+                  <Typography variant="body1" sx={{ fontWeight: 500, color: 'text.primary' }}>{item}</Typography>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-      </motion.section>
+          </motion.section>
 
-      {/* CTA */}
-      <motion.section
-        variants={sectionVariants}
-        className="py-20 text-center"
-      >
-        <h2 className="text-3xl font-bold mb-6 text-primary">
-          Be Part of the Vision
-        </h2>
-        <div className="flex justify-center space-x-4">
-          <button
-            onClick={() => navigate("/volunteer")}
-            className="bg-primary text-white px-6 py-3 rounded-lg hover:brightness-90 transition"
+          <motion.section
+            initial={{ opacity: 0, x: 30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
           >
-            Volunteer
-          </button>
-          <button
-            onClick={() => navigate("/donation")}
-            className="bg-primary text-white px-6 py-3 rounded-lg hover:brightness-90 transition"
-          >
-            Donate
-          </button>
+            <Typography variant="h4" component="h2" sx={{ fontWeight: 800, color: 'primary.main', mb: 6 }}>
+              Impact Projections
+            </Typography>
+            <div className="grid grid-cols-2 gap-6">
+              {impacts.map((i, idx) => (
+                <Card key={idx} elevation={0} sx={{ borderRadius: 4, bgcolor: 'primary.50', border: '1px solid rgba(0,0,0,0.03)' }}>
+                  <CardContent sx={{ p: 3, textAlign: 'center' }}>
+                    <Typography variant="h4" sx={{ fontWeight: 900, color: 'primary.main', mb: 1 }}>{i.value}</Typography>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 600, color: 'text.secondary', textTransform: 'uppercase', letterSpacing: 1 }}>{i.label}</Typography>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </motion.section>
         </div>
-      </motion.section>
+
+        {/* CTA */}
+        <motion.section
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="text-center py-16 bg-white rounded-3xl border border-gray-100 shadow-sm"
+        >
+          <Typography variant="h3" sx={{ fontWeight: 800, color: 'text.primary', mb: 2 }}>
+            Be Part of the Vision
+          </Typography>
+          <Typography variant="subtitle1" color="text.secondary" sx={{ mb: 6, maxWidth: 500, mx: 'auto' }}>
+            Your support can accelerate our journey and touch countless more lives.
+          </Typography>
+          <div className="flex justify-center flex-wrap gap-4 px-4">
+            <Button
+              variant="contained"
+              color="primary"
+              size="large"
+              startIcon={<HandshakeIcon />}
+              onClick={() => navigate("/volunteer")}
+              sx={{ borderRadius: 8, px: 4, py: 1.5, fontWeight: 700, textTransform: 'none' }}
+            >
+              Become a Volunteer
+            </Button>
+            <Button
+              variant="outlined"
+              color="primary"
+              size="large"
+              startIcon={<VolunteerActivismIcon />}
+              onClick={() => navigate("/donation")}
+              sx={{ borderRadius: 8, px: 4, py: 1.5, fontWeight: 700, textTransform: 'none', borderWidth: 2, '&:hover': { borderWidth: 2 } }}
+            >
+              Donate Now
+            </Button>
+          </div>
+        </motion.section>
+      </div>
     </motion.div>
   );
 }

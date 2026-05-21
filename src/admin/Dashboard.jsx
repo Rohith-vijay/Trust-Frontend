@@ -34,6 +34,10 @@ const Dashboard = () => {
   const [donations, setDonations] = useState([]);
   const [users, setUsers] = useState([]);
   const [heroImageUrl, setHeroImageUrl] = useState("");
+  const [activities, setActivities] = useState([]);
+  const [donationPage, setDonationPage] = useState(0);
+  const [totalDonationPages, setTotalDonationPages] = useState(1);
+  const [userPage, setUserPage] = useState(0);
 
   // ── Form states ──
   const [storyForm, setStoryForm] = useState({ title: "", description: "", imageUrl: "", category: "" });
@@ -56,25 +60,11 @@ const Dashboard = () => {
   const [settingInputs, setSettingInputs] = useState({
     HOME_HERO_IMAGE: "", HOME_HERO_TITLE: "", HOME_HERO_SUBTITLE: "",
     HOME_HERO_CTA_TEXT: "", HOME_HERO_CTA_LINK: "",
+    HISTORY_TITLE: "", HISTORY_SUBTITLE: "", HISTORY_MILESTONES: "",
+    VISION_HERO_TITLE: "", VISION_HERO_SUBTITLE: "", VISION_MISSION: "",
+    VISION_PILLARS: "", VISION_ROADMAP: "", VISION_IMPACTS: ""
   });
 
-  // ── Pages content (History + Vision) ──
-  const [pageContent, setPageContent] = useState({});
-  const [historyTitle, setHistoryTitle] = useState("Our History");
-  const [historySubtitle, setHistorySubtitle] = useState("The journey of K.V.G Shanmuka Sai Charitable Trust from its founding to today.");
-  const [historyMilestones, setHistoryMilestones] = useState([
-    { date: "", event: "", description: "" },
-  ]);
-  const [visionHeroTitle, setVisionHeroTitle] = useState("Our Vision for the Future");
-  const [visionHeroSubtitle, setVisionHeroSubtitle] = useState("We imagine a world where every community thrives.");
-  const [visionMission, setVisionMission] = useState("");
-  const [visionPillars, setVisionPillars] = useState([
-    { title: "", desc: "" },
-  ]);
-  const [visionRoadmap, setVisionRoadmap] = useState("Year 1 – Expand to 3 districts\nYear 2 – Launch digital education initiative");
-  const [visionImpacts, setVisionImpacts] = useState([
-    { label: "", value: "" },
-  ]);
   const [pageSaveStatus, setPageSaveStatus] = useState("");
 
   // ── Loading ──
@@ -100,11 +90,29 @@ const Dashboard = () => {
     }
   }, []);
 
+  // Load activities / audit logs
+  const loadActivities = useCallback(async () => {
+    try {
+      const res = await databaseService.getActivities();
+      setActivities(res.data || res);
+    } catch (e) {
+      console.error("Failed to load activities:", e);
+    }
+  }, []);
+
   // Load dashboard summary
   const loadDashboard = useCallback(async () => {
     try {
-      const res = await databaseService.getDashboardSummary();
-      setDashboardData(res.data || res);
+      const [summaryRes, activitiesRes] = await Promise.allSettled([
+        databaseService.getDashboardSummary(),
+        databaseService.getActivities()
+      ]);
+      if (summaryRes.status === "fulfilled") {
+        setDashboardData(summaryRes.value.data || summaryRes.value);
+      }
+      if (activitiesRes.status === "fulfilled") {
+        setActivities(activitiesRes.value.data || activitiesRes.value);
+      }
     } catch (err) {
       console.error("Error loading dashboard:", err);
     }
@@ -138,12 +146,14 @@ const Dashboard = () => {
     setTabLoading(false);
   }, []);
 
-  const loadDonations = useCallback(async () => {
+  const loadDonations = useCallback(async (pageNo = 0) => {
     setTabLoading(true);
     try {
-      const res = await databaseService.getDonations(0, 50);
+      const res = await databaseService.getDonations(pageNo, 10); // Paginate 10 per page
       const page = res.data || res;
       setDonations(page.content || page);
+      setTotalDonationPages(page.totalPages || 1);
+      setDonationPage(pageNo);
     } catch (e) { console.error(e); }
     setTabLoading(false);
   }, []);
@@ -153,6 +163,7 @@ const Dashboard = () => {
     try {
       const res = await databaseService.getUsers();
       setUsers(res.data || res);
+      setUserPage(0); // Reset page on refresh
     } catch (e) { console.error(e); }
     setTabLoading(false);
   }, []);
@@ -179,30 +190,18 @@ const Dashboard = () => {
     try {
       const content = await databaseService.getAllPageContent();
       setPageContent(content);
-      if (content.HISTORY_TITLE) setHistoryTitle(content.HISTORY_TITLE);
-      if (content.HISTORY_SUBTITLE) setHistorySubtitle(content.HISTORY_SUBTITLE);
-      if (content.HISTORY_MILESTONES) {
-        try {
-          const parsed = JSON.parse(content.HISTORY_MILESTONES);
-          if (Array.isArray(parsed) && parsed.length > 0) setHistoryMilestones(parsed);
-        } catch (e) { }
-      }
-      if (content.VISION_HERO_TITLE) setVisionHeroTitle(content.VISION_HERO_TITLE);
-      if (content.VISION_HERO_SUBTITLE) setVisionHeroSubtitle(content.VISION_HERO_SUBTITLE);
-      if (content.VISION_MISSION) setVisionMission(content.VISION_MISSION);
-      if (content.VISION_PILLARS) {
-        try {
-          const parsed = JSON.parse(content.VISION_PILLARS);
-          if (Array.isArray(parsed) && parsed.length > 0) setVisionPillars(parsed);
-        } catch (e) { }
-      }
-      if (content.VISION_ROADMAP) setVisionRoadmap(content.VISION_ROADMAP);
-      if (content.VISION_IMPACTS) {
-        try {
-          const parsed = JSON.parse(content.VISION_IMPACTS);
-          if (Array.isArray(parsed) && parsed.length > 0) setVisionImpacts(parsed);
-        } catch (e) { }
-      }
+      setSettingInputs(prev => ({
+        ...prev,
+        HISTORY_TITLE: content.HISTORY_TITLE || "",
+        HISTORY_SUBTITLE: content.HISTORY_SUBTITLE || "",
+        HISTORY_MILESTONES: content.HISTORY_MILESTONES || "",
+        VISION_HERO_TITLE: content.VISION_HERO_TITLE || "",
+        VISION_HERO_SUBTITLE: content.VISION_HERO_SUBTITLE || "",
+        VISION_MISSION: content.VISION_MISSION || "",
+        VISION_PILLARS: content.VISION_PILLARS || "",
+        VISION_ROADMAP: content.VISION_ROADMAP || "",
+        VISION_IMPACTS: content.VISION_IMPACTS || ""
+      }));
     } catch (e) { console.error("Failed to load page content:", e); }
   }, []);
 
@@ -398,36 +397,6 @@ const Dashboard = () => {
   };
 
   // ── Pages content save handlers ──
-  const handleSaveHistory = async () => {
-    setPageSaveStatus("Saving History...");
-    try {
-      await databaseService.savePageContent("HISTORY_TITLE", historyTitle);
-      await databaseService.savePageContent("HISTORY_SUBTITLE", historySubtitle);
-      await databaseService.savePageContent("HISTORY_MILESTONES", JSON.stringify(historyMilestones));
-      setPageSaveStatus("History saved successfully!");
-      setTimeout(() => setPageSaveStatus(""), 3000);
-    } catch (err) {
-      console.error("Failed to save history:", err);
-      setPageSaveStatus("Failed to save History.");
-    }
-  };
-
-  const handleSaveVision = async () => {
-    setPageSaveStatus("Saving Vision...");
-    try {
-      await databaseService.savePageContent("VISION_HERO_TITLE", visionHeroTitle);
-      await databaseService.savePageContent("VISION_HERO_SUBTITLE", visionHeroSubtitle);
-      await databaseService.savePageContent("VISION_MISSION", visionMission);
-      await databaseService.savePageContent("VISION_PILLARS", JSON.stringify(visionPillars));
-      await databaseService.savePageContent("VISION_ROADMAP", visionRoadmap);
-      await databaseService.savePageContent("VISION_IMPACTS", JSON.stringify(visionImpacts));
-      setPageSaveStatus("Vision saved successfully!");
-      setTimeout(() => setPageSaveStatus(""), 3000);
-    } catch (err) {
-      console.error("Failed to save vision:", err);
-      setPageSaveStatus("Failed to save Vision.");
-    }
-  };
 
   // ──────────────────────────────────────────────────────────
   // TABS CONFIG
@@ -464,18 +433,29 @@ const Dashboard = () => {
       transition={pageTransition} className="py-8"
     >
       {/* Header */}
-      <div className="mb-8 flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-dark">Admin Dashboard</h1>
-          <p className="text-gray-500 mt-1">
-            Welcome back, <span className="font-semibold text-primary">{user?.name || user?.email}</span>
-          </p>
-        </div>
+      <motion.div 
+          initial={{ opacity: 0, y: -20 }} 
+          animate={{ opacity: 1, y: 0 }} 
+          transition={{ duration: 0.6 }}
+          className="mb-8 p-8 rounded-3xl bg-gradient-to-br from-indigo-500/10 via-purple-500/5 to-transparent border border-indigo-500/10 shadow-sm relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-6"
+      >
+          <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl -mr-16 -mt-16 animate-pulse"></div>
+          <div className="relative z-10 flex items-center gap-4">
+              <div className="w-16 h-16 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center text-3xl shadow-sm">
+                  👑
+              </div>
+              <div>
+                  <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight">Admin Dashboard</h1>
+                  <p className="text-gray-600 mt-2 text-lg">
+                      Welcome back, <span className="font-semibold text-indigo-600">{user?.name || user?.email}</span>
+                  </p>
+              </div>
+          </div>
         {unreadCount > 0 && (
           <motion.button
             initial={{ scale: 0 }} animate={{ scale: 1 }}
             onClick={() => setActiveTab("messages")}
-            className="flex items-center space-x-2 bg-red-50 text-red-600 px-4 py-2 rounded-full text-sm font-semibold hover:bg-red-100 transition"
+            className="relative z-10 flex items-center space-x-2 bg-red-50 text-red-600 px-6 py-3 rounded-full text-sm font-bold hover:bg-red-100 hover:shadow-lg hover:shadow-red-500/20 transition-all duration-300 border border-red-100"
           >
             <span className="relative flex h-3 w-3">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" />
@@ -484,7 +464,7 @@ const Dashboard = () => {
             <span>{unreadCount} new message{unreadCount > 1 ? "s" : ""}</span>
           </motion.button>
         )}
-      </div>
+      </motion.div>
 
       {/* Stats cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -525,29 +505,90 @@ const Dashboard = () => {
         <div className="p-6">
 
           {/* ─── OVERVIEW ─── */}
+          {/* ─── OVERVIEW ─── */}
           {activeTab === "overview" && (
-            <div>
+            <div className="space-y-8">
               {!d ? (
                 <div className="text-center py-12 text-gray-400">Loading dashboard summary…</div>
               ) : (
-                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {[
-                    { label: "Total Collected", value: `₹${Number(d.totalAmountCollected).toLocaleString("en-IN")}` },
-                    { label: "Successful Donations", value: d.successfulDonations },
-                    { label: "Pending Donations", value: d.pendingDonations },
-                    { label: "Total Events", value: d.totalEvents },
-                    { label: "Upcoming Events", value: d.upcomingEvents },
-                    { label: "Completed Events", value: d.completedEvents },
-                    { label: "Total Volunteer Apps", value: d.totalApplications },
-                    { label: "Approved Volunteers", value: d.approvedVolunteers },
-                    { label: "Pending Applications", value: d.pendingApplications },
-                  ].map((s) => (
-                    <div key={s.label} className="bg-gray-50 rounded-lg p-5">
-                      <p className="text-sm text-gray-500">{s.label}</p>
-                      <p className="text-xl font-bold text-dark mt-1">{s.value}</p>
+                <>
+                  <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {[
+                      { label: "Total Collected", value: `₹${Number(d.totalAmountCollected).toLocaleString("en-IN")}`, color: "from-emerald-500/10 to-teal-500/5 text-emerald-800 border-emerald-500/10" },
+                      { label: "Successful Donations", value: d.successfulDonations, color: "from-blue-500/10 to-cyan-500/5 text-blue-800 border-blue-500/10" },
+                      { label: "Pending Donations", value: d.pendingDonations, color: "from-amber-500/10 to-yellow-500/5 text-amber-850 border-amber-500/10" },
+                      { label: "Total Events", value: d.totalEvents, color: "from-indigo-500/10 to-violet-500/5 text-indigo-800 border-indigo-500/10" },
+                      { label: "Upcoming Events", value: d.upcomingEvents, color: "from-purple-500/10 to-fuchsia-500/5 text-purple-800 border-purple-500/10" },
+                      { label: "Completed Events", value: d.completedEvents, color: "from-gray-500/10 to-slate-500/5 text-gray-800 border-gray-500/10" },
+                      { label: "Total Volunteer Apps", value: d.totalApplications, color: "from-rose-500/10 to-pink-500/5 text-rose-800 border-rose-500/10" },
+                      { label: "Approved Volunteers", value: d.approvedVolunteers, color: "from-teal-500/10 to-green-500/5 text-teal-800 border-teal-500/10" },
+                      { label: "Pending Applications", value: d.pendingApplications, color: "from-orange-500/10 to-amber-500/5 text-orange-850 border-orange-500/10" },
+                    ].map((s) => (
+                      <div key={s.label} className={`bg-gradient-to-br ${s.color} border rounded-2xl p-5 shadow-sm transition-all duration-300 hover:scale-[1.02]`}>
+                        <p className="text-xs font-bold uppercase tracking-wider opacity-80">{s.label}</p>
+                        <p className="text-2xl font-black mt-2">{s.value}</p>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Dynamic Timeline for Audit Logs */}
+                  <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6 mt-8">
+                    <div className="flex items-center justify-between mb-6">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xl">⏱️</span>
+                        <h4 className="text-lg font-bold text-gray-800">Recent Admin Activities</h4>
+                      </div>
+                      <button 
+                        onClick={loadActivities} 
+                        className="text-xs font-bold text-primary hover:text-amber-700 bg-primary/5 hover:bg-primary/10 px-3 py-1.5 rounded-full transition"
+                      >
+                        Refresh Feed
+                      </button>
                     </div>
-                  ))}
-                </div>
+
+                    {tabLoading ? (
+                      <div className="text-center py-6 text-gray-400">Loading activity timeline…</div>
+                    ) : !activities || activities.length === 0 ? (
+                      <div className="text-center py-8 text-gray-400 bg-gray-50/50 rounded-2xl border border-dashed">
+                        No recent admin activity found.
+                      </div>
+                    ) : (
+                      <div className="relative pl-6 border-l-2 border-gray-100 space-y-6">
+                        {activities.map((act) => {
+                          // Dynamic icons based on action type
+                          let icon = "✏️";
+                          if (act.action.toLowerCase().includes("create") || act.action.toLowerCase().includes("add") || act.action.toLowerCase().includes("save")) icon = "➕";
+                          if (act.action.toLowerCase().includes("delete") || act.action.toLowerCase().includes("remove")) icon = "❌";
+                          if (act.action.toLowerCase().includes("login") || act.action.toLowerCase().includes("auth")) icon = "🔑";
+
+                          return (
+                            <div key={act.id} className="relative group">
+                              {/* Timeline Dot */}
+                              <div className="absolute -left-[31px] top-1.5 w-4 h-4 rounded-full bg-white border-2 border-primary flex items-center justify-center shadow-sm group-hover:scale-125 transition-transform duration-200">
+                                <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
+                              </div>
+
+                              <div className="bg-gray-50/50 hover:bg-gray-50/80 border border-gray-50 rounded-2xl p-4 transition duration-200">
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-sm">{icon}</span>
+                                    <span className="font-semibold text-gray-800 text-sm">{act.action}</span>
+                                  </div>
+                                  <span className="text-xs text-gray-400 font-medium">
+                                    {formatDate(act.timestamp)}
+                                  </span>
+                                </div>
+                                <p className="text-xs text-gray-500 mt-1 leading-relaxed">
+                                  Performed by <span className="font-medium text-gray-700">{act.username}</span>
+                                </p>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                </>
               )}
             </div>
           )}
@@ -845,7 +886,29 @@ const Dashboard = () => {
                     <input type="number" value={eventForm.maxVolunteers} onChange={(e) => setEventForm(p => ({ ...p, maxVolunteers: e.target.value }))} placeholder="50" className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/30" />
                   </div>
                 </div>
-                <input value={eventForm.bannerUrl} onChange={(e) => setEventForm(p => ({ ...p, bannerUrl: e.target.value }))} placeholder="Banner Image URL" className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/30" />
+                <div className="space-y-2 border border-gray-100 rounded-lg p-3 bg-gray-50/50">
+                  <label className="block text-xs font-semibold text-gray-700">Event Images</label>
+                  <input 
+                    value={eventForm.bannerUrl ? eventForm.bannerUrl.split(',')[0] : ""} 
+                    onChange={(e) => {
+                      const parts = eventForm.bannerUrl ? eventForm.bannerUrl.split(',') : [];
+                      parts[0] = e.target.value;
+                      setEventForm(p => ({ ...p, bannerUrl: parts.join(',') }));
+                    }} 
+                    placeholder="Poster Image URL (Main Image) *" 
+                    required
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/30" 
+                  />
+                  <input 
+                    value={eventForm.bannerUrl && eventForm.bannerUrl.includes(',') ? eventForm.bannerUrl.substring(eventForm.bannerUrl.indexOf(',') + 1) : ""} 
+                    onChange={(e) => {
+                      const parts = eventForm.bannerUrl ? eventForm.bannerUrl.split(',') : [""];
+                      setEventForm(p => ({ ...p, bannerUrl: `${parts[0]},${e.target.value}` }));
+                    }} 
+                    placeholder="Additional Image URLs (comma separated) - shown below description" 
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/30" 
+                  />
+                </div>
                 <textarea value={eventForm.description} onChange={(e) => setEventForm(p => ({ ...p, description: e.target.value }))} placeholder="Event Description" required rows={3} className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/30" />
                 <button type="submit" className="bg-primary text-white px-4 py-2 rounded-lg text-sm font-semibold hover:brightness-90 transition">+ Create Event</button>
               </form>
@@ -866,7 +929,28 @@ const Dashboard = () => {
                           <div><label className="block text-xs text-gray-500 mb-1">Event Date</label><input type="datetime-local" value={editingEvent.eventDate} onChange={(e) => setEditingEvent(p => ({ ...p, eventDate: e.target.value }))} required className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/30" /></div>
                           <div><label className="block text-xs text-gray-500 mb-1">Reg. Deadline</label><input type="datetime-local" value={editingEvent.registrationDeadline || ""} onChange={(e) => setEditingEvent(p => ({ ...p, registrationDeadline: e.target.value }))} className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/30" /></div>
                         </div>
-                        <input value={editingEvent.bannerUrl || ""} onChange={(e) => setEditingEvent(p => ({ ...p, bannerUrl: e.target.value }))} placeholder="Banner Image URL" className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/30" />
+                        <div className="space-y-2 border border-gray-100 rounded-lg p-3 bg-white">
+                          <label className="block text-xs font-semibold text-gray-700">Event Images</label>
+                          <input 
+                            value={editingEvent.bannerUrl ? editingEvent.bannerUrl.split(',')[0] : ""} 
+                            onChange={(e) => {
+                              const parts = editingEvent.bannerUrl ? editingEvent.bannerUrl.split(',') : [];
+                              parts[0] = e.target.value;
+                              setEditingEvent(p => ({ ...p, bannerUrl: parts.join(',') }));
+                            }} 
+                            placeholder="Poster Image URL (Main Image)" 
+                            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/30" 
+                          />
+                          <input 
+                            value={editingEvent.bannerUrl && editingEvent.bannerUrl.includes(',') ? editingEvent.bannerUrl.substring(editingEvent.bannerUrl.indexOf(',') + 1) : ""} 
+                            onChange={(e) => {
+                              const parts = editingEvent.bannerUrl ? editingEvent.bannerUrl.split(',') : [""];
+                              setEditingEvent(p => ({ ...p, bannerUrl: `${parts[0]},${e.target.value}` }));
+                            }} 
+                            placeholder="Additional Image URLs (comma separated) - shown below description" 
+                            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/30" 
+                          />
+                        </div>
                         <textarea value={editingEvent.description || ""} onChange={(e) => setEditingEvent(p => ({ ...p, description: e.target.value }))} placeholder="Description" rows={3} className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/30" />
                         <div className="flex gap-2">
                           <button type="submit" className="bg-primary text-white px-4 py-2 rounded-lg text-sm font-semibold hover:brightness-90 transition">Save</button>
@@ -909,35 +993,81 @@ const Dashboard = () => {
           {/* ─── DONATIONS ─── */}
           {activeTab === "donations" && (
             <div>
-              <h3 className="text-lg font-semibold mb-4">Donation Records</h3>
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-bold text-gray-800">Donation Transactions</h3>
+                <span className="text-xs font-semibold bg-primary/5 text-primary px-3 py-1 rounded-full">
+                  Real-time Ledger
+                </span>
+              </div>
               {tabLoading ? <LoadingSpinner /> : !Array.isArray(donations) || donations.length === 0 ? (
                 <EmptyState icon="💰" title="No donations yet." subtitle="Donation records will appear here." />
               ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left text-sm">
-                    <thead>
-                      <tr className="border-b border-gray-200 text-gray-500">
-                        <th className="py-3 px-2">ID</th>
-                        <th className="py-3 px-2">Amount</th>
-                        <th className="py-3 px-2">Status</th>
-                        <th className="py-3 px-2">Date</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {donations.map((don) => (
-                        <tr key={don.id} className="border-b border-gray-50 hover:bg-gray-50">
-                          <td className="py-3 px-2">#{don.id}</td>
-                          <td className="py-3 px-2 font-medium">₹{Number(don.amount).toLocaleString("en-IN")}</td>
-                          <td className="py-3 px-2">
-                            <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${don.status === "SUCCESS" ? "bg-green-100 text-green-700" : don.status === "PENDING" ? "bg-yellow-100 text-yellow-700" : "bg-red-100 text-red-700"}`}>
-                              {don.status}
-                            </span>
-                          </td>
-                          <td className="py-3 px-2 text-gray-500">{formatDate(don.createdAt)}</td>
+                <div>
+                  <div className="overflow-x-auto bg-white rounded-2xl border border-gray-100 shadow-sm mb-4">
+                    <table className="w-full text-left text-sm">
+                      <thead>
+                        <tr className="border-b border-gray-100 text-gray-500 font-semibold bg-gray-50/50">
+                          <th className="py-4 px-5">ID / Receipt</th>
+                          <th className="py-4 px-5">Donor</th>
+                          <th className="py-4 px-5">Amount</th>
+                          <th className="py-4 px-5">Status</th>
+                          <th className="py-4 px-5">Date</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody>
+                        {donations.map((don) => (
+                          <tr key={don.id} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
+                            <td className="py-4 px-5">
+                              <div className="font-semibold text-gray-800">#{don.id}</div>
+                              <div className="text-xs text-gray-400">{don.receiptNumber || "—"}</div>
+                            </td>
+                            <td className="py-4 px-5">
+                              <div className="font-semibold text-gray-800">{don.donorName || "Anonymous"}</div>
+                              <div className="text-xs text-gray-500">{don.donorEmail || "no-email@trust.org"}</div>
+                            </td>
+                            <td className="py-4 px-5 font-bold text-gray-900">
+                              ₹{Number(don.amount).toLocaleString("en-IN")}
+                            </td>
+                            <td className="py-4 px-5">
+                              <span className={`text-xs px-2.5 py-1 rounded-full font-bold inline-block ${
+                                don.status === "SUCCESS" 
+                                  ? "bg-emerald-50 text-emerald-700 border border-emerald-100" 
+                                  : don.status === "PENDING" 
+                                    ? "bg-amber-50 text-amber-700 border border-amber-100" 
+                                    : "bg-rose-50 text-rose-700 border border-rose-100"
+                              }`}>
+                                {don.status}
+                              </span>
+                            </td>
+                            <td className="py-4 px-5 text-gray-500">{formatDate(don.createdAt)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* Pagination Controls */}
+                  {totalDonationPages > 1 && (
+                    <div className="flex items-center justify-between px-2 py-4">
+                      <button
+                        disabled={donationPage === 0 || tabLoading}
+                        onClick={() => loadDonations(donationPage - 1)}
+                        className="px-4 py-2 border rounded-xl text-sm font-semibold hover:bg-gray-50 disabled:opacity-50 disabled:hover:bg-white transition"
+                      >
+                        Previous
+                      </button>
+                      <span className="text-sm font-medium text-gray-600">
+                        Page {donationPage + 1} of {totalDonationPages}
+                      </span>
+                      <button
+                        disabled={donationPage >= totalDonationPages - 1 || tabLoading}
+                        onClick={() => loadDonations(donationPage + 1)}
+                        className="px-4 py-2 border rounded-xl text-sm font-semibold hover:bg-gray-50 disabled:opacity-50 disabled:hover:bg-white transition"
+                      >
+                        Next
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -946,47 +1076,89 @@ const Dashboard = () => {
           {/* ─── USERS ─── */}
           {activeTab === "users" && (
             <div>
-              <h3 className="text-lg font-semibold mb-4">User Management</h3>
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-bold text-gray-800">User Access Management</h3>
+                <span className="text-xs font-semibold bg-indigo-50 text-indigo-600 px-3 py-1 rounded-full">
+                  Total: {users.length} Users
+                </span>
+              </div>
               {tabLoading ? <LoadingSpinner /> : !Array.isArray(users) || users.length === 0 ? (
                 <EmptyState icon="👥" title="No users found." subtitle="Registered users will appear here." />
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left text-sm">
-                    <thead>
-                      <tr className="border-b border-gray-200 text-gray-500">
-                        <th className="py-3 px-2">Name</th>
-                        <th className="py-3 px-2">Email</th>
-                        <th className="py-3 px-2">Role</th>
-                        <th className="py-3 px-2">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {users.map((u) => (
-                        <tr key={u.id} className="border-b border-gray-50 hover:bg-gray-50">
-                          <td className="py-3 px-2 font-medium">{u.name || "—"}</td>
-                          <td className="py-3 px-2 text-gray-500">{u.email}</td>
-                          <td className="py-3 px-2">
-                            <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${u.role === "ADMIN" ? "bg-purple-100 text-purple-700" : u.role === "VOLUNTEER" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-600"}`}>
-                              {u.role}
-                            </span>
-                          </td>
-                          <td className="py-3 px-2">
-                            <select
-                              value={u.role}
-                              onChange={(e) => handleRoleChange(u.id, e.target.value)}
-                              className="text-xs border border-gray-200 rounded px-2 py-1 outline-none focus:ring-1 focus:ring-primary/30"
-                            >
-                              <option value="USER">USER</option>
-                              <option value="VOLUNTEER">VOLUNTEER</option>
-                              <option value="ADMIN">ADMIN</option>
-                            </select>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
+              ) : (() => {
+                const usersPerPage = 10;
+                const totalUserPages = Math.ceil(users.length / usersPerPage);
+                const paginatedUsers = users.slice(userPage * usersPerPage, (userPage + 1) * usersPerPage);
+
+                return (
+                  <div>
+                    <div className="overflow-x-auto bg-white rounded-2xl border border-gray-100 shadow-sm mb-4">
+                      <table className="w-full text-left text-sm">
+                        <thead>
+                          <tr className="border-b border-gray-100 text-gray-500 font-semibold bg-gray-50/50">
+                            <th className="py-4 px-6">Name</th>
+                            <th className="py-4 px-6">Email Address</th>
+                            <th className="py-4 px-6">Access Level</th>
+                            <th className="py-4 px-6">Role Assignment</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {paginatedUsers.map((u) => (
+                            <tr key={u.id} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
+                              <td className="py-4 px-6 font-semibold text-gray-800">{u.name || "—"}</td>
+                              <td className="py-4 px-6 text-gray-500 font-medium">{u.email}</td>
+                              <td className="py-4 px-6">
+                                <span className={`text-xs px-2.5 py-1 rounded-full font-bold inline-block ${
+                                  u.role === "ADMIN" 
+                                    ? "bg-rose-50 text-rose-700 border border-rose-100" 
+                                    : u.role === "VOLUNTEER" 
+                                      ? "bg-indigo-50 text-indigo-700 border border-indigo-100" 
+                                      : "bg-gray-50 text-gray-700 border border-gray-100"
+                                }`}>
+                                  {u.role}
+                                </span>
+                              </td>
+                              <td className="py-4 px-6">
+                                <select
+                                  value={u.role}
+                                  onChange={(e) => handleRoleChange(u.id, e.target.value)}
+                                  className="text-xs font-semibold border border-gray-200 rounded-xl px-3 py-1.5 outline-none focus:ring-2 focus:ring-primary/20 transition-all bg-white"
+                                >
+                                  <option value="USER">USER</option>
+                                  <option value="VOLUNTEER">VOLUNTEER</option>
+                                  <option value="ADMIN">ADMIN</option>
+                                </select>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    {/* Pagination Controls */}
+                    {totalUserPages > 1 && (
+                      <div className="flex items-center justify-between px-2 py-4">
+                        <button
+                          disabled={userPage === 0}
+                          onClick={() => setUserPage(userPage - 1)}
+                          className="px-4 py-2 border rounded-xl text-sm font-semibold hover:bg-gray-50 disabled:opacity-50 disabled:hover:bg-white transition"
+                        >
+                          Previous
+                        </button>
+                        <span className="text-sm font-medium text-gray-600">
+                          Page {userPage + 1} of {totalUserPages}
+                        </span>
+                        <button
+                          disabled={userPage >= totalUserPages - 1}
+                          onClick={() => setUserPage(userPage + 1)}
+                          className="px-4 py-2 border rounded-xl text-sm font-semibold hover:bg-gray-50 disabled:opacity-50 disabled:hover:bg-white transition"
+                        >
+                          Next
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
             </div>
           )}
 
@@ -1060,10 +1232,119 @@ const Dashboard = () => {
 
                 {/* History Milestones */}
                 <div className="border border-gray-100 rounded-xl p-6 bg-white">
-                  <h4 className="font-semibold text-gray-800 mb-2">History Milestones (JSON format)</h4>
-                  <p className="text-xs text-gray-500 mb-4">Edit the history timeline. Array of objects with `date`, `event`, and `description`.</p>
-                  <textarea value={settingInputs.HISTORY_MILESTONES} onChange={(e) => setSettingInputs(p => ({ ...p, HISTORY_MILESTONES: e.target.value }))} rows={8} className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/30 font-mono text-xs" />
-                  <button onClick={() => handleSaveSetting("HISTORY_MILESTONES")} className="mt-3 bg-primary text-white px-4 py-2 rounded-lg text-sm font-semibold hover:brightness-90 transition">Save Milestones</button>
+                  <h4 className="font-semibold text-gray-800 mb-4">History Settings</h4>
+                  <div className="grid sm:grid-cols-2 gap-4 mb-6">
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-700 mb-1">History Title</label>
+                      <input value={settingInputs.HISTORY_TITLE} onChange={(e) => setSettingInputs(p => ({ ...p, HISTORY_TITLE: e.target.value }))} className="w-full border rounded px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary/50" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-700 mb-1">History Subtitle</label>
+                      <input value={settingInputs.HISTORY_SUBTITLE} onChange={(e) => setSettingInputs(p => ({ ...p, HISTORY_SUBTITLE: e.target.value }))} className="w-full border rounded px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary/50" />
+                    </div>
+                  </div>
+                  <h5 className="font-medium text-gray-700 mb-3">Milestones</h5>
+                  <div className="space-y-4">
+                    {(() => {
+                      let ms = [];
+                      try { ms = JSON.parse(settingInputs.HISTORY_MILESTONES || "[]"); } catch (e) { ms = []; }
+                      return ms.map((item, idx) => (
+                        <div key={idx} className="relative p-4 border border-gray-200 rounded-lg bg-gray-50">
+                          <button onClick={() => {
+                            const newMs = ms.map(m => ({...m}));
+                            newMs.splice(idx, 1);
+                            setSettingInputs(p => ({ ...p, HISTORY_MILESTONES: JSON.stringify(newMs) }));
+                          }} className="absolute top-2 right-2 text-red-500 text-xs font-bold hover:underline">Remove</button>
+                          
+                          <div className="grid grid-cols-2 gap-3 mb-3">
+                            <div>
+                              <label className="block text-xs font-semibold text-gray-700 mb-1">Date</label>
+                              <input value={item.date || ""} onChange={(e) => {
+                                const newMs = ms.map(m => ({...m})); newMs[idx].date = e.target.value; setSettingInputs(p => ({ ...p, HISTORY_MILESTONES: JSON.stringify(newMs) }));
+                              }} placeholder="e.g. 24 October 2025" className="w-full border rounded px-2 py-1 text-sm outline-none focus:ring-1 focus:ring-primary/50" />
+                            </div>
+                            <div>
+                              <label className="block text-xs font-semibold text-gray-700 mb-1">Event Title</label>
+                              <input value={item.event || ""} onChange={(e) => {
+                                const newMs = ms.map(m => ({...m})); newMs[idx].event = e.target.value; setSettingInputs(p => ({ ...p, HISTORY_MILESTONES: JSON.stringify(newMs) }));
+                              }} placeholder="e.g. Trust Founded" className="w-full border rounded px-2 py-1 text-sm outline-none focus:ring-1 focus:ring-primary/50" />
+                            </div>
+                          </div>
+                          
+                          <div className="mb-3">
+                            <label className="block text-xs font-semibold text-gray-700 mb-1">Description</label>
+                            <textarea value={item.description || ""} onChange={(e) => {
+                              const newMs = ms.map(m => ({...m})); newMs[idx].description = e.target.value; setSettingInputs(p => ({ ...p, HISTORY_MILESTONES: JSON.stringify(newMs) }));
+                            }} rows={2} className="w-full border rounded px-2 py-1 text-sm outline-none focus:ring-1 focus:ring-primary/50 resize-none" />
+                          </div>
+
+                          <div>
+                            <label className="block text-xs font-semibold text-gray-700 mb-1">Image URL (Optional)</label>
+                            <input value={item.imageUrl || ""} onChange={(e) => {
+                              const newMs = ms.map(m => ({...m})); newMs[idx].imageUrl = e.target.value; setSettingInputs(p => ({ ...p, HISTORY_MILESTONES: JSON.stringify(newMs) }));
+                            }} placeholder="https://... (Image shown beside text)" className="w-full border rounded px-2 py-1 text-sm outline-none focus:ring-1 focus:ring-primary/50" />
+                          </div>
+                        </div>
+                      ));
+                    })()}
+                  </div>
+                  <button onClick={() => {
+                    let ms = [];
+                    try { ms = JSON.parse(settingInputs.HISTORY_MILESTONES || "[]"); } catch (e) { ms = []; }
+                    ms.push({ date: "", event: "", description: "", imageUrl: "" });
+                    setSettingInputs(p => ({ ...p, HISTORY_MILESTONES: JSON.stringify(ms) }));
+                  }} className="mt-4 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-gray-200 transition">+ Add Milestone</button>
+                  <div className="mt-6 border-t border-gray-100 pt-4 flex items-center gap-4">
+                    <button onClick={async () => {
+                      setPageSaveStatus("Saving History...");
+                      try {
+                        await databaseService.savePageContent("HISTORY_TITLE", settingInputs.HISTORY_TITLE);
+                        await databaseService.savePageContent("HISTORY_SUBTITLE", settingInputs.HISTORY_SUBTITLE);
+                        await databaseService.savePageContent("HISTORY_MILESTONES", settingInputs.HISTORY_MILESTONES);
+                        setPageSaveStatus("History saved successfully!");
+                        setTimeout(() => setPageSaveStatus(""), 3000);
+                      } catch (err) {
+                        console.error(err);
+                        setPageSaveStatus("Failed to save History.");
+                      }
+                    }} className="bg-primary text-white px-6 py-2 rounded-lg text-sm font-semibold hover:brightness-90 transition">Save History Settings</button>
+                    {pageSaveStatus && <span className="text-sm font-medium text-primary">{pageSaveStatus}</span>}
+                  </div>
+                </div>
+
+                {/* Vision & Mission Settings */}
+                <div className="border border-gray-100 rounded-xl p-6 bg-white">
+                  <h4 className="font-semibold text-gray-800 mb-4">Vision & Mission Settings</h4>
+                  <div className="grid sm:grid-cols-2 gap-4 mb-4">
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-700 mb-1">Vision Hero Title</label>
+                      <input value={settingInputs.VISION_HERO_TITLE || ""} onChange={(e) => setSettingInputs(p => ({ ...p, VISION_HERO_TITLE: e.target.value }))} className="w-full border rounded px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary/50" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-700 mb-1">Vision Hero Subtitle</label>
+                      <input value={settingInputs.VISION_HERO_SUBTITLE || ""} onChange={(e) => setSettingInputs(p => ({ ...p, VISION_HERO_SUBTITLE: e.target.value }))} className="w-full border rounded px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary/50" />
+                    </div>
+                  </div>
+                  <div className="mb-4">
+                    <label className="block text-xs font-semibold text-gray-700 mb-1">Vision & Mission Statement</label>
+                    <textarea value={settingInputs.VISION_MISSION || ""} onChange={(e) => setSettingInputs(p => ({ ...p, VISION_MISSION: e.target.value }))} rows={3} className="w-full border rounded px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary/50 resize-none" />
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <button onClick={async () => {
+                      setPageSaveStatus("Saving Vision...");
+                      try {
+                        await databaseService.savePageContent("VISION_HERO_TITLE", settingInputs.VISION_HERO_TITLE);
+                        await databaseService.savePageContent("VISION_HERO_SUBTITLE", settingInputs.VISION_HERO_SUBTITLE);
+                        await databaseService.savePageContent("VISION_MISSION", settingInputs.VISION_MISSION);
+                        setPageSaveStatus("Vision & Mission saved successfully!");
+                        setTimeout(() => setPageSaveStatus(""), 3000);
+                      } catch (err) {
+                        console.error(err);
+                        setPageSaveStatus("Failed to save Vision & Mission.");
+                      }
+                    }} className="bg-primary text-white px-6 py-2 rounded-lg text-sm font-semibold hover:brightness-90 transition">Save Vision & Mission Settings</button>
+                    {pageSaveStatus && <span className="text-sm font-medium text-primary">{pageSaveStatus}</span>}
+                  </div>
                 </div>
 
                 {/* Vision Pillars */}
@@ -1071,14 +1352,24 @@ const Dashboard = () => {
                   <h4 className="font-semibold text-gray-800 mb-2">Vision Pillars (JSON format)</h4>
                   <p className="text-xs text-gray-500 mb-4">Array of objects with `title` and `desc`.</p>
                   <textarea value={settingInputs.VISION_PILLARS} onChange={(e) => setSettingInputs(p => ({ ...p, VISION_PILLARS: e.target.value }))} rows={8} className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/30 font-mono text-xs" />
-                  <button onClick={() => handleSaveSetting("VISION_PILLARS")} className="mt-3 bg-primary text-white px-4 py-2 rounded-lg text-sm font-semibold hover:brightness-90 transition">Save Pillars</button>
+                  <button onClick={async () => {
+                    try {
+                      await databaseService.savePageContent("VISION_PILLARS", settingInputs.VISION_PILLARS);
+                      alert("Vision Pillars saved!");
+                    } catch (e) { alert("Failed to save"); }
+                  }} className="mt-3 bg-primary text-white px-4 py-2 rounded-lg text-sm font-semibold hover:brightness-90 transition">Save Pillars</button>
                 </div>
 
                 {/* Vision Roadmap */}
                 <div className="border border-gray-100 rounded-xl p-6 bg-white">
                   <h4 className="font-semibold text-gray-800 mb-2">Vision Roadmap (One per line)</h4>
                   <textarea value={settingInputs.VISION_ROADMAP} onChange={(e) => setSettingInputs(p => ({ ...p, VISION_ROADMAP: e.target.value }))} rows={6} className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/30" />
-                  <button onClick={() => handleSaveSetting("VISION_ROADMAP")} className="mt-3 bg-primary text-white px-4 py-2 rounded-lg text-sm font-semibold hover:brightness-90 transition">Save Roadmap</button>
+                  <button onClick={async () => {
+                    try {
+                      await databaseService.savePageContent("VISION_ROADMAP", settingInputs.VISION_ROADMAP);
+                      alert("Vision Roadmap saved!");
+                    } catch (e) { alert("Failed to save"); }
+                  }} className="mt-3 bg-primary text-white px-4 py-2 rounded-lg text-sm font-semibold hover:brightness-90 transition">Save Roadmap</button>
                 </div>
 
                 {/* Vision Impacts */}
@@ -1086,7 +1377,12 @@ const Dashboard = () => {
                   <h4 className="font-semibold text-gray-800 mb-2">Vision Impacts (JSON format)</h4>
                   <p className="text-xs text-gray-500 mb-4">Array of objects with `label` and `value`.</p>
                   <textarea value={settingInputs.VISION_IMPACTS} onChange={(e) => setSettingInputs(p => ({ ...p, VISION_IMPACTS: e.target.value }))} rows={6} className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/30 font-mono text-xs" />
-                  <button onClick={() => handleSaveSetting("VISION_IMPACTS")} className="mt-3 bg-primary text-white px-4 py-2 rounded-lg text-sm font-semibold hover:brightness-90 transition">Save Impacts</button>
+                  <button onClick={async () => {
+                    try {
+                      await databaseService.savePageContent("VISION_IMPACTS", settingInputs.VISION_IMPACTS);
+                      alert("Vision Impacts saved!");
+                    } catch (e) { alert("Failed to save"); }
+                  }} className="mt-3 bg-primary text-white px-4 py-2 rounded-lg text-sm font-semibold hover:brightness-90 transition">Save Impacts</button>
                 </div>
 
               </div>

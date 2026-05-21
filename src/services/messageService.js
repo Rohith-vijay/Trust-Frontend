@@ -47,6 +47,12 @@ export async function submitVolunteerApplication(eventId, message = "") {
     return response.data;
 }
 
+// GET /api/volunteers/my
+export async function getMyVolunteerApplications() {
+    const response = await api.get("/volunteers/my");
+    return response.data;
+}
+
 // PUT /api/volunteers/:id/status?status=... (Admin)
 export async function updateApplicationStatus(id, status) {
     const response = await api.put(`/volunteers/${id}/status`, null, { params: { status } });

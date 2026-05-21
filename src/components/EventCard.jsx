@@ -1,110 +1,234 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { cardHover } from "../constants/motionVariants";
+import { Card, CardMedia, CardContent, Typography, Chip, IconButton, Box } from "@mui/material";
+import InstagramIcon from '@mui/icons-material/Instagram';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
+import PeopleIcon from '@mui/icons-material/People';
+import ErrorIcon from '@mui/icons-material/Error';
 import { useNavigate } from "react-router-dom";
 
-/**
- * EventCard — works with both legacy eventsData shape AND backend EventResponse.
- *
- * Backend EventResponse fields:
- *   id, title, description, location, eventDate, status, media[]
- *
- * Legacy fields (kept for backward compat):
- *   id, title, summary, caption, date, image, instagramLink
- */
 const EventCard = React.memo(({ event }) => {
   const nav = useNavigate();
   const navigate = React.useCallback(() => {
     nav(`/events/${event.id}`);
   }, [nav, event.id]);
 
-  // Resolve image — backend media array or legacy `image` field
-  const imageUrl =
-    event.bannerUrl || event.image || event.media?.[0]?.mediaUrl || null;
-
-  // Resolve date — backend ISO string or legacy date string
+  const getPrimaryImage = () => {
+    if (event.bannerUrl) return event.bannerUrl.split(',')[0];
+    if (event.image) return event.image.split(',')[0];
+    if (event.media?.[0]?.mediaUrl) return event.media[0].mediaUrl;
+    return null;
+  };
+  const imageUrl = getPrimaryImage();
   const displayDate = event.eventDate
     ? new Date(event.eventDate).toLocaleDateString("en-IN", {
         day: "numeric",
-        month: "long",
+        month: "short",
         year: "numeric",
       })
     : event.date || "";
-
-  // Resolve summary text
   const summaryText = event.summary || event.description || "";
-
-  // Location badge
   const location = event.location || "";
+  const category = event.category || "";
+
+  // Calculate Urgency (less than 3 days until registration deadline or event date)
+  const isUrgent = React.useMemo(() => {
+    if (event.status !== "UPCOMING") return false;
+    const targetDateStr = event.registrationDeadline || event.eventDate;
+    if (!targetDateStr) return false;
+    const targetDate = new Date(targetDateStr);
+    const diffTime = targetDate - new Date();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays >= 0 && diffDays <= 3;
+  }, [event.status, event.registrationDeadline, event.eventDate]);
+
+  // Calculate Volunteer progress
+  const volunteerPercentage = React.useMemo(() => {
+    if (!event.maxVolunteers || event.maxVolunteers <= 0) return 0;
+    return Math.min(100, Math.round(((event.currentVolunteerCount || 0) / event.maxVolunteers) * 100));
+  }, [event.currentVolunteerCount, event.maxVolunteers]);
 
   return (
     <motion.div
-      className="bg-white rounded-xl shadow-md overflow-hidden cursor-pointer transform-gpu relative group"
-      whileHover={cardHover}
-      transition={{ duration: 0.4 }}
-      onClick={navigate}
+      whileHover={{ y: -8, scale: 1.015 }}
+      transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
+      className="h-full"
     >
-      {imageUrl && (
-        <div className="relative overflow-hidden">
-          <motion.img
-            src={imageUrl}
-            alt={event.title}
-            className="w-full h-52 object-cover transition-all duration-500 group-hover:brightness-105 group-hover:scale-105"
-            loading="lazy"
-          />
-          {/* Caption badge */}
-          {event.caption && (
-            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent px-4 py-3">
-              <p className="text-white text-sm font-medium italic">
-                "{event.caption}"
-              </p>
+      <Card
+        onClick={navigate}
+        elevation={0}
+        sx={{
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          borderRadius: 5,
+          border: '1px solid rgba(0,0,0,0.05)',
+          boxShadow: '0 4px 20px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.02)',
+          cursor: 'pointer',
+          overflow: 'hidden',
+          position: 'relative',
+          transition: 'all 0.35s cubic-bezier(0.4, 0, 0.2, 1)',
+          '&:hover': {
+            boxShadow: '0 20px 35px rgba(176, 122, 63, 0.08), 0 4px 15px rgba(0,0,0,0.04)',
+            borderColor: 'rgba(176, 122, 63, 0.15)'
+          }
+        }}
+      >
+        {imageUrl && (
+          <div className="relative overflow-hidden group h-[220px] shrink-0">
+            <CardMedia
+              component="img"
+              height="220"
+              image={imageUrl}
+              alt={event.title}
+              sx={{
+                height: '100%',
+                width: '100%',
+                objectFit: 'cover',
+                transition: "transform 0.8s cubic-bezier(0.4, 0, 0.2, 1)",
+              }}
+              className="group-hover:scale-108"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-300" />
+            
+            {event.caption && (
+              <div className="absolute bottom-0 left-0 right-0 p-4 pt-12">
+                <Typography variant="caption" sx={{ color: 'white', fontStyle: 'italic', fontWeight: 500, opacity: 0.9 }}>
+                  "{event.caption}"
+                </Typography>
+              </div>
+            )}
+
+            {/* Badges Overlay */}
+            <div className="absolute top-4 left-4 right-4 flex justify-between items-start pointer-events-none">
+              {category ? (
+                <Chip
+                  label={category.toUpperCase()}
+                  size="small"
+                  sx={{ 
+                    fontWeight: 700, 
+                    fontSize: '0.65rem',
+                    bgcolor: 'rgba(255, 255, 255, 0.95)', 
+                    color: 'primary.main',
+                    letterSpacing: '0.5px',
+                    boxShadow: '0 4px 10px rgba(0,0,0,0.08)',
+                    backdropFilter: 'blur(4px)',
+                    border: '1px solid rgba(255, 255, 255, 0.2)'
+                  }}
+                />
+              ) : <div />}
+
+              <div className="flex flex-col gap-2 items-end">
+                {event.status && (
+                  <Chip
+                    label={event.status}
+                    size="small"
+                    color={
+                      event.status === "UPCOMING" ? "success" :
+                      event.status === "ONGOING" ? "warning" :
+                      event.status === "COMPLETED" ? "default" : "default"
+                    }
+                    sx={{ 
+                      fontWeight: 750, 
+                      fontSize: '0.65rem',
+                      boxShadow: '0 4px 10px rgba(0,0,0,0.12)',
+                      letterSpacing: '0.5px',
+                      textTransform: 'uppercase'
+                    }}
+                  />
+                )}
+
+                {isUrgent && (
+                  <Chip
+                    icon={<ErrorIcon style={{ fontSize: 12, color: 'white' }} />}
+                    label="CLOSING SOON"
+                    size="small"
+                    color="error"
+                    sx={{ 
+                      fontWeight: 750, 
+                      fontSize: '0.65rem',
+                      boxShadow: '0 4px 10px rgba(0,0,0,0.12)',
+                      letterSpacing: '0.5px',
+                      animation: 'pulse 2s infinite'
+                    }}
+                  />
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        <CardContent sx={{ p: 3, flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+          <Typography variant="h6" component="h2" sx={{ fontWeight: 800, color: 'text.primary', lineHeight: 1.35, mb: 1.5, minHeight: '3.4rem', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+            {event.title}
+          </Typography>
+          
+          <div className="flex flex-col gap-1.5 mb-4 text-gray-500 text-xs font-medium">
+            {displayDate && (
+              <div className="flex items-center gap-2">
+                <CalendarTodayIcon sx={{ fontSize: 14, color: 'primary.main' }} />
+                <span>{displayDate}</span>
+              </div>
+            )}
+            {location && (
+              <div className="flex items-center gap-2">
+                <LocationOnIcon sx={{ fontSize: 14, color: 'primary.main' }} />
+                <span className="truncate">{location}</span>
+              </div>
+            )}
+          </div>
+          
+          <Typography variant="body2" color="text.secondary" sx={{ flexGrow: 1, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden', lineHeight: 1.6, mb: 3 }}>
+            {summaryText}
+          </Typography>
+
+          {/* Volunteer progress bar */}
+          {event.maxVolunteers && event.maxVolunteers > 0 ? (
+            <Box sx={{ mb: 2 }}>
+              <div className="flex justify-between text-[11px] text-gray-500 mb-1 font-semibold">
+                <div className="flex items-center gap-1">
+                  <PeopleIcon sx={{ fontSize: 12, color: 'primary.main' }} />
+                  <span>Volunteer Allocation</span>
+                </div>
+                <span>{event.currentVolunteerCount || 0} / {event.maxVolunteers} slots</span>
+              </div>
+              <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                <div 
+                  className={`h-full rounded-full transition-all duration-500 ${
+                    volunteerPercentage >= 100 ? 'bg-gradient-to-r from-red-500 to-rose-600' :
+                    volunteerPercentage >= 80 ? 'bg-gradient-to-r from-orange-500 to-amber-600' :
+                    'bg-gradient-to-r from-amber-500 to-amber-600'
+                  }`}
+                  style={{ width: `${volunteerPercentage}%` }}
+                />
+              </div>
+            </Box>
+          ) : null}
+
+          {event.instagramLink && (
+            <div className="mt-auto pt-3 border-t border-gray-100 flex items-center justify-between">
+              <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
+                Follow Campaign Updates
+              </Typography>
+              <IconButton 
+                size="small" 
+                href={event.instagramLink} 
+                target="_blank" 
+                onClick={(e) => e.stopPropagation()}
+                sx={{ 
+                  color: '#E1306C', 
+                  bgcolor: 'rgba(225, 48, 108, 0.08)', 
+                  '&:hover': { bgcolor: 'rgba(225, 48, 108, 0.15)' },
+                  transition: 'all 0.2s'
+                }}
+              >
+                <InstagramIcon fontSize="small" />
+              </IconButton>
             </div>
           )}
-        </div>
-      )}
-      <div className="p-5">
-        <h2 className="text-xl font-bold mb-1 text-primary">
-          {event.title}
-        </h2>
-        <p className="text-gray-500 text-sm mb-2">
-          {displayDate}
-          {location && ` • ${location}`}
-        </p>
-        <p className="text-gray-600 text-sm leading-relaxed line-clamp-3">
-          {summaryText}
-        </p>
-
-        {/* Status badge for backend events */}
-        {event.status && (
-          <span
-            className={`inline-block mt-3 text-xs px-2.5 py-1 rounded-full font-medium ${
-              event.status === "UPCOMING"
-                ? "bg-blue-100 text-blue-700"
-                : event.status === "COMPLETED"
-                ? "bg-green-100 text-green-700"
-                : "bg-gray-100 text-gray-600"
-            }`}
-          >
-            {event.status}
-          </span>
-        )}
-
-        {/* Instagram link (legacy) */}
-        {event.instagramLink && (
-          <a
-            href={event.instagramLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={(e) => e.stopPropagation()}
-            className="inline-flex items-center space-x-1.5 mt-3 text-sm font-semibold text-pink-600 hover:text-pink-700 transition-colors"
-          >
-            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" />
-            </svg>
-            <span>View on Instagram</span>
-          </a>
-        )}
-      </div>
+        </CardContent>
+      </Card>
     </motion.div>
   );
 });

@@ -12,6 +12,14 @@ export default {
     accent: "#F59E0B",         // warm orange accent
     warmBg: "#FFF8ED",         // soft cream background
 
+    // Strategic trust-oriented blue tokens
+    "brand-navy-dark": "#1E3A8A",
+    "brand-blue-accent": "#2563EB",
+    "brand-blue-light": "#DBEAFE",
+    "brand-slate-dark": "#0F172A",
+    "brand-neutral-bg": "#F8FAFC",
+    "brand-gold": "#B07A3F",
+
     // legacy/utility names (kept for backward compatibility)
     trustBlue: "#1e3a5f",      // previously used deep blue
     warmCream: "#f9f6f0",      // earlier warm cream

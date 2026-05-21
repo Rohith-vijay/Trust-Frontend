@@ -2,51 +2,64 @@ import React from "react";
 import CountUp from "react-countup";
 import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
+import { Paper, Typography } from "@mui/material";
 
-/**
- * Counter — a single animated counter card with icon and counting animation.
- * Triggers when scrolled into view.
- */
 function Counter({ end, label, icon, delay = 0 }) {
   const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.3 });
 
   return (
     <motion.div
       ref={ref}
-      className="bg-white rounded-2xl shadow-md border border-gray-100 p-8 flex flex-col items-center justify-center hover:shadow-lg transition-shadow duration-300"
-      initial={{ opacity: 0, y: 30, scale: 0.9 }}
+      initial={{ opacity: 0, y: 40, scale: 0.95 }}
       animate={inView ? { opacity: 1, y: 0, scale: 1 } : {}}
-      transition={{ duration: 0.6, delay, ease: "easeOut" }}
+      transition={{ duration: 0.7, delay, ease: [0.16, 1, 0.3, 1] }}
+      whileHover={{ y: -8, scale: 1.02 }}
     >
-      {/* Icon */}
-      <motion.span
-        className="text-5xl mb-3 block"
-        initial={{ scale: 0 }}
-        animate={inView ? { scale: 1 } : {}}
-        transition={{ duration: 0.5, delay: delay + 0.2, type: "spring", stiffness: 200 }}
+      <Paper
+        elevation={0}
+        sx={{
+          borderRadius: 5,
+          p: 4,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          border: "1px solid rgba(0,0,0,0.04)",
+          boxShadow: "0 10px 30px rgba(0,0,0,0.03)",
+          background: "linear-gradient(145deg, #ffffff 0%, #fafafa 100%)",
+          transition: "box-shadow 0.3s ease",
+          "&:hover": {
+            boxShadow: "0 20px 40px rgba(0,0,0,0.08)",
+          }
+        }}
       >
-        {icon}
-      </motion.span>
+        <motion.div
+          className="text-5xl mb-4 text-primary"
+          initial={{ scale: 0, rotate: -15 }}
+          animate={inView ? { scale: 1, rotate: 0 } : {}}
+          transition={{ duration: 0.6, delay: delay + 0.2, type: "spring", stiffness: 200 }}
+        >
+          {icon}
+        </motion.div>
 
-      {/* Number */}
-      <h2 className="text-4xl md:text-5xl font-bold text-primary tabular-nums">
-        {inView ? (
-          <CountUp
-            end={end}
-            duration={2.5}
-            separator=","
-            useEasing={true}
-            suffix="+"
-          />
-        ) : (
-          "0"
-        )}
-      </h2>
+        <Typography variant="h3" component="h2" sx={{ fontWeight: 800, color: 'primary.main', mb: 1, fontFamily: 'inherit' }}>
+          {inView ? (
+            <CountUp
+              end={end}
+              duration={2.5}
+              separator=","
+              useEasing={true}
+              suffix="+"
+            />
+          ) : (
+            "0"
+          )}
+        </Typography>
 
-      {/* Label */}
-      <p className="mt-2 text-sm md:text-base font-medium text-gray-600 text-center">
-        {label}
-      </p>
+        <Typography variant="subtitle1" color="text.secondary" sx={{ fontWeight: 600, textAlign: 'center', letterSpacing: '0.5px' }}>
+          {label}
+        </Typography>
+      </Paper>
     </motion.div>
   );
 }

@@ -4,30 +4,38 @@ import { pageVariants, pageTransition, sectionVariants } from "../constants/moti
 import { submitVolunteerApplication } from "../services/messageService";
 import databaseService from "../services/databaseService";
 import { useAuth } from "../hooks/useAuth";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { Typography, Card, CardContent, Button, TextField, MenuItem, CircularProgress, Alert } from "@mui/material";
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
+import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
 
 function Volunteer() {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
-  // Events for the picker
   const [events, setEvents] = useState([]);
   const [eventsLoading, setEventsLoading] = useState(true);
-
-  // Form state — matches ApplyVolunteerRequest: { eventId, message }
   const [selectedEventId, setSelectedEventId] = useState("");
   const [message, setMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
 
-  // Fetch available events on mount
+  useEffect(() => {
+    const qEventId = searchParams.get("eventId");
+    if (qEventId) {
+      setSelectedEventId(qEventId);
+    }
+  }, [searchParams]);
+
   useEffect(() => {
     databaseService
       .getEvents(0, 50)
       .then((page) => {
-        const list = page.content || page;
-        setEvents(Array.isArray(list) ? list : []);
+        const evs = Array.isArray(page.content || page) ? (page.content || page) : [];
+        const now = new Date().getTime();
+        setEvents(evs.filter(e => e.status === "UPCOMING" || e.status === "ONGOING"));
       })
       .catch((err) => console.error("Failed to load events:", err))
       .finally(() => setEventsLoading(false));
@@ -37,215 +45,120 @@ function Volunteer() {
     e.preventDefault();
     setError("");
 
-    if (!isAuthenticated) {
-      navigate("/login");
-      return;
-    }
-
-    if (!selectedEventId) {
-      setError("Please select an event to volunteer for.");
-      return;
-    }
+    if (!isAuthenticated) return navigate("/login");
+    if (!selectedEventId) return setError("Please select an event to volunteer for.");
 
     setSubmitting(true);
     try {
       await submitVolunteerApplication(Number(selectedEventId), message);
       setSubmitted(true);
     } catch (err) {
-      const serverMsg =
-        err.response?.data?.message ||
-        err.response?.data?.error ||
-        "Failed to submit application. Please try again.";
-      setError(serverMsg);
-      console.error("Volunteer application error:", err);
+      setError(err.response?.data?.message || err.response?.data?.error || "Failed to submit application.");
     } finally {
       setSubmitting(false);
     }
   };
 
+  const containerVariants = { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.1 } } };
+  const itemVariants = { hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } };
+
   return (
-    <motion.div
-      variants={pageVariants}
-      initial="initial"
-      animate="animate"
-      exit="exit"
-      transition={pageTransition}
-      className="py-20 bg-neutralLight text-dark"
-    >
-      {/* Hero */}
-      <motion.section
-        variants={sectionVariants}
-        initial="hidden"
-        animate="visible"
-        className="text-center max-w-3xl mx-auto px-6 mb-16"
-      >
-        <h1 className="text-4xl md:text-5xl font-bold mb-4 text-primary">
+    <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={pageTransition} className="py-24 bg-gray-50/50 min-h-screen">
+      <motion.section variants={sectionVariants} initial="hidden" animate="visible" className="text-center max-w-4xl mx-auto px-6 mb-20">
+        <Typography variant="h2" component="h1" sx={{ fontWeight: 800, color: 'primary.main', mb: 3, fontSize: { xs: '2.5rem', md: '3.5rem' } }}>
           Volunteer with Us
-        </h1>
-        <p className="text-lg md:text-xl text-gray-700">
-          Join a community of changemakers. Contribute your skills, grow as a
-          leader, and help create measurable impact in education, health, and
-          the environment.
-        </p>
+        </Typography>
+        <Typography variant="subtitle1" color="text.secondary" sx={{ fontSize: '1.2rem', maxWidth: 800, mx: 'auto', lineHeight: 1.6 }}>
+          Join a community of changemakers. Contribute your skills, grow as a leader, and help create measurable impact in education, health, and the environment.
+        </Typography>
       </motion.section>
 
-      {/* Impact grid */}
-      <motion.section
-        variants={sectionVariants}
-        initial="hidden"
-        animate="visible"
-        className="max-w-5xl mx-auto px-6 mb-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-4"
-      >
+      <motion.section variants={containerVariants} initial="hidden" animate="visible" className="max-w-6xl mx-auto px-6 mb-20 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {[
-          { title: "Education", outcome: "Reach 2,000+ students" },
-          { title: "Food", outcome: "Distribute 15,000 meals" },
-          { title: "Health", outcome: "Support 3,000 patients" },
-          { title: "Environment", outcome: "Plant 5,000 trees" },
-        ].map((item) => (
-          <div
-            key={item.title}
-            className="bg-white rounded-xl shadow-md p-6 text-center"
-          >
-            <h3 className="text-xl font-semibold mb-2">{item.title}</h3>
-            <p className="text-gray-600 text-sm">{item.outcome}</p>
-          </div>
+          { title: "Education", outcome: "Reach 2,000+ students", icon: "📚" },
+          { title: "Food", outcome: "Distribute 15,000 meals", icon: "🍲" },
+          { title: "Health", outcome: "Support 3,000 patients", icon: "⚕️" },
+          { title: "Environment", outcome: "Plant 5,000 trees", icon: "🌱" },
+        ].map((item, idx) => (
+          <motion.div key={item.title} variants={itemVariants} whileHover={{ y: -8 }}>
+            <Card elevation={0} sx={{ p: 4, textAlign: 'center', borderRadius: 4, border: '1px solid rgba(0,0,0,0.04)', boxShadow: '0 10px 30px rgba(0,0,0,0.03)' }}>
+              <div className="text-4xl mb-4">{item.icon}</div>
+              <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>{item.title}</Typography>
+              <Typography variant="body2" color="text.secondary">{item.outcome}</Typography>
+            </Card>
+          </motion.div>
         ))}
       </motion.section>
 
-      {/* Skill development */}
-      <motion.section
-        variants={sectionVariants}
-        initial="hidden"
-        animate="visible"
-        className="max-w-4xl mx-auto px-6 mb-16"
-      >
-        <h2 className="text-3xl font-bold mb-6 text-center">
-          Grow Skills & Leadership
-        </h2>
-        <ul className="list-disc list-inside space-y-4 text-gray-700">
-          <li>Leadership and team coordination training</li>
-          <li>Project management certification</li>
-          <li>Community outreach and communication skills</li>
-        </ul>
-      </motion.section>
-
-      {/* Volunteer Application Form */}
-      <motion.section
-        variants={sectionVariants}
-        initial="hidden"
-        animate="visible"
-        className="max-w-3xl mx-auto px-6 mb-16"
-      >
-        <h2 className="text-2xl font-semibold mb-6 text-center">
-          Apply to Volunteer
-        </h2>
-
-        {!isAuthenticated ? (
-          <div className="bg-amber-50 border border-amber-200 rounded-xl p-6 text-center">
-            <p className="text-amber-700 font-medium mb-3">
-              You need to be logged in to apply as a volunteer.
-            </p>
-            <button
-              onClick={() => navigate("/login")}
-              className="bg-primary text-white px-6 py-2 rounded-lg hover:brightness-90 transition"
-            >
-              Login to Continue
-            </button>
-          </div>
-        ) : submitted ? (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-green-50 border border-green-200 rounded-xl p-6 text-center"
-          >
-            <span className="text-3xl mb-2 block">✅</span>
-            <p className="text-green-700 font-semibold text-lg">
-              Application submitted successfully!
-            </p>
-            <p className="text-green-600 text-sm mt-1">
-              We'll review your application and get back to you soon.
-            </p>
-            <button
-              onClick={() => {
-                setSubmitted(false);
-                setSelectedEventId("");
-                setMessage("");
-              }}
-              className="mt-4 text-primary underline text-sm"
-            >
-              Submit another application
-            </button>
-          </motion.div>
-        ) : (
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Event picker */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                Select Event to Volunteer For *
-              </label>
-              {eventsLoading ? (
-                <p className="text-gray-400 text-sm py-2">Loading events…</p>
-              ) : events.length === 0 ? (
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 text-center">
-                  <p className="text-gray-500 text-sm">
-                    No upcoming events available right now. Please check back later!
-                  </p>
-                </div>
-              ) : (
-                <select
-                  value={selectedEventId}
-                  onChange={(e) => setSelectedEventId(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg p-3 text-sm bg-white focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none"
-                >
-                  <option value="">— Choose an event —</option>
-                  {events.map((ev) => (
-                    <option key={ev.id} value={ev.id}>
-                      {ev.title}
-                      {ev.eventDate
-                        ? ` — ${new Date(ev.eventDate).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}`
-                        : ""}
-                      {ev.location ? ` (${ev.location})` : ""}
-                    </option>
-                  ))}
-                </select>
-              )}
+      <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-start">
+        <motion.section variants={sectionVariants} initial="hidden" animate="visible" className="space-y-6">
+          <Typography variant="h4" sx={{ fontWeight: 800, color: 'text.primary', mb: 4 }}>
+            Grow Skills & Leadership
+          </Typography>
+          {[
+            "Leadership and team coordination training",
+            "Project management certification",
+            "Community outreach and communication skills"
+          ].map((skill, i) => (
+            <div key={i} className="flex items-center space-x-4 p-4 rounded-2xl bg-white border border-gray-100 shadow-sm">
+              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                <AutoAwesomeIcon color="primary" fontSize="small" />
+              </div>
+              <Typography variant="body1" sx={{ fontWeight: 500, color: 'text.secondary' }}>{skill}</Typography>
             </div>
+          ))}
+        </motion.section>
 
-            {/* Message */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                Message (optional)
-              </label>
-              <textarea
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                placeholder="Tell us why you'd like to volunteer for this event…"
-                className="w-full border border-gray-300 rounded-lg p-3 text-sm h-28 focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none resize-none"
-              />
-            </div>
+        <motion.section variants={sectionVariants} initial="hidden" animate="visible">
+          <Card elevation={0} sx={{ borderRadius: 6, p: { xs: 4, md: 5 }, boxShadow: '0 20px 40px rgba(0,0,0,0.08)', border: '1px solid rgba(0,0,0,0.05)' }}>
+            <Typography variant="h5" sx={{ fontWeight: 800, mb: 4, textAlign: 'center' }}>Apply to Volunteer</Typography>
 
-            {/* Error */}
-            {error && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                className="bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 text-sm"
-              >
-                {error}
-              </motion.div>
+            {!isAuthenticated ? (
+              <div className="text-center py-8">
+                <Alert severity="warning" sx={{ mb: 4, borderRadius: 3, justifyContent: 'center' }}>
+                  You need to be logged in to apply as a volunteer.
+                </Alert>
+                <Button variant="contained" color="primary" onClick={() => navigate("/login")} sx={{ borderRadius: 4, px: 4, textTransform: 'none', fontWeight: 600 }}>
+                  Login to Continue
+                </Button>
+              </div>
+            ) : submitted ? (
+              <div className="text-center py-6">
+                <CheckCircleOutlinedIcon color="success" sx={{ fontSize: 64, mb: 2 }} />
+                <Typography variant="h5" sx={{ fontWeight: 700, mb: 1 }}>Application Submitted!</Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 4 }}>We'll review your application and get back to you soon.</Typography>
+                <Button variant="outlined" onClick={() => { setSubmitted(false); setSelectedEventId(""); setMessage(""); }} sx={{ borderRadius: 4, textTransform: 'none' }}>
+                  Submit another application
+                </Button>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit} className="space-y-6">
+                {error && <Alert severity="error" sx={{ borderRadius: 2 }}>{error}</Alert>}
+                
+                {eventsLoading ? (
+                  <CircularProgress size={24} />
+                ) : events.length === 0 ? (
+                  <Alert severity="info" sx={{ borderRadius: 2 }}>No upcoming events available right now.</Alert>
+                ) : (
+                  <TextField select fullWidth label="Select Event to Volunteer For *" value={selectedEventId} onChange={(e) => setSelectedEventId(e.target.value)} disabled={submitting} InputProps={{ sx: { borderRadius: 3 } }}>
+                    {events.map((ev) => (
+                      <MenuItem key={ev.id} value={ev.id}>
+                        {ev.title} {ev.eventDate ? `— ${new Date(ev.eventDate).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}` : ""}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                )}
+
+                <TextField fullWidth multiline rows={4} label="Message (optional)" placeholder="Tell us why you'd like to volunteer..." value={message} onChange={(e) => setMessage(e.target.value)} disabled={submitting} InputProps={{ sx: { borderRadius: 3 } }} />
+
+                <Button fullWidth variant="contained" color="primary" size="large" type="submit" disabled={submitting || events.length === 0} sx={{ py: 1.5, borderRadius: 3, fontWeight: 700, textTransform: 'none' }}>
+                  {submitting ? <CircularProgress size={24} color="inherit" /> : "Submit Application"}
+                </Button>
+              </form>
             )}
-
-            {/* Submit */}
-            <button
-              type="submit"
-              disabled={submitting || events.length === 0}
-              className="bg-primary text-white px-6 py-3 rounded-lg font-semibold hover:brightness-90 transition disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {submitting ? "Submitting…" : "Submit Application"}
-            </button>
-          </form>
-        )}
-      </motion.section>
+          </Card>
+        </motion.section>
+      </div>
     </motion.div>
   );
 }

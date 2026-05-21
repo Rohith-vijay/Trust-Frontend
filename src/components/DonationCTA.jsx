@@ -25,11 +25,7 @@ const DonationCTA = () => {
       >
         Donate Now
       </button>
-      <div className="mt-6 flex justify-center space-x-4">
-        {/* trust badges placeholder */}
-        <img src="/badge1.png" alt="Trust Badge" className="h-12" />
-        <img src="/badge2.png" alt="Trust Badge" className="h-12" />
-      </div>
+        {/* Trust badges removed as per user request */}
     </div>
   </motion.section>
   );

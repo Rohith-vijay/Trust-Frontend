@@ -36,6 +36,11 @@ const databaseService = {
     return response.data;
   },
 
+  getStoryById: async (id) => {
+    const response = await api.get(`/success-stories/${id}`);
+    return response.data;
+  },
+
   createStory: async (story) => {
     const response = await api.post("/success-stories", story);
     return response.data;
@@ -43,6 +48,11 @@ const databaseService = {
 
   updateStory: async (id, story) => {
     const response = await api.put(`/success-stories/${id}`, story);
+    return response.data;
+  },
+
+  updateStoryGallery: async (id, gallery) => {
+    const response = await api.put(`/success-stories/${id}/gallery`, gallery);
     return response.data;
   },
 

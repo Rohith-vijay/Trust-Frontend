@@ -18,6 +18,7 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 const Login = lazy(() => import("./pages/Login"));
 const Signup = lazy(() => import("./pages/Signup"));
 const Unauthorized = lazy(() => import("./pages/Unauthorized"));
+const StoryDetail = lazy(() => import("./pages/StoryDetail"));
 
 // New compatible views
 const ImpactReports = lazy(() => import("./pages/ImpactReports"));
@@ -92,6 +93,7 @@ function AnimatedRoutes() {
           <Route path="/about" element={<About />} />
           <Route path="/events" element={<Events />} />
           <Route path="/events/:id" element={<EventDetails />} />
+          <Route path="/stories/:id" element={<StoryDetail />} />
           <Route path="/vision" element={<Vision />} />
           <Route path="/history" element={<History />} />
           <Route path="/contact" element={<Contact />} />

@@ -19,6 +19,16 @@ export default {
     "brand-slate-dark": "#0F172A",
     "brand-neutral-bg": "#F8FAFC",
     "brand-gold": "#B07A3F",
+    "brand-blue-50": "#EFF6FF",
+    "brand-blue-100": "#DBEAFE",
+    "brand-blue-200": "#BFDBFE",
+    "brand-blue-300": "#93C5FD",
+    "brand-blue-400": "#60A5FA",
+    "brand-blue-500": "#3B82F6",
+    "brand-blue-600": "#2563EB",
+    "brand-blue-700": "#1D4ED8",
+    "brand-blue-800": "#1E40AF",
+    "brand-blue-900": "#1E3A8A",
 
     // legacy/utility names (kept for backward compatibility)
     trustBlue: "#1e3a5f",      // previously used deep blue

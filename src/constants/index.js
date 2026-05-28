@@ -1,4 +1,5 @@
 // central place for app-wide constants such as routes, configuration keys, etc.
+import { getBackendUrl } from "../utils";
 
 export const ROUTES = {
   HOME: "/",
@@ -23,5 +24,4 @@ export const ROLES = {
 
 export const APP_NAME = "K.V.G Shanmuka Sai Charitable Trust";
 
-export const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/api";
+export const API_BASE_URL = getBackendUrl();

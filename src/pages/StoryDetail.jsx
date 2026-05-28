@@ -2,7 +2,9 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import databaseService from "../services/databaseService";
-import GlobalLoader from "../components/GlobalLoader";
+import { DetailSkeleton } from "../components/SkeletonLoader";
+import MasonryGallery from "../components/MasonryGallery";
+import MediaEmbed from "../components/MediaEmbed";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import FormatQuoteIcon from "@mui/icons-material/FormatQuote";
@@ -28,22 +30,26 @@ export default function StoryDetail() {
   const [showShareToast, setShowShareToast] = useState(false);
 
   useEffect(() => {
+    let ignore = false;
     async function fetchStory() {
       try {
         setLoading(true);
         const data = await databaseService.getStoryById(id);
-        setStory(data);
+        if (!ignore) setStory(data);
       } catch (err) {
-        console.error("Error fetching success story:", err);
-        setError("Failed to load this success story. It may have been removed.");
+        if (!ignore) {
+          console.error("Error fetching success story:", err);
+          setError("Failed to load this success story. It may have been removed.");
+        }
       } finally {
-        setLoading(false);
+        if (!ignore) setLoading(false);
       }
     }
     fetchStory();
+    return () => { ignore = true; };
   }, [id]);
 
-  if (loading) return <GlobalLoader />;
+  if (loading) return <DetailSkeleton />;
 
   if (error || !story) {
     return (
@@ -221,12 +227,13 @@ export default function StoryDetail() {
                 onMouseLeave={() => setIsResizing(false)}
               >
                 {/* After Image (Background) */}
-                <img
-                  src={story.afterImageUrl}
-                  alt="Transformation After"
-                  className="absolute inset-0 h-full w-full object-cover"
-                  draggable="false"
-                />
+                  <img
+                    src={story.afterImageUrl}
+                    alt="Transformation After"
+                    className="absolute inset-0 h-full w-full object-cover"
+                    draggable="false"
+                    onError={(e) => { e.target.onerror = null; e.target.src = 'https://via.placeholder.com/800x450?text=Image+Unavailable'; }}
+                  />
                 <div className="absolute bottom-4 right-4 bg-brand-navy-dark/80 text-white text-xs font-bold uppercase tracking-widest px-3 py-1 rounded backdrop-blur">
                   After Impact
                 </div>
@@ -236,13 +243,14 @@ export default function StoryDetail() {
                   className="absolute inset-0 overflow-hidden"
                   style={{ width: `${sliderPosition}%` }}
                 >
-                  <img
-                    src={story.beforeImageUrl}
-                    alt="Transformation Before"
-                    className="absolute inset-0 h-[450px] w-full object-cover max-w-none"
-                    style={{ width: "100%" }}
-                    draggable="false"
-                  />
+                    <img
+                      src={story.beforeImageUrl}
+                      alt="Transformation Before"
+                      className="absolute inset-0 h-[450px] w-full object-cover max-w-none"
+                      style={{ width: "100%" }}
+                      draggable="false"
+                      onError={(e) => { e.target.onerror = null; e.target.src = 'https://via.placeholder.com/800x450?text=Image+Unavailable'; }}
+                    />
                   <div className="absolute bottom-4 left-4 bg-brand-gold/90 text-white text-xs font-bold uppercase tracking-widest px-3 py-1 rounded backdrop-blur">
                     Before Impact
                   </div>
@@ -263,7 +271,7 @@ export default function StoryDetail() {
           )}
 
           {/* Cinematic Video Section */}
-          {videoEmbed && (
+          {story.videoUrl && (
             <motion.section
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -273,14 +281,12 @@ export default function StoryDetail() {
               <h3 className="text-2xl font-bold text-brand-navy-dark font-heading flex items-center">
                 <PlayCircleOutlineIcon className="text-brand-gold mr-2" fontSize="large" /> Journey Video
               </h3>
-              <div className="relative pt-[56.25%] rounded-2xl overflow-hidden shadow-xl border border-gray-200 bg-black">
-                <iframe
-                  src={videoEmbed}
-                  title="Story video"
-                  className="absolute inset-0 w-full h-full"
-                  allowFullScreen
-                />
-              </div>
+              <MediaEmbed
+                url={story.videoUrl}
+                posterUrl={story.imageUrl}
+                caption={`${story.title} - Journey Highlight`}
+                aspectRatio="16/9"
+              />
             </motion.section>
           )}
 
@@ -310,7 +316,7 @@ export default function StoryDetail() {
                       
                       {milestone.imageUrl && (
                         <div className="mt-4 rounded-lg overflow-hidden max-h-[250px] border border-gray-100">
-                          <img src={milestone.imageUrl} alt={milestone.title} className="w-full h-full object-cover" />
+                          <img src={milestone.imageUrl} alt={milestone.title} className="w-full h-full object-cover" onError={(e) => { e.target.onerror = null; e.target.src = 'https://via.placeholder.com/400x250?text=Milestone+Image+Missing'; }} />
                         </div>
                       )}
                     </div>
@@ -387,86 +393,20 @@ export default function StoryDetail() {
               className="space-y-4"
             >
               <h3 className="text-2xl font-bold text-brand-navy-dark font-heading">Gallery</h3>
-              <div className="grid grid-cols-2 gap-3">
-                {story.gallery.map((image, idx) => (
-                  <div 
-                    key={image.id || idx}
-                    onClick={() => openLightbox(idx)}
-                    className="relative aspect-square rounded-xl overflow-hidden cursor-pointer hover:shadow-lg group border border-gray-200"
-                  >
-                    <img 
-                      src={image.url} 
-                      alt={image.caption || "Story Gallery"} 
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
-                    />
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center text-white text-sm font-bold">
-                      Zoom
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <MasonryGallery 
+                assets={story.gallery.map(g => ({
+                  id: g.id,
+                  url: g.url,
+                  thumbnailUrl: g.thumbnailUrl || g.url,
+                  mediaType: g.mediaType || "IMAGE",
+                  caption: g.caption || `${story.title} - Gallery Detail`,
+                  aspectRatio: g.aspectRatio || 1.33
+                }))} 
+              />
             </motion.div>
           )}
         </div>
       </div>
-
-      {/* Reusable Lightbox Modal */}
-      <AnimatePresence>
-        {selectedImage && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-4 backdrop-blur-md"
-          >
-            {/* Close Button */}
-            <button
-              onClick={() => setSelectedImage(null)}
-              className="absolute top-6 right-6 text-white/75 hover:text-white p-2 bg-white/10 rounded-full hover:bg-white/20 transition-all"
-            >
-              <CloseIcon />
-            </button>
-
-            {/* Left Button */}
-            {story.gallery && story.gallery.length > 1 && (
-              <button
-                onClick={prevLightboxImage}
-                className="absolute left-6 text-white/75 hover:text-white p-3 bg-white/10 rounded-full hover:bg-white/20 transition-all"
-              >
-                <NavigateBeforeIcon fontSize="large" />
-              </button>
-            )}
-
-            {/* Lightbox Content */}
-            <div className="max-w-4xl max-h-[80vh] flex flex-col items-center">
-              <motion.img
-                key={selectedImage}
-                initial={{ scale: 0.95, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.95, opacity: 0 }}
-                src={selectedImage}
-                alt="Enlarged"
-                className="max-w-full max-h-[70vh] object-contain rounded-lg shadow-2xl"
-              />
-              {story.gallery[galleryIndex]?.caption && (
-                <p className="text-white/80 text-center mt-4 text-lg italic max-w-xl font-light">
-                  {story.gallery[galleryIndex].caption}
-                </p>
-              )}
-            </div>
-
-            {/* Right Button */}
-            {story.gallery && story.gallery.length > 1 && (
-              <button
-                onClick={nextLightboxImage}
-                className="absolute right-6 text-white/75 hover:text-white p-3 bg-white/10 rounded-full hover:bg-white/20 transition-all"
-              >
-                <NavigateNextIcon fontSize="large" />
-              </button>
-            )}
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* Floating Share Success Toast */}
       <AnimatePresence>

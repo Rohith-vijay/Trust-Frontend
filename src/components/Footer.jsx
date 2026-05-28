@@ -51,6 +51,7 @@ function Footer() {
             {[
               { to: "/reports", label: "Impact Reports" },
               { to: "/gallery", label: "Media Gallery" },
+              { to: "/impact-showcase", label: "✦ Impact Showcase" },
               { to: "/transparency", label: "Financial Transparency" },
               { to: "/faq", label: "FAQ / Support" },
               { to: "/donation", label: "Donate Securely" },

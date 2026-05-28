@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 const MembersPanel = ({
   members,
@@ -13,13 +13,37 @@ const MembersPanel = ({
   LoadingSpinner,
   EmptyState
 }) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleCreate = async (e) => {
+    e.preventDefault();
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    try {
+      await onAddMember(e);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleUpdate = async (e) => {
+    e.preventDefault();
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    try {
+      await onUpdateMember(e);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div>
       <h3 className="text-lg font-bold text-brand-navy-dark mb-4">Team Members directory</h3>
 
       {/* Add member form */}
       <form
-        onSubmit={onAddMember}
+        onSubmit={handleCreate}
         className="mb-6 border border-dashed border-gray-300 rounded-2xl p-5 space-y-4 bg-gray-50/30"
       >
         <p className="text-sm font-semibold text-gray-700">Add New Team Member</p>
@@ -77,15 +101,16 @@ const MembersPanel = ({
         </div>
         <button
           type="submit"
-          className="bg-primary text-white px-5 py-2.5 rounded-lg text-sm font-bold hover:brightness-95 hover:shadow-md transition"
+          disabled={isSubmitting}
+          className={`px-5 py-2.5 rounded-lg text-sm font-bold transition ${isSubmitting ? "bg-gray-400 text-white cursor-not-allowed" : "bg-primary text-white hover:brightness-95 hover:shadow-md"}`}
         >
-          + Add Member
+          {isSubmitting ? "Adding..." : "+ Add Member"}
         </button>
       </form>
 
       {tabLoading ? (
         <LoadingSpinner />
-      ) : members.length === 0 ? (
+      ) : !Array.isArray(members) || members.length === 0 ? (
         <EmptyState
           icon="👤"
           title="No team members yet."
@@ -93,11 +118,11 @@ const MembersPanel = ({
         />
       ) : (
         <div className="space-y-3">
-          {members.map((m) =>
+          {Array.isArray(members) && members.map((m) =>
             editingMember?.id === m.id ? (
               <form
                 key={m.id}
-                onSubmit={onUpdateMember}
+                onSubmit={handleUpdate}
                 className="border border-primary/20 bg-primary/5 rounded-2xl p-5 space-y-4 shadow-sm"
               >
                 <p className="text-sm font-bold text-brand-navy-dark">Editing Member Profile</p>
@@ -189,9 +214,10 @@ const MembersPanel = ({
                 <div className="flex gap-2">
                   <button
                     type="submit"
-                    className="bg-primary text-white px-4.5 py-2 rounded-lg text-xs font-bold hover:brightness-95 transition"
+                    disabled={isSubmitting}
+                    className={`px-4.5 py-2 rounded-lg text-xs font-bold transition ${isSubmitting ? "bg-gray-400 text-white cursor-not-allowed" : "bg-primary text-white hover:brightness-95"}`}
                   >
-                    Save
+                    {isSubmitting ? "Saving..." : "Save"}
                   </button>
                   <button
                     type="button"

@@ -1,4 +1,4 @@
-import React, { lazy, Suspense } from "react";
+import React, { lazy, Suspense, useContext } from "react";
 import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import Layout from "./components/Layout";
@@ -19,12 +19,14 @@ const Login = lazy(() => import("./pages/Login"));
 const Signup = lazy(() => import("./pages/Signup"));
 const Unauthorized = lazy(() => import("./pages/Unauthorized"));
 const StoryDetail = lazy(() => import("./pages/StoryDetail"));
+const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
 
 // New compatible views
 const ImpactReports = lazy(() => import("./pages/ImpactReports"));
 const MediaGallery = lazy(() => import("./pages/MediaGallery"));
 const FaqAccordion = lazy(() => import("./pages/FaqAccordion"));
 const FinancialTransparency = lazy(() => import("./pages/FinancialTransparency"));
+const ImpactShowcase = lazy(() => import("./pages/ImpactShowcase"));
 
 // Dashboards (Lazy)
 const AdminDashboard = lazy(() => import("./admin/Dashboard"));
@@ -32,25 +34,27 @@ const UserDashboard = lazy(() => import("./pages/dashboards/UserDashboard"));
 const VolunteerDashboard = lazy(() => import("./pages/dashboards/VolunteerDashboard"));
 
 // Context & protection
-import { AppProvider } from "./context/AppContext";
+import { AppProvider, AppContext } from "./context/AppContext";
 import ProtectedRoute from "./components/ProtectedRoute";
+import ErrorBoundary from "./components/ErrorBoundary";
 import { ROLES } from "./utils/permissions";
 
 // MUI Theme Integration
 import { createTheme, ThemeProvider, CssBaseline } from "@mui/material";
 
-// Create custom theme using the Tailwind config brand colors
 const theme = createTheme({
   palette: {
+    mode: "light",
     primary: {
-      main: "#B07A3F", // primary golden-brown
+      main: "#B07A3F",
     },
     secondary: {
-      main: "#F59E0B", // warm orange accent
+      main: "#F59E0B",
     },
     background: {
       default: "#fafafa",
-    }
+      paper: "#ffffff",
+    },
   },
   typography: {
     fontFamily: '"Inter", "sans-serif"',
@@ -62,22 +66,22 @@ const theme = createTheme({
     h6: { fontFamily: '"Poppins", "sans-serif"' },
   },
   shape: {
-    borderRadius: 8,
+    borderRadius: 12,
   },
 });
 
 function App() {
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <AppProvider>
+    <AppProvider>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
         <Router>
           <Layout>
             <AnimatedRoutes />
           </Layout>
         </Router>
-      </AppProvider>
-    </ThemeProvider>
+      </ThemeProvider>
+    </AppProvider>
   );
 }
 
@@ -104,10 +108,12 @@ function AnimatedRoutes() {
           <Route path="/gallery" element={<MediaGallery />} />
           <Route path="/faq" element={<FaqAccordion />} />
           <Route path="/transparency" element={<FinancialTransparency />} />
+          <Route path="/impact-showcase" element={<ImpactShowcase />} />
 
           {/* Auth routes */}
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/unauthorized" element={<Unauthorized />} />
 
           {/* Protected: donation (any authenticated user) */}
@@ -115,7 +121,9 @@ function AnimatedRoutes() {
             path="/donation"
             element={
               <ProtectedRoute allowedRoles={[ROLES.USER, ROLES.VOLUNTEER, ROLES.ADMIN]}>
-                <Donation />
+                <ErrorBoundary title="Donation Portal Shield" name="DonationPortalRoot">
+                  <Donation />
+                </ErrorBoundary>
               </ProtectedRoute>
             }
           />
@@ -125,7 +133,9 @@ function AnimatedRoutes() {
             path="/dashboard"
             element={
               <ProtectedRoute allowedRoles={[ROLES.USER]}>
-                <UserDashboard />
+                <ErrorBoundary title="Donor Portal Shield" name="UserDashboardRoot">
+                  <UserDashboard />
+                </ErrorBoundary>
               </ProtectedRoute>
             }
           />
@@ -133,7 +143,9 @@ function AnimatedRoutes() {
             path="/dashboard/volunteer"
             element={
               <ProtectedRoute allowedRoles={[ROLES.VOLUNTEER]}>
-                <VolunteerDashboard />
+                <ErrorBoundary title="Volunteer Portal Shield" name="VolunteerDashboardRoot">
+                  <VolunteerDashboard />
+                </ErrorBoundary>
               </ProtectedRoute>
             }
           />
@@ -141,7 +153,9 @@ function AnimatedRoutes() {
             path="/admin"
             element={
               <ProtectedRoute allowedRoles={[ROLES.ADMIN]}>
-                <AdminDashboard />
+                <ErrorBoundary title="Admin Systems Shield" name="AdminDashboardRoot">
+                  <AdminDashboard />
+                </ErrorBoundary>
               </ProtectedRoute>
             }
           />

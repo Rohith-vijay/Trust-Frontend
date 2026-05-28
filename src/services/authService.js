@@ -1,42 +1,55 @@
 import api from "./api";
 
-const TOKEN_KEY = "token";
-
 const authService = {
   // 1. Register a new user on the server
   register: async (name, email, password, role = "USER") => {
     const response = await api.post("/auth/register", { fullName: name, email, password, role });
-    return response.data;
+    const data = response.data;
+    if (data.refreshToken) {
+      localStorage.setItem('trustcore_refresh_token', data.refreshToken);
+    }
+    if (data.user) {
+      localStorage.setItem('trustcore_user', JSON.stringify(data.user));
+    }
+    return data;
   },
 
-  // 2. Login and store the REAL JWT from Spring Boot
+  // 2. Login and store the refresh token and user metadata from Spring Boot
   login: async (email, password) => {
     const response = await api.post("/auth/login", { email, password });
-    if (response.data.token) {
-      localStorage.setItem(TOKEN_KEY, response.data.token);
+    const data = response.data;
+    if (data.refreshToken) {
+      localStorage.setItem('trustcore_refresh_token', data.refreshToken);
     }
-    return response.data;
+    if (data.user) {
+      localStorage.setItem('trustcore_user', JSON.stringify(data.user));
+    }
+    return data;
   },
 
-  logout: () => {
-    localStorage.removeItem(TOKEN_KEY);
+  logout: async () => {
+    const refreshToken = localStorage.getItem('trustcore_refresh_token');
+    try {
+      if (refreshToken) {
+        await api.post("/auth/logout", { refreshToken });
+      }
+    } catch (e) {
+      // Ignore network errors on logout to ensure local cleanup
+    }
+    localStorage.removeItem('trustcore_refresh_token');
+    localStorage.removeItem('trustcore_user');
   },
 
-  getToken: () => localStorage.getItem(TOKEN_KEY),
+  getToken: () => {
+    // Token is in HttpOnly cookie — not accessible from JS
+    return null;
+  },
 
   getCurrentUser: () => {
-    const token = authService.getToken();
-    if (!token) return null;
-
-    // Simple decode for UI display (name/role)
+    const userStr = localStorage.getItem('trustcore_user');
+    if (!userStr) return null;
     try {
-      const payload = JSON.parse(atob(token.split(".")[1]));
-      // Check expiry
-      if (payload.exp * 1000 < Date.now()) {
-        authService.logout();
-        return null;
-      }
-      return { email: payload.sub, name: payload.name, role: payload.role };
+      return JSON.parse(userStr);
     } catch {
       return null;
     }

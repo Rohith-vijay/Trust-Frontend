@@ -1,4 +1,7 @@
 import React, { useState } from "react";
+import RichTextEditor from "../components/RichTextEditor";
+import SortableList from "../components/SortableList";
+import MediaUploader from "../../components/MediaUploader";
 
 const StoriesPanel = ({
   stories,
@@ -10,6 +13,7 @@ const StoriesPanel = ({
   onCreateStory,
   onUpdateStory,
   onDeleteStory,
+  onReorderStories,
   LoadingSpinner,
   EmptyState
 }) => {
@@ -20,6 +24,7 @@ const StoriesPanel = ({
   // Local states for sub-entries during edit
   const [editMilestones, setEditMilestones] = useState([]);
   const [editMetrics, setEditMetrics] = useState([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleAddMilestone = (isEdit = false) => {
     const fresh = { date: "", title: "", description: "", imageUrl: "", orderIndex: isEdit ? editMilestones.length : newMilestones.length };
@@ -63,18 +68,24 @@ const StoriesPanel = ({
     }
   };
 
-  const triggerCreate = (e) => {
+  const triggerCreate = async (e) => {
     e.preventDefault();
-    // Build story package including milestones and metrics lists
-    const packageData = {
-      ...storyForm,
-      milestones: newMilestones,
-      metrics: newMetrics
-    };
-    onCreateStory(packageData);
-    // Reset local lists
-    setNewMilestones([]);
-    setNewMetrics([]);
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    try {
+      // Build story package including milestones and metrics lists
+      const packageData = {
+        ...storyForm,
+        milestones: newMilestones,
+        metrics: newMetrics
+      };
+      await onCreateStory(packageData);
+      // Reset local lists
+      setNewMilestones([]);
+      setNewMetrics([]);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const triggerEditStart = (s) => {
@@ -83,15 +94,21 @@ const StoriesPanel = ({
     setEditMetrics(s.metrics || []);
   };
 
-  const triggerUpdate = (e) => {
+  const triggerUpdate = async (e) => {
     e.preventDefault();
-    const packageData = {
-      ...editingStory,
-      milestones: editMilestones,
-      metrics: editMetrics
-    };
-    onUpdateStory(packageData);
-    setEditingStory(null);
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    try {
+      const packageData = {
+        ...editingStory,
+        milestones: editMilestones,
+        metrics: editMetrics
+      };
+      await onUpdateStory(packageData);
+      setEditingStory(null);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -138,40 +155,47 @@ const StoriesPanel = ({
               />
             </div>
             <div className="space-y-1">
-              <label className="text-xs font-semibold text-gray-500">Cover Thumbnail Image URL *</label>
-              <input
+              <MediaUploader
+                mediaType="IMAGE"
+                label="Cover Thumbnail Image *"
                 value={storyForm.imageUrl}
-                onChange={(e) => setStoryForm((p) => ({ ...p, imageUrl: e.target.value }))}
-                placeholder="https://..."
-                required
-                className="w-full border border-gray-200 rounded-lg px-3.5 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 bg-white"
+                onUploadSuccess={(metadata) => setStoryForm((p) => ({ ...p, imageUrl: metadata.secure_url }))}
               />
             </div>
           </div>
 
-          {/* Before/After Showcase URLs */}
+          {/* Before/After Showcase Media */}
           <div className="border border-gray-100 rounded-2xl p-4 bg-gray-50/50 space-y-4">
             <p className="text-xs font-bold text-gray-700">Before & After Showcase (Optional)</p>
             <div className="grid sm:grid-cols-2 gap-4">
               <div className="space-y-1">
-                <label className="text-xs text-gray-500">Before Status Image URL</label>
-                <input
+                <MediaUploader
+                  mediaType="IMAGE"
+                  label="Before Status Image"
                   value={storyForm.beforeImageUrl || ""}
-                  onChange={(e) => setStoryForm((p) => ({ ...p, beforeImageUrl: e.target.value }))}
-                  placeholder="https://..."
-                  className="w-full border border-gray-200 rounded-lg px-3.5 py-2 text-sm outline-none bg-white"
+                  onUploadSuccess={(metadata) => setStoryForm((p) => ({ ...p, beforeImageUrl: metadata.secure_url }))}
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-xs text-gray-500">After Status Image URL</label>
-                <input
+                <MediaUploader
+                  mediaType="IMAGE"
+                  label="After Status Image"
                   value={storyForm.afterImageUrl || ""}
-                  onChange={(e) => setStoryForm((p) => ({ ...p, afterImageUrl: e.target.value }))}
-                  placeholder="https://..."
-                  className="w-full border border-gray-200 rounded-lg px-3.5 py-2 text-sm outline-none bg-white"
+                  onUploadSuccess={(metadata) => setStoryForm((p) => ({ ...p, afterImageUrl: metadata.secure_url }))}
                 />
               </div>
             </div>
+          </div>
+
+          {/* Immersive Video Highlight */}
+          <div className="border border-gray-100 rounded-2xl p-4 bg-gray-50/50 space-y-4">
+            <p className="text-xs font-bold text-gray-700">Cinematic Video Highlight (Optional)</p>
+            <MediaUploader
+              mediaType="VIDEO"
+              label="Upload Story Video Highlight"
+              value={storyForm.videoUrl || ""}
+              onUploadSuccess={(metadata) => setStoryForm((p) => ({ ...p, videoUrl: metadata.secure_url }))}
+            />
           </div>
 
           {/* Testimonial Quote */}
@@ -334,21 +358,19 @@ const StoriesPanel = ({
 
           <div className="space-y-1">
             <label className="text-xs font-semibold text-gray-500">Story Body narrative (Markdown / Text) *</label>
-            <textarea
-              value={storyForm.description}
-              onChange={(e) => setStoryForm((p) => ({ ...p, description: e.target.value }))}
+            <RichTextEditor
+              content={storyForm.description}
+              onChange={(html) => setStoryForm((p) => ({ ...p, description: html }))}
               placeholder="Provide a cinematic, immersive success story narrative..."
-              required
-              rows={4}
-              className="w-full border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary/20 bg-white"
             />
           </div>
 
           <button
             type="submit"
-            className="bg-primary text-white px-5 py-2.5 rounded-lg text-sm font-bold hover:brightness-95 transition"
+            disabled={isSubmitting}
+            className={`px-5 py-2.5 rounded-lg text-sm font-bold transition ${isSubmitting ? "bg-gray-400 text-white cursor-not-allowed" : "bg-primary text-white hover:brightness-95"}`}
           >
-            + Publish Immersive Story
+            {isSubmitting ? "Publishing..." : "+ Publish Immersive Story"}
           </button>
         </form>
       )}
@@ -395,12 +417,11 @@ const StoriesPanel = ({
               />
             </div>
             <div className="space-y-1">
-              <label className="text-xs font-semibold text-gray-500">Cover Thumbnail URL</label>
-              <input
+              <MediaUploader
+                mediaType="IMAGE"
+                label="Cover Thumbnail Image"
                 value={editingStory.imageUrl || ""}
-                onChange={(e) => setEditingStory((p) => ({ ...p, imageUrl: e.target.value }))}
-                placeholder="Cover URL"
-                className="w-full border border-gray-200 rounded-lg px-3.5 py-2 text-sm outline-none bg-white"
+                onUploadSuccess={(metadata) => setEditingStory((p) => ({ ...p, imageUrl: metadata.secure_url }))}
               />
             </div>
           </div>
@@ -410,24 +431,33 @@ const StoriesPanel = ({
             <p className="text-xs font-bold text-gray-700">Before & After Showcase</p>
             <div className="grid sm:grid-cols-2 gap-4">
               <div className="space-y-1">
-                <label className="text-xs text-gray-500">Before Status Image URL</label>
-                <input
+                <MediaUploader
+                  mediaType="IMAGE"
+                  label="Before Status Image"
                   value={editingStory.beforeImageUrl || ""}
-                  onChange={(e) => setEditingStory((p) => ({ ...p, beforeImageUrl: e.target.value }))}
-                  placeholder="https://..."
-                  className="w-full border border-gray-200 rounded-lg px-3.5 py-2 text-sm outline-none bg-gray-50"
+                  onUploadSuccess={(metadata) => setEditingStory((p) => ({ ...p, beforeImageUrl: metadata.secure_url }))}
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-xs text-gray-500">After Status Image URL</label>
-                <input
+                <MediaUploader
+                  mediaType="IMAGE"
+                  label="After Status Image"
                   value={editingStory.afterImageUrl || ""}
-                  onChange={(e) => setEditingStory((p) => ({ ...p, afterImageUrl: e.target.value }))}
-                  placeholder="https://..."
-                  className="w-full border border-gray-200 rounded-lg px-3.5 py-2 text-sm outline-none bg-gray-50"
+                  onUploadSuccess={(metadata) => setEditingStory((p) => ({ ...p, afterImageUrl: metadata.secure_url }))}
                 />
               </div>
             </div>
+          </div>
+
+          {/* Immersive Video Highlight */}
+          <div className="border border-gray-100 bg-white rounded-2xl p-4 space-y-4">
+            <p className="text-xs font-bold text-gray-700">Cinematic Video Highlight</p>
+            <MediaUploader
+              mediaType="VIDEO"
+              label="Upload Story Video Highlight"
+              value={editingStory.videoUrl || ""}
+              onUploadSuccess={(metadata) => setEditingStory((p) => ({ ...p, videoUrl: metadata.secure_url }))}
+            />
           </div>
 
           {/* Testimonial Quote */}
@@ -582,22 +612,20 @@ const StoriesPanel = ({
 
           <div className="space-y-1">
             <label className="text-xs font-semibold text-gray-500">Story Body DescriptionNarrative *</label>
-            <textarea
-              value={editingStory.description}
-              onChange={(e) => setEditingStory((p) => ({ ...p, description: e.target.value }))}
-              placeholder="Description narrative"
-              required
-              rows={4}
-              className="w-full border border-gray-200 rounded-lg px-3.5 py-2 text-sm outline-none bg-white"
+            <RichTextEditor
+              content={editingStory.description}
+              onChange={(html) => setEditingStory((p) => ({ ...p, description: html }))}
+              placeholder="Provide a cinematic, immersive success story narrative..."
             />
           </div>
 
           <div className="flex gap-2">
             <button
               type="submit"
-              className="bg-primary text-white px-5 py-2.5 rounded-lg text-xs font-bold hover:brightness-95 transition"
+              disabled={isSubmitting}
+              className={`px-5 py-2.5 rounded-lg text-xs font-bold transition ${isSubmitting ? "bg-gray-400 text-white cursor-not-allowed" : "bg-primary text-white hover:brightness-95"}`}
             >
-              Save Story Configuration
+              {isSubmitting ? "Saving..." : "Save Story Configuration"}
             </button>
             <button
               type="button"
@@ -613,19 +641,18 @@ const StoriesPanel = ({
       {/* Main Listings */}
       {tabLoading ? (
         <LoadingSpinner />
-      ) : stories.length === 0 ? (
+      ) : !Array.isArray(stories) || stories.length === 0 ? (
         <EmptyState
           icon="📖"
           title="No stories yet."
           subtitle="Add your first immersive success story above."
         />
       ) : (
-        <div className="space-y-3">
-          {stories.map((s) => (
-            <div
-              key={s.id}
-              className="flex flex-col sm:flex-row items-center gap-4 border border-gray-100 rounded-2xl p-4 bg-white hover:shadow-sm transition"
-            >
+        <SortableList
+          items={stories}
+          onReorder={onReorderStories}
+          renderItem={(s) => (
+            <div className="flex flex-col sm:flex-row items-center gap-4 border border-gray-100 rounded-2xl p-4 bg-white hover:shadow-sm transition">
               {s.imageUrl && (
                 <img
                   src={s.imageUrl}
@@ -641,7 +668,7 @@ const StoriesPanel = ({
                   </p>
                 )}
                 <p className="text-sm text-gray-400 line-clamp-1 mt-1 font-medium">
-                  {s.description}
+                  {s.description?.replace(/<[^>]*>?/gm, '')}
                 </p>
                 <div className="flex flex-wrap justify-center sm:justify-start gap-1.5 mt-2">
                   {s.category && (
@@ -676,8 +703,8 @@ const StoriesPanel = ({
                 </button>
               </div>
             </div>
-          ))}
-        </div>
+          )}
+        />
       )}
     </div>
   );

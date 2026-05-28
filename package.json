@@ -10,11 +10,19 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
     "@mui/icons-material": "^9.0.1",
     "@mui/material": "^9.0.1",
     "@tailwindcss/typography": "^0.5.19",
+    "@tiptap/extension-image": "^3.23.6",
+    "@tiptap/extension-link": "^3.23.6",
+    "@tiptap/extension-youtube": "^3.23.6",
+    "@tiptap/react": "^3.23.6",
+    "@tiptap/starter-kit": "^3.23.6",
     "aos": "^2.3.4",
     "axios": "^1.13.6",
     "framer-motion": "^12.34.0",
@@ -23,8 +31,12 @@
     "react-countup": "^6.5.3",
     "react-dom": "^19.2.0",
     "react-intersection-observer": "^10.0.3",
+    "react-player": "^3.4.0",
     "react-router-dom": "^7.13.0",
-    "swiper": "^12.1.0"
+    "sockjs-client": "^1.6.1",
+    "stompjs": "^2.3.3",
+    "swiper": "^12.1.0",
+    "yet-another-react-lightbox": "^3.32.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",

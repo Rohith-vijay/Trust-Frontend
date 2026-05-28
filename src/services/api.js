@@ -1,30 +1,31 @@
 // api.js — Axios instance configured for Spring Boot JWT backend
 
 import axios from "axios";
+import { getBackendUrl } from "../utils";
 
 // Base URL for the Spring Boot API
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/api";
+const API_BASE_URL = getBackendUrl();
 
 const api = axios.create({
     baseURL: API_BASE_URL,
+    withCredentials: true,
     headers: {
         "Content-Type": "application/json",
     },
 });
 
-// Request interceptor — attach JWT Bearer token
-api.interceptors.request.use(
-    (config) => {
-        const token = localStorage.getItem("token");
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
-        }
-        return config;
-    },
-    (error) => Promise.reject(error)
-);
+let isRefreshing = false;
+let failedQueue = [];
 
-// Response interceptor — handle standardized ApiResponse, toasts, and auth redirects
+const processQueue = (error) => {
+    failedQueue.forEach(({ resolve, reject }) => {
+        if (error) reject(error);
+        else resolve();
+    });
+    failedQueue = [];
+};
+
+// Response interceptor — handle standardized ApiResponse, toasts, silent refresh, and auth redirects
 api.interceptors.response.use(
     (response) => {
         const responseData = response.data;
@@ -49,10 +50,70 @@ api.interceptors.response.use(
         
         return response;
     },
-    (error) => {
+    async (error) => {
+        const originalRequest = error.config;
+
+        if (error.response?.status === 401 && !originalRequest._retry) {
+            // Don't intercept 401s for login/auth endpoints, let them handle it
+            if (originalRequest.url?.includes("/auth/")) {
+                const responseData = error.response.data;
+                let errorMessage = "Authentication failed.";
+                if (responseData && responseData.message) {
+                    errorMessage = responseData.message;
+                }
+                window.dispatchEvent(new CustomEvent("app-toast", {
+                    detail: { message: errorMessage, severity: "error" }
+                }));
+                return Promise.reject(error);
+            }
+
+            if (isRefreshing) {
+                return new Promise((resolve, reject) => {
+                    failedQueue.push({ resolve, reject });
+                })
+                    .then(() => api(originalRequest))
+                    .catch((err) => Promise.reject(err));
+            }
+
+            originalRequest._retry = true;
+            isRefreshing = true;
+
+            try {
+                // Read refresh token from localStorage
+                const refreshToken = localStorage.getItem('trustcore_refresh_token');
+
+                if (!refreshToken) {
+                    throw new Error('No refresh token available');
+                }
+
+                await api.post('/auth/refresh', { refreshToken });
+                // Backend sets new access_token cookie automatically
+
+                processQueue(null);
+                return api(originalRequest);
+
+            } catch (refreshError) {
+                processQueue(refreshError);
+                localStorage.removeItem('trustcore_refresh_token');
+                localStorage.removeItem('trustcore_user');
+                window.dispatchEvent(new CustomEvent("app-toast", {
+                    detail: { message: "Session expired. Please log in again.", severity: "warning" }
+                }));
+                setTimeout(() => {
+                    window.location.href = '/login';
+                }, 1500);
+                return Promise.reject(refreshError);
+            } finally {
+                isRefreshing = false;
+            }
+        }
+
+        if (error.config?.skipGlobalToast) {
+            return Promise.reject(error);
+        }
+
         if (error.response) {
             const { status, data: responseData } = error.response;
-            const url = error.config?.url || "";
 
             // Standardized error parsing
             let errorMessage = "An unexpected error occurred.";
@@ -79,22 +140,7 @@ api.interceptors.response.use(
                 ? `${errorMessage}\n${validationDetails}` 
                 : errorMessage;
 
-            // Handle session expirations and permission denials
-            if (status === 401) {
-                if (!url.includes("/auth/")) {
-                    localStorage.removeItem("token");
-                    window.dispatchEvent(new CustomEvent("app-toast", {
-                        detail: { message: "Session expired. Please log in again.", severity: "warning" }
-                    }));
-                    setTimeout(() => {
-                        window.location.href = "/login";
-                    }, 1500);
-                } else {
-                    window.dispatchEvent(new CustomEvent("app-toast", {
-                        detail: { message: fullMessage, severity: "error" }
-                    }));
-                }
-            } else if (status === 403) {
+            if (status === 403) {
                 window.dispatchEvent(new CustomEvent("app-toast", {
                     detail: { message: "Access denied. You lack permissions for this resource.", severity: "error" }
                 }));

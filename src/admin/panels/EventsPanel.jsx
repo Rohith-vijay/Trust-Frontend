@@ -1,4 +1,7 @@
 import React, { useState } from "react";
+import RichTextEditor from "../components/RichTextEditor";
+import SortableList from "../components/SortableList";
+import MediaUploader from "../../components/MediaUploader";
 
 const EventsPanel = ({
   events,
@@ -10,6 +13,7 @@ const EventsPanel = ({
   onCreateEvent,
   onUpdateEvent,
   onDeleteEvent,
+  onReorderEvents,
   onToggleEventPublish,
   onToggleEventFeatured,
   formatDate,
@@ -19,6 +23,7 @@ const EventsPanel = ({
   // Local states for Event FAQs
   const [newFaqs, setNewFaqs] = useState([]);
   const [editFaqs, setEditFaqs] = useState([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleAddFaq = (isEdit = false) => {
     const fresh = { question: "", answer: "", displayOrder: isEdit ? editFaqs.length : newFaqs.length };
@@ -41,15 +46,22 @@ const EventsPanel = ({
     }
   };
 
-  const triggerCreate = (e) => {
+  const triggerCreate = async (e) => {
     e.preventDefault();
-    const payload = {
-      ...eventForm,
-      maxVolunteers: eventForm.maxVolunteers ? Number(eventForm.maxVolunteers) : null,
-      faqs: newFaqs
-    };
-    onCreateEvent(payload);
-    setNewFaqs([]);
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    try {
+      const payload = {
+        ...eventForm,
+        coverImageUrl: eventForm.coverImageUrl || eventForm.thumbnailUrl || eventForm.coverImage || "",
+        maxVolunteers: eventForm.maxVolunteers ? Number(eventForm.maxVolunteers) : null,
+        faqs: newFaqs
+      };
+      await onCreateEvent(payload);
+      setNewFaqs([]);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const triggerEditStart = (ev) => {
@@ -58,18 +70,27 @@ const EventsPanel = ({
       ...ev,
       eventDate: toLocal(ev.eventDate),
       registrationDeadline: toLocal(ev.registrationDeadline),
+      thumbnailUrl: ev.coverImageUrl || ev.thumbnailUrl || "",
+      coverImage: ev.coverImageUrl || ev.coverImage || "",
     });
     setEditFaqs(ev.faqs || []);
   };
 
-  const triggerUpdate = (e) => {
+  const triggerUpdate = async (e) => {
     e.preventDefault();
-    const payload = {
-      ...editingEvent,
-      maxVolunteers: editingEvent.maxVolunteers ? Number(editingEvent.maxVolunteers) : null,
-      faqs: editFaqs
-    };
-    onUpdateEvent(payload);
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    try {
+      const payload = {
+        ...editingEvent,
+        coverImageUrl: editingEvent.coverImageUrl || editingEvent.thumbnailUrl || editingEvent.coverImage || "",
+        maxVolunteers: editingEvent.maxVolunteers ? Number(editingEvent.maxVolunteers) : null,
+        faqs: editFaqs
+      };
+      await onUpdateEvent(payload);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -144,31 +165,27 @@ const EventsPanel = ({
             <p className="text-xs font-bold text-gray-700">Relational Image Architecture</p>
             <div className="grid sm:grid-cols-3 gap-3">
               <div className="space-y-1">
-                <label className="text-[11px] text-gray-500">Thumbnail Image URL (Listings) *</label>
-                <input
+                <MediaUploader
+                  mediaType="IMAGE"
+                  label="Thumbnail Image (Listings) *"
                   value={eventForm.thumbnailUrl || ""}
-                  onChange={(e) => setEventForm((p) => ({ ...p, thumbnailUrl: e.target.value }))}
-                  placeholder="https://..."
-                  required
-                  className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-xs outline-none bg-white"
+                  onUploadSuccess={(metadata) => setEventForm((p) => ({ ...p, thumbnailUrl: metadata.secure_url }))}
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-[11px] text-gray-500">Hero Image URL (Header banner)</label>
-                <input
+                <MediaUploader
+                  mediaType="IMAGE"
+                  label="Hero Image (Header banner)"
                   value={eventForm.heroImageUrl || ""}
-                  onChange={(e) => setEventForm((p) => ({ ...p, heroImageUrl: e.target.value }))}
-                  placeholder="https://..."
-                  className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-xs outline-none bg-white"
+                  onUploadSuccess={(metadata) => setEventForm((p) => ({ ...p, heroImageUrl: metadata.secure_url }))}
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-[11px] text-gray-500">Cover Image URL (Fallback)</label>
-                <input
+                <MediaUploader
+                  mediaType="IMAGE"
+                  label="Cover Image (Fallback)"
                   value={eventForm.coverImage || ""}
-                  onChange={(e) => setEventForm((p) => ({ ...p, coverImage: e.target.value }))}
-                  placeholder="https://..."
-                  className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-xs outline-none bg-white"
+                  onUploadSuccess={(metadata) => setEventForm((p) => ({ ...p, coverImage: metadata.secure_url }))}
                 />
               </div>
             </div>
@@ -270,21 +287,19 @@ const EventsPanel = ({
 
           <div className="space-y-1">
             <label className="text-xs font-semibold text-gray-500">Initiative Narrative Description *</label>
-            <textarea
-              value={eventForm.description}
-              onChange={(e) => setEventForm((p) => ({ ...p, description: e.target.value }))}
+            <RichTextEditor
+              content={eventForm.description}
+              onChange={(html) => setEventForm((p) => ({ ...p, description: html }))}
               placeholder="Outline deployment goals, timeline, and details..."
-              required
-              rows={4}
-              className="w-full border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary/20 bg-white"
             />
           </div>
 
           <button
             type="submit"
-            className="bg-primary text-white px-5 py-2.5 rounded-lg text-sm font-bold hover:brightness-95 transition"
+            disabled={isSubmitting}
+            className={`px-5 py-2.5 rounded-lg text-sm font-bold transition ${isSubmitting ? "bg-gray-400 text-white cursor-not-allowed" : "bg-primary text-white hover:brightness-95"}`}
           >
-            + Create Initiative Event
+            {isSubmitting ? "Saving..." : "+ Create Initiative Event"}
           </button>
         </form>
       )}
@@ -359,31 +374,27 @@ const EventsPanel = ({
             <p className="text-xs font-bold text-gray-700">Relational Image Architecture</p>
             <div className="grid sm:grid-cols-3 gap-3">
               <div className="space-y-1">
-                <label className="text-[11px] text-gray-500">Thumbnail Image URL *</label>
-                <input
+                <MediaUploader
+                  mediaType="IMAGE"
+                  label="Thumbnail Image *"
                   value={editingEvent.thumbnailUrl || ""}
-                  onChange={(e) => setEditingEvent((p) => ({ ...p, thumbnailUrl: e.target.value }))}
-                  placeholder="https://..."
-                  required
-                  className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-xs outline-none bg-gray-50"
+                  onUploadSuccess={(metadata) => setEditingEvent((p) => ({ ...p, thumbnailUrl: metadata.secure_url }))}
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-[11px] text-gray-500">Hero Image URL</label>
-                <input
+                <MediaUploader
+                  mediaType="IMAGE"
+                  label="Hero Image"
                   value={editingEvent.heroImageUrl || ""}
-                  onChange={(e) => setEditingEvent((p) => ({ ...p, heroImageUrl: e.target.value }))}
-                  placeholder="https://..."
-                  className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-xs outline-none bg-gray-50"
+                  onUploadSuccess={(metadata) => setEditingEvent((p) => ({ ...p, heroImageUrl: metadata.secure_url }))}
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-[11px] text-gray-500">Cover Image URL</label>
-                <input
+                <MediaUploader
+                  mediaType="IMAGE"
+                  label="Cover Image"
                   value={editingEvent.coverImage || ""}
-                  onChange={(e) => setEditingEvent((p) => ({ ...p, coverImage: e.target.value }))}
-                  placeholder="https://..."
-                  className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-xs outline-none bg-gray-50"
+                  onUploadSuccess={(metadata) => setEditingEvent((p) => ({ ...p, coverImage: metadata.secure_url }))}
                 />
               </div>
             </div>
@@ -482,21 +493,20 @@ const EventsPanel = ({
 
           <div className="space-y-1">
             <label className="text-xs font-semibold text-gray-500">Initiative Narrative Description *</label>
-            <textarea
-              value={editingEvent.description || ""}
-              onChange={(e) => setEditingEvent((p) => ({ ...p, description: e.target.value }))}
-              placeholder="Description"
-              rows={3}
-              className="w-full border border-gray-200 rounded-lg px-3.5 py-2 text-sm outline-none bg-white animate-transition"
+            <RichTextEditor
+              content={editingEvent.description || ""}
+              onChange={(html) => setEditingEvent((p) => ({ ...p, description: html }))}
+              placeholder="Outline deployment goals, timeline, and details..."
             />
           </div>
 
           <div className="flex gap-2">
             <button
               type="submit"
-              className="bg-primary text-white px-5 py-2.5 rounded-lg text-xs font-bold hover:brightness-95 transition"
+              disabled={isSubmitting}
+              className={`px-5 py-2.5 rounded-lg text-xs font-bold transition ${isSubmitting ? "bg-gray-400 text-white cursor-not-allowed" : "bg-primary text-white hover:brightness-95"}`}
             >
-              Save Event Config
+              {isSubmitting ? "Saving..." : "Save Event Config"}
             </button>
             <button
               type="button"
@@ -512,24 +522,23 @@ const EventsPanel = ({
       {/* Event Listings */}
       {tabLoading ? (
         <LoadingSpinner />
-      ) : events.length === 0 ? (
+      ) : !Array.isArray(events) || events.length === 0 ? (
         <EmptyState
           icon="📅"
           title="No events yet."
           subtitle="Deploy your first impact initiative using the editor above."
         />
       ) : (
-        <div className="space-y-3">
-          {events.map((ev) => (
-            <div
-              key={ev.id}
-              className="border border-gray-100 rounded-2xl p-5 bg-white hover:shadow-sm transition"
-            >
+        <SortableList
+          items={events}
+          onReorder={onReorderEvents}
+          renderItem={(ev) => (
+            <div className="border border-gray-100 rounded-2xl p-5 bg-white hover:shadow-sm transition">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="flex items-start gap-4 min-w-0">
-                  {ev.thumbnailUrl && (
+                  {(ev.coverImageUrl || ev.thumbnailUrl) && (
                     <img
-                      src={ev.thumbnailUrl}
+                      src={ev.coverImageUrl || ev.thumbnailUrl}
                       alt={ev.title}
                       className="w-16 h-16 rounded-xl object-cover flex-shrink-0 border"
                     />
@@ -608,8 +617,8 @@ const EventsPanel = ({
                 </div>
               </div>
             </div>
-          ))}
-        </div>
+          )}
+        />
       )}
     </div>
   );

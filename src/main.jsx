@@ -1,3 +1,10 @@
+if (typeof global === "undefined") {
+  window.global = window;
+}
+if (typeof process === "undefined") {
+  window.process = { env: {} };
+}
+
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'

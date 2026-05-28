@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, useCallback } from "react";
+import React, { createContext, useState, useEffect, useCallback, useMemo } from "react";
 import authService from "../services/authService";
 import { Snackbar, Alert } from "@mui/material";
 
@@ -24,7 +24,7 @@ export const AppProvider = ({ children }) => {
   const [user, setUser] = useState(() => authService.getCurrentUser());
   const [isAuthenticated, setIsAuthenticated] = useState(() => authService.getCurrentUser() !== null);
 
-  // Toast state
+  // ── Toast ─────────────────────────────────────────────────────────────────
   const [toast, setToast] = useState({ open: false, message: "", severity: "info" });
 
   const showToast = useCallback((message, severity = "info") => {
@@ -51,6 +51,7 @@ export const AppProvider = ({ children }) => {
     return () => window.removeEventListener("app-toast", handleToastEvent);
   }, []);
 
+  // ── Auth ──────────────────────────────────────────────────────────────────
   const login = useCallback(async (email, password) => {
     const result = await authService.login(email, password);
     setUser(result.user);
@@ -72,7 +73,7 @@ export const AppProvider = ({ children }) => {
     showToast("Logged out successfully.", "info");
   }, [showToast]);
 
-  const contextValue = {
+  const contextValue = useMemo(() => ({
     // UI state
     loading,
     setLoading,
@@ -86,7 +87,7 @@ export const AppProvider = ({ children }) => {
     register,
     logout,
     showToast,
-  };
+  }), [loading, globalLoading, user, isAuthenticated, login, register, logout, showToast]);
 
   return (
     <AppContext.Provider value={contextValue}>

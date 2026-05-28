@@ -14,7 +14,7 @@ const MessagesPanel = ({ messages, unreadCount, onMarkRead, onDeleteMessage, for
           )}
         </h3>
       </div>
-      {messages.length === 0 ? (
+      {!Array.isArray(messages) || messages.length === 0 ? (
         <EmptyState
           icon="📭"
           title="No messages yet."
@@ -23,7 +23,7 @@ const MessagesPanel = ({ messages, unreadCount, onMarkRead, onDeleteMessage, for
       ) : (
         <div className="space-y-3">
           <AnimatePresence>
-            {messages.map((msg) => (
+            {Array.isArray(messages) && messages.map((msg) => (
               <motion.div
                 key={msg.id}
                 initial={{ opacity: 0, y: 10 }}

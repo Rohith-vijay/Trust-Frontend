@@ -15,7 +15,7 @@ export default function ImpactReports() {
   ];
 
   useEffect(() => {
-    api.get('/impact-reports')
+    api.get('/impact-reports', { skipGlobalToast: true })
       .then(res => {
         // Handle standardized envelope or direct unwrapped lists
         const dataPayload = res.data || res;

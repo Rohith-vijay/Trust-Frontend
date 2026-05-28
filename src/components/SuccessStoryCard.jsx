@@ -43,8 +43,8 @@ const SuccessStoryCard = React.memo(({ story }) => {
 
   return (
     <motion.div
-      whileHover={{ y: -8, scale: 1.015 }}
-      transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
+      whileHover={{ y: -6, scale: 1.01 }}
+      transition={{ type: "spring", stiffness: 260, damping: 20 }}
       className="h-full"
     >
       <Card
@@ -102,14 +102,17 @@ const SuccessStoryCard = React.memo(({ story }) => {
               </div>
             </div>
 
-            {/* Draggable Divider Handle */}
             <div
-              className="absolute inset-y-0 w-1 bg-white cursor-ew-resize flex items-center justify-center z-10"
+              className="absolute inset-y-0 w-[2px] bg-white/80 cursor-ew-resize flex items-center justify-center z-10"
               style={{ left: `${sliderPosition}%`, transform: "translateX(-50%)" }}
             >
-              <div className="w-6 h-6 rounded-full bg-white shadow-md border border-gray-100 flex items-center justify-center text-[10px] font-black text-amber-600">
+              <motion.div 
+                whileHover={{ scale: 1.2, boxShadow: "0 0 14px rgba(176, 122, 63, 0.5)" }}
+                transition={{ type: "spring", stiffness: 350, damping: 15 }}
+                className="w-6 h-6 rounded-full bg-white shadow-md border border-gray-100 flex items-center justify-center text-[10px] font-black text-amber-600"
+              >
                 ↔
-              </div>
+              </motion.div>
             </div>
 
             {/* Range Input overlay covering the element for seamless touch/mouse dragging */}

@@ -18,17 +18,21 @@ import TeamSection from "../components/TeamSection";
 import DonationCTA from "../components/DonationCTA";
 import HeroSection from "../components/HeroSection";
 import SuccessStoryCard from "../components/SuccessStoryCard";
+import { ScrollStagger, FadeInUp } from "../components/MotionContainer";
+import { CardGridSkeleton } from "../components/SkeletonLoader";
 
 function Home() {
   const [impactData, setImpactData] = React.useState([]);
   const [stories, setStories] = React.useState([]);
   const [events, setEvents] = React.useState([]);
+  const [loading, setLoading] = React.useState(true);
   const { globalLoading, setGlobalLoading } = React.useContext(AppContext);
   const navigate = useNavigate();
 
   React.useEffect(() => {
     const fetchData = async () => {
-      setGlobalLoading(true);
+      // Keep global loading false to use skeletal shimmers for homepage content
+      setGlobalLoading(false);
       try {
         const [impacts, success, eventsPage] = await Promise.all([
           databaseService.getImpactData(),
@@ -41,7 +45,7 @@ function Home() {
       } catch (err) {
         console.error("Error fetching home data:", err);
       } finally {
-        setGlobalLoading(false);
+        setLoading(false);
       }
     };
 
@@ -110,20 +114,28 @@ function Home() {
           </motion.div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-5xl mx-auto px-4">
-            {impactData.map((item, i) => (
-              <Counter
-                key={item.id}
-                end={item.currentValue}
-                label={item.category}
-                icon={item.icon}
-                delay={i * 0.1}
-              />
-            ))}
+            {loading ? (
+              Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="shimmer-bg-gold h-[140px] rounded-2xl flex flex-col justify-center items-center p-6 border border-amber-100/10 shadow-sm" />
+              ))
+            ) : (
+              impactData.map((item, i) => (
+                <Counter
+                  key={item.id}
+                  end={item.currentValue}
+                  label={item.category}
+                  icon={item.icon}
+                  delay={i * 0.08}
+                />
+              ))
+            )}
           </div>
         </section>
 
         {/* TEAM SECTION */}
-        <TeamSection />
+        <FadeInUp margin="-80px">
+          <TeamSection />
+        </FadeInUp>
 
         {/* SUCCESS STORIES */}
         <motion.section
@@ -137,17 +149,18 @@ function Home() {
             Success Stories
           </Typography>
 
-          <motion.div 
-            className="grid md:grid-cols-3 gap-8 px-8 max-w-7xl mx-auto"
-            variants={containerVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-          >
-            {stories.map((story) => (
-              <SuccessStoryCard key={story.id} story={story} />
-            ))}
-          </motion.div>
+          {loading ? (
+            <CardGridSkeleton count={3} />
+          ) : (
+            <ScrollStagger 
+              className="grid md:grid-cols-3 gap-8 px-8 max-w-7xl mx-auto"
+              margin="-60px"
+            >
+              {stories.slice(0, 3).map((story) => (
+                <SuccessStoryCard key={story.id} story={story} />
+              ))}
+            </ScrollStagger>
+          )}
         </motion.section>
 
         {/* EVENT HIGHLIGHTS */}
@@ -227,9 +240,9 @@ function Home() {
         )}
 
         {/* DONATION CTA */}
-        <div className="bg-accent/10 rounded-3xl overflow-hidden">
+        <FadeInUp margin="-80px" className="bg-accent/10 rounded-3xl overflow-hidden">
           <DonationCTA />
-        </div>
+        </FadeInUp>
 
       </SiteContainer>
     </motion.div>

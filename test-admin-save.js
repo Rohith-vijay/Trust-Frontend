@@ -8,7 +8,7 @@ async function testSave() {
     });
     if (!loginRes.ok) throw new Error(`Login failed: ${loginRes.status}`);
     const loginData = await loginRes.json();
-    const token = loginData.token;
+    const token = loginData.data?.token || loginData.token;
     console.log("   Login Successful!");
 
     const headers = {
@@ -34,12 +34,13 @@ async function testSave() {
       headers: { 'Authorization': `Bearer ${token}` }
     });
     if (getRes.ok) {
-      const data = await getRes.json();
-      console.log("   Retrieved value:", data.VISION_HERO_TITLE);
-      if (data.VISION_HERO_TITLE === "Empowering Communities Worldwide") {
+      const responseObj = await getRes.json();
+      const actualData = responseObj.data || responseObj;
+      console.log("   Retrieved value:", actualData.VISION_HERO_TITLE);
+      if (actualData.VISION_HERO_TITLE === "Empowering Communities Worldwide") {
         console.log("   SUCCESS: Value persisted and verified in database!");
       } else {
-        console.error("   FAILURE: Expected 'Empowering Communities Worldwide' but got:", data.VISION_HERO_TITLE);
+        console.error("   FAILURE: Expected 'Empowering Communities Worldwide' but got:", actualData.VISION_HERO_TITLE);
       }
     } else {
       console.error("   Failed to retrieve page contents!", getRes.status);

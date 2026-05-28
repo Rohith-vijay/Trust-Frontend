@@ -127,6 +127,12 @@ function Login() {
                 }}
               />
 
+              <div className="flex justify-end text-xs mt-1">
+                <Link to="/forgot-password" className="text-primary font-bold hover:underline">
+                  Forgot Password?
+                </Link>
+              </div>
+
               <Button
                 fullWidth
                 variant="contained"

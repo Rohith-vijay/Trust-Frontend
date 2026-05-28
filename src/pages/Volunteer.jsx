@@ -30,15 +30,17 @@ function Volunteer() {
   }, [searchParams]);
 
   useEffect(() => {
+    let ignore = false;
     databaseService
       .getEvents(0, 50)
       .then((page) => {
+        if (ignore) return;
         const evs = Array.isArray(page.content || page) ? (page.content || page) : [];
-        const now = new Date().getTime();
         setEvents(evs.filter(e => e.status === "UPCOMING" || e.status === "ONGOING"));
       })
-      .catch((err) => console.error("Failed to load events:", err))
-      .finally(() => setEventsLoading(false));
+      .catch((err) => { if (!ignore) console.error("Failed to load events:", err); })
+      .finally(() => { if (!ignore) setEventsLoading(false); });
+    return () => { ignore = true; };
   }, []);
 
   const handleSubmit = async (e) => {
@@ -143,7 +145,7 @@ function Volunteer() {
                   <TextField select fullWidth label="Select Event to Volunteer For *" value={selectedEventId} onChange={(e) => setSelectedEventId(e.target.value)} disabled={submitting} InputProps={{ sx: { borderRadius: 3 } }}>
                     {events.map((ev) => (
                       <MenuItem key={ev.id} value={ev.id}>
-                        {ev.title} {ev.eventDate ? `— ${new Date(ev.eventDate).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}` : ""}
+                        {ev.title} {ev.eventDate && !isNaN(new Date(ev.eventDate).getTime()) ? `— ${new Date(ev.eventDate).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}` : ""}
                       </MenuItem>
                     ))}
                   </TextField>

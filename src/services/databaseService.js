@@ -67,6 +67,11 @@ const databaseService = {
     return response.data;
   },
 
+  reorderStories: async (storyIds) => {
+    const response = await api.put("/success-stories/reorder", storyIds);
+    return response.data;
+  },
+
   // ─── Team Members (Public GET, Admin mutations) ─────────────
   getTeamMembers: async (adminView = false) => {
     const params = adminView ? { admin: true } : {};
@@ -86,6 +91,11 @@ const databaseService = {
 
   deleteMember: async (id) => {
     await api.delete(`/members/${id}`);
+  },
+
+  reorderMembers: async (memberIds) => {
+    const response = await api.put("/members/reorder", memberIds);
+    return response.data;
   },
 
   // ─── Events (Public GET, Admin mutations) ───────────────────
@@ -179,6 +189,37 @@ const databaseService = {
     return response.data;
   },
 
+  getAnalyticsSummary: async () => {
+    const response = await api.get("/admin/analytics");
+    return response.data;
+  },
+
+  // ─── AI & Automation Layer (Admin) ──────────────────────────
+  generateAiReport: async (scope) => {
+    const response = await api.post(`/admin/ai/impact-report?scope=${scope}`);
+    return response.data;
+  },
+
+  enhanceStoryAi: async (content, styleProfile) => {
+    const response = await api.post("/admin/ai/enhance-story", { content, styleProfile });
+    return response.data;
+  },
+
+  summarizeAnalyticsAi: async () => {
+    const response = await api.post("/admin/ai/summarize-analytics");
+    return response.data;
+  },
+
+  matchVolunteerAi: async (volunteerSkills, volunteerExperience, eventTitle, eventSkillsNeeded) => {
+    const response = await api.post("/admin/ai/match-volunteers", {
+      volunteerSkills,
+      volunteerExperience,
+      eventTitle,
+      eventSkillsNeeded
+    });
+    return response.data;
+  },
+
   // ─── Users (Admin) ──────────────────────────────────────────
   getUsers: async () => {
     const response = await api.get("/admin/users");
@@ -203,9 +244,52 @@ const databaseService = {
     return response.data;
   },
 
+  createDonation: async (donationData) => {
+    const response = await api.post("/donations", donationData);
+    return response.data;
+  },
+
+  createPaymentOrder: async (donationId) => {
+    const response = await api.post(`/payments/create-order/${donationId}`);
+    return response.data;
+  },
+
+  verifyPayment: async (verificationData) => {
+    const response = await api.post("/payments/verify", verificationData);
+    return response.data;
+  },
+
   // ─── Activities / Audit Logs (Admin) ────────────────────────
-  getActivities: async () => {
-    const response = await api.get("/admin/activities");
+  getActivities: async (search = "", status = "", page = 0, size = 20) => {
+    const response = await api.get("/admin/activities", {
+      params: { search, status, page, size }
+    });
+    return response.data;
+  },
+
+  // ─── PDF Receipt Download ────────────────────────────────────
+  downloadDonationReceipt: async (donationId) => {
+    const response = await api.get(`/donations/${donationId}/receipt`, {
+      responseType: 'blob',
+      skipGlobalToast: true,
+    });
+    return response.data;
+  },
+
+  // ─── Admin Refund ────────────────────────────────────────────
+  refundDonation: async (donationId, reason) => {
+    const response = await api.post(`/payments/admin/refund/${donationId}`, { reason });
+    return response.data;
+  },
+
+  // ─── Observability / Metrics ─────────────────────────────────
+  getSystemMetrics: async () => {
+    const response = await api.get('/admin/metrics');
+    return response.data;
+  },
+
+  getPublicHealth: async () => {
+    const response = await api.get('/public/health', { skipGlobalToast: true });
     return response.data;
   },
 };

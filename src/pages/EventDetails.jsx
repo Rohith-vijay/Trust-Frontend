@@ -2,8 +2,11 @@ import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { pageVariants, pageTransition } from "../constants/motionVariants";
-import databaseService from "../services/databaseService";
 import NotFound from "./NotFound";
+import databaseService from "../services/databaseService";
+import { DetailSkeleton } from "../components/SkeletonLoader";
+import MasonryGallery from "../components/MasonryGallery";
+import MediaEmbed from "../components/MediaEmbed";
 import { Typography, Button, CircularProgress, Card, CardContent, Chip } from "@mui/material";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
@@ -30,23 +33,22 @@ function EventDetails() {
   const highlightsRef = useRef(null);
 
   useEffect(() => {
+    let ignore = false;
     databaseService
       .getEventById(id)
-      .then((data) => setEvent(data))
+      .then((data) => { if (!ignore) setEvent(data); })
       .catch((err) => {
-        console.error("Failed to load event:", err);
-        setNotFound(true);
+        if (!ignore) {
+          console.error("Failed to load event:", err);
+          setNotFound(true);
+        }
       })
-      .finally(() => setLoading(false));
+      .finally(() => { if (!ignore) setLoading(false); });
+    return () => { ignore = true; };
   }, [id]);
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center text-gray-400">
-        <CircularProgress size={48} thickness={4} />
-        <Typography sx={{ mt: 3 }}>Loading initiative details...</Typography>
-      </div>
-    );
+    return <DetailSkeleton />;
   }
 
   if (notFound || !event) {
@@ -61,9 +63,30 @@ function EventDetails() {
   const headerImage = event.heroImageUrl || allBannerImages[0] || event.image || photos[0] || null;
   const extraImages = [...allBannerImages.slice(1), ...photos];
 
-  const displayDate = event.eventDate
-    ? new Date(event.eventDate).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })
-    : event.date || "";
+  // Map into structured assets for Masonry Gallery
+  const masonryAssets = [
+    ...(event.media?.map((m, idx) => ({
+      id: `m-${idx}`,
+      url: m.mediaUrl,
+      mediaType: m.mediaType,
+      caption: event.title + " Media Showcase",
+      aspectRatio: m.mediaType === "VIDEO" ? 1.77 : 1.33
+    })) || []),
+    ...allBannerImages.slice(1).map((url, idx) => ({
+      id: `b-${idx}`,
+      url: url,
+      mediaType: "IMAGE",
+      caption: event.title + " Gallery View",
+      aspectRatio: 1.33
+    }))
+  ].filter((item, index, self) => self.findIndex(t => t.url === item.url) === index);
+
+  const displayDate = (() => {
+    if (!event.eventDate) return event.date || "";
+    const d = new Date(event.eventDate);
+    if (isNaN(d.getTime())) return event.date || "";
+    return d.toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" });
+  })();
 
   const status = (event.status || 'UPCOMING').toUpperCase();
 
@@ -183,7 +206,7 @@ function EventDetails() {
                       >
                         {event.highlights.map((url, i) => (
                           <SwiperSlide key={i}>
-                            <img src={url} className="w-full h-full object-cover" loading="lazy" alt={`Highlight ${i + 1}`} />
+                            <img src={url} className="w-full h-full object-cover" loading="lazy" alt={`Highlight ${i + 1}`} onError={(e) => { e.target.onerror = null; e.target.src = 'https://via.placeholder.com/800x600?text=Media+Unavailable'; }} />
                           </SwiperSlide>
                         ))}
                       </Swiper>
@@ -194,19 +217,14 @@ function EventDetails() {
             )}
 
             {/* Campaign/Initiative Photo Gallery */}
-            {extraImages.length > 0 && (
+            {masonryAssets.length > 0 && (
               <Card sx={{ borderRadius: 6, boxShadow: '0 10px 30px rgba(0,0,0,0.03)', border: '1px solid rgba(0,0,0,0.03)', p: { xs: 3, md: 5 } }}>
                 <CardContent sx={{ p: 0 }}>
                   <Typography variant="h5" sx={{ fontWeight: 800, mb: 3, color: 'text.primary', position: 'relative', pb: 1, '&::after': { content: '""', position: 'absolute', bottom: 0, left: 0, width: 45, height: 3, bgcolor: 'primary.main', borderRadius: 2 } }}>
                     Initiative Gallery
                   </Typography>
-                  
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-6">
-                    {extraImages.map((url, idx) => (
-                      <div key={idx} className="relative aspect-[4/3] rounded-2xl overflow-hidden border border-gray-100 shadow-sm group bg-gray-50">
-                        <img src={url} alt={`Gallery ${idx}`} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
-                      </div>
-                    ))}
+                  <div className="mt-6">
+                    <MasonryGallery assets={masonryAssets} />
                   </div>
                 </CardContent>
               </Card>
@@ -281,7 +299,9 @@ function EventDetails() {
                       <div>
                         <Typography variant="caption" color="text.disabled" sx={{ fontWeight: 800, letterSpacing: 0.5, fontSize: '0.65rem' }}>APPLICATION DEADLINE</Typography>
                         <Typography variant="body2" sx={{ fontWeight: 800, color: 'error.main' }}>
-                          {new Date(event.registrationDeadline).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+                          {event.registrationDeadline && !isNaN(new Date(event.registrationDeadline).getTime())
+                            ? new Date(event.registrationDeadline).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })
+                            : "—"}
                         </Typography>
                       </div>
                     </div>
@@ -439,16 +459,13 @@ function EventDetails() {
             <Typography variant="h4" sx={{ fontWeight: 800, mb: 4, color: 'text.primary', fontHeading: true }}>Campaign Video Updates</Typography>
             <div className="space-y-8">
               {videos.map((vid, i) => (
-                <div key={i} className="relative w-full overflow-hidden rounded-3xl shadow-lg border border-gray-150" style={{ paddingTop: "56.25%" }}>
-                  <iframe
-                    src={vid}
-                    title={`Event Video ${i + 1}`}
-                    frameBorder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                    className="absolute top-0 left-0 w-full h-full"
-                  />
-                </div>
+                <MediaEmbed
+                  key={i}
+                  url={vid}
+                  posterUrl={headerImage}
+                  caption={`${event.title} - Video Update #${i + 1}`}
+                  aspectRatio="16/9"
+                />
               ))}
             </div>
           </motion.div>

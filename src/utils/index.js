@@ -7,3 +7,16 @@ export const formatDate = (date) => {
 };
 
 export const clamp = (num, min, max) => Math.min(Math.max(num, min), max);
+
+export const getBackendUrl = () => {
+  if (import.meta.env.VITE_API_BASE_URL) {
+    return import.meta.env.VITE_API_BASE_URL;
+  }
+  const hostname = typeof window !== "undefined" && window.location ? window.location.hostname : "localhost";
+  return `http://${hostname}:8080/api`;
+};
+
+export const getWebSocketUrl = () => {
+  const hostname = typeof window !== "undefined" && window.location ? window.location.hostname : "localhost";
+  return `http://${hostname}:8080/ws`;
+};

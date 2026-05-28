@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 const ImpactPanel = ({
   impactStats,
@@ -14,13 +14,37 @@ const ImpactPanel = ({
   LoadingSpinner,
   EmptyState
 }) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleCreate = async (e) => {
+    e.preventDefault();
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    try {
+      await onCreateImpactStat(e);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleUpdate = async (e) => {
+    e.preventDefault();
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    try {
+      await onUpdateImpactFull(e);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div>
       <h3 className="text-lg font-bold text-brand-navy-dark mb-4">Impact Initiatives & Metrics</h3>
 
       {/* Add new stat form */}
       <form
-        onSubmit={onCreateImpactStat}
+        onSubmit={handleCreate}
         className="mb-6 border border-dashed border-gray-300 rounded-2xl p-5 space-y-4 bg-gray-50/30"
       >
         <p className="text-sm font-semibold text-gray-700">Add New Metric Tracker</p>
@@ -77,15 +101,16 @@ const ImpactPanel = ({
         </div>
         <button
           type="submit"
-          className="bg-primary text-white px-5 py-2.5 rounded-lg text-sm font-bold hover:brightness-95 hover:shadow-md transition whitespace-nowrap"
+          disabled={isSubmitting}
+          className={`px-5 py-2.5 rounded-lg text-sm font-bold whitespace-nowrap transition ${isSubmitting ? "bg-gray-400 text-white cursor-not-allowed" : "bg-primary text-white hover:brightness-95 hover:shadow-md"}`}
         >
-          + Add Tracker Metric
+          {isSubmitting ? "Adding..." : "+ Add Tracker Metric"}
         </button>
       </form>
 
       {tabLoading ? (
         <LoadingSpinner />
-      ) : impactStats.length === 0 ? (
+      ) : !Array.isArray(impactStats) || impactStats.length === 0 ? (
         <EmptyState
           icon="📊"
           title="No impact trackers yet."
@@ -93,11 +118,11 @@ const ImpactPanel = ({
         />
       ) : (
         <div className="space-y-4">
-          {impactStats.map((stat) =>
+          {Array.isArray(impactStats) && impactStats.map((stat) =>
             editingImpact?.id === stat.id ? (
               <form
                 key={stat.id}
-                onSubmit={onUpdateImpactFull}
+                onSubmit={handleUpdate}
                 className="border border-primary/20 bg-primary/5 rounded-2xl p-5 space-y-4 shadow-sm"
               >
                 <p className="text-sm font-bold text-brand-navy-dark">Editing Metric Config</p>
@@ -165,9 +190,10 @@ const ImpactPanel = ({
                 <div className="flex gap-2">
                   <button
                     type="submit"
-                    className="bg-primary text-white px-4.5 py-2 rounded-lg text-xs font-bold hover:brightness-95 transition"
+                    disabled={isSubmitting}
+                    className={`px-4.5 py-2 rounded-lg text-xs font-bold transition ${isSubmitting ? "bg-gray-400 text-white cursor-not-allowed" : "bg-primary text-white hover:brightness-95"}`}
                   >
-                    Save Changes
+                    {isSubmitting ? "Saving..." : "Save Changes"}
                   </button>
                   <button
                     type="button"

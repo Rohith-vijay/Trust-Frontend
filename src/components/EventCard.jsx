@@ -15,19 +15,23 @@ const EventCard = React.memo(({ event }) => {
   }, [nav, event.id]);
 
   const getPrimaryImage = () => {
+    if (event.coverImageUrl) return event.coverImageUrl;
     if (event.bannerUrl) return event.bannerUrl.split(',')[0];
     if (event.image) return event.image.split(',')[0];
     if (event.media?.[0]?.mediaUrl) return event.media[0].mediaUrl;
     return null;
   };
   const imageUrl = getPrimaryImage();
-  const displayDate = event.eventDate
-    ? new Date(event.eventDate).toLocaleDateString("en-IN", {
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-      })
-    : event.date || "";
+  const displayDate = (() => {
+    if (!event.eventDate) return event.date || "";
+    const d = new Date(event.eventDate);
+    if (isNaN(d.getTime())) return event.date || "";
+    return d.toLocaleDateString("en-IN", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+  })();
   const summaryText = event.summary || event.description || "";
   const location = event.location || "";
   const category = event.category || "";
@@ -51,8 +55,8 @@ const EventCard = React.memo(({ event }) => {
 
   return (
     <motion.div
-      whileHover={{ y: -8, scale: 1.015 }}
-      transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
+      whileHover={{ y: -6, scale: 1.01 }}
+      transition={{ type: "spring", stiffness: 260, damping: 20 }}
       className="h-full"
     >
       <Card

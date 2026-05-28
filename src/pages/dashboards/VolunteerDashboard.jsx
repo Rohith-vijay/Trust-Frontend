@@ -5,6 +5,8 @@ import CountUp from "react-countup";
 import { pageVariants, pageTransition } from "../../constants/motionVariants";
 import { useAuth } from "../../hooks/useAuth";
 import { getMyVolunteerApplications } from "../../services/messageService";
+import ErrorBoundary from "../../components/ErrorBoundary";
+import { VolunteerDashboardOverviewSkeleton } from "../../components/SkeletonLoader";
 
 const VolunteerDashboard = () => {
     const { user } = useAuth();
@@ -14,17 +16,25 @@ const VolunteerDashboard = () => {
     const [filterStatus, setFilterStatus] = useState("ALL");
 
     useEffect(() => {
+        let isMounted = true;
         const fetchApplications = async () => {
             try {
                 const data = await getMyVolunteerApplications();
-                setApplications(data || []);
+                if (isMounted) {
+                    setApplications(data || []);
+                }
             } catch (err) {
                 console.error("Error fetching my volunteer applications:", err);
             } finally {
-                setLoading(false);
+                if (isMounted) {
+                    setLoading(false);
+                }
             }
         };
         fetchApplications();
+        return () => {
+            isMounted = false;
+        };
     }, []);
 
     const approvedApplications = applications.filter(app => app.status === "APPROVED" || app.status === "approved");
@@ -130,13 +140,7 @@ const VolunteerDashboard = () => {
                 </div>
 
                 {loading ? (
-                    <div className="flex flex-col items-center justify-center py-32">
-                        <div className="relative w-16 h-16">
-                            <div className="absolute inset-0 rounded-full border-4 border-slate-200"></div>
-                            <div className="absolute inset-0 rounded-full border-4 border-t-emerald-600 animate-spin"></div>
-                        </div>
-                        <p className="text-slate-500 mt-4 text-sm font-semibold animate-pulse">Loading service roster...</p>
-                    </div>
+                    <VolunteerDashboardOverviewSkeleton />
                 ) : (
                     <AnimatePresence mode="wait">
                         {activeTab === "overview" ? (
@@ -148,7 +152,8 @@ const VolunteerDashboard = () => {
                                 className="space-y-8"
                             >
                                 {/* Hero Card and Impact Tier */}
-                                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                <ErrorBoundary title="Service Summary & Hours" name="VolunteerHero">
+                                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                                     {/* Greeting card */}
                                     <motion.div 
                                         variants={itemVariants}
@@ -248,12 +253,14 @@ const VolunteerDashboard = () => {
                                         </div>
                                     </motion.div>
                                 </div>
+                                </ErrorBoundary>
 
                                 {/* Statistics Grid */}
-                                <motion.div 
-                                    variants={itemVariants}
-                                    className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
-                                >
+                                <ErrorBoundary title="Service Metrics Summary" name="VolunteerStats">
+                                    <motion.div 
+                                        variants={itemVariants}
+                                        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+                                    >
                                     {[
                                         { label: "Approved Drives", value: approvedCount, icon: "📅", color: "border-l-4 border-l-emerald-600", sub: "Accepted placements" },
                                         { label: "Pending Placements", value: pendingCount, icon: "⏱️", color: "border-l-4 border-l-amber-500", sub: "Awaiting review status" },
@@ -273,9 +280,11 @@ const VolunteerDashboard = () => {
                                         </div>
                                     ))}
                                 </motion.div>
+                                </ErrorBoundary>
 
                                 {/* Activity Timeline & Achievements */}
-                                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                <ErrorBoundary title="Service Log & Timeline" name="VolunteerTimeline">
+                                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                                     {/* Action Timeline */}
                                     <motion.div 
                                         variants={itemVariants}
@@ -347,12 +356,14 @@ const VolunteerDashboard = () => {
                                         </div>
                                     </motion.div>
                                 </div>
+                                </ErrorBoundary>
 
                                 {/* Certificates portal */}
-                                <motion.div 
-                                    variants={itemVariants}
-                                    className="bg-gradient-to-br from-emerald-900 to-emerald-950 rounded-3xl p-8 text-white relative overflow-hidden shadow-xl"
-                                >
+                                <ErrorBoundary title="Service Certificates Portal" name="VolunteerCertificates">
+                                    <motion.div 
+                                        variants={itemVariants}
+                                        className="bg-gradient-to-br from-emerald-900 to-emerald-950 rounded-3xl p-8 text-white relative overflow-hidden shadow-xl"
+                                    >
                                     <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full blur-3xl -mr-32 -mt-32"></div>
                                     <div className="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
                                         <div className="md:col-span-2 space-y-3">
@@ -388,6 +399,7 @@ const VolunteerDashboard = () => {
                                         </div>
                                     </div>
                                 </motion.div>
+                                </ErrorBoundary>
                             </motion.div>
                         ) : (
                             /* Detailed Roster Applications Grid */

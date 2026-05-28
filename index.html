@@ -1,6 +1,14 @@
 <!doctype html>
 <html lang="en">
   <head>
+    <script>
+      if (typeof global === "undefined") {
+        window.global = window;
+      }
+      if (typeof process === "undefined") {
+        window.process = { env: {} };
+      }
+    </script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
 
     <meta charset="UTF-8" />

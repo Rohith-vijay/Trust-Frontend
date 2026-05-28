@@ -9,16 +9,17 @@ const UsersPanel = ({
   LoadingSpinner,
   EmptyState
 }) => {
+  const safeUsers = Array.isArray(users) ? users : [];
   const usersPerPage = 10;
-  const totalUserPages = Math.ceil(users.length / usersPerPage);
-  const paginatedUsers = users.slice(userPage * usersPerPage, (userPage + 1) * usersPerPage);
+  const totalUserPages = Math.ceil(safeUsers.length / usersPerPage);
+  const paginatedUsers = safeUsers.slice(userPage * usersPerPage, (userPage + 1) * usersPerPage);
 
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
         <h3 className="text-lg font-bold text-brand-navy-dark">User Access Management</h3>
         <span className="text-xs font-bold bg-indigo-50 text-indigo-600 px-3.5 py-1.5 rounded-full border border-indigo-100">
-          Total Registered: {users.length} Users
+          Total Registered: {safeUsers.length} Users
         </span>
       </div>
 

@@ -29,6 +29,7 @@ function Navbar() {
   const exploreLinks = [
     { path: "/reports", label: "Impact Reports" },
     { path: "/gallery", label: "Media Gallery" },
+    { path: "/impact-showcase", label: "✦ Impact Showcase" },
     { path: "/faq", label: "FAQ" },
     { path: "/transparency", label: "Financial Transparency" },
   ];
@@ -46,17 +47,21 @@ function Navbar() {
   // Check if any explore link is active to highlight parent Explore tab
   const isExploreActive = exploreLinks.some((link) => location.pathname === link.path);
 
+  // Responsive nav text/bg colors
+  const navBgClass = scrolled
+    ? "bg-white/95 backdrop-blur-md shadow-sm py-2 border-b border-gray-100/80"
+    : "bg-warmBg/85 backdrop-blur-sm py-4";
+
+  const linkBase = "text-gray-700 hover:text-primary hover:bg-gray-50/50";
+  const linkActive = "text-primary bg-primary/5 font-semibold";
+
   return (
     <>
       <motion.nav
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
-        className={`fixed top-0 w-full z-50 transition-all duration-300 ${
-          scrolled
-            ? "bg-white/95 backdrop-blur-md shadow-sm py-2"
-            : "bg-warmBg/85 backdrop-blur-sm py-4"
-        }`}
+        className={`fixed top-0 w-full z-50 transition-all duration-300 ${navBgClass}`}
       >
         <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
           {/* Logo */}
@@ -68,7 +73,7 @@ function Navbar() {
               alt="K.V.G Shanmuka Sai Charitable Trust logo"
               className="w-10 h-10 rounded-full shadow-md"
             />
-            <span className="text-2xl font-bold text-primary tracking-tight group-hover:text-amber-700 transition-colors">
+            <span className="text-2xl font-bold tracking-tight transition-colors text-primary group-hover:text-amber-700">
               KVG Trust
             </span>
           </NavLink>
@@ -81,9 +86,7 @@ function Navbar() {
                 to={link.path}
                 className={({ isActive }) =>
                   `relative px-4 py-2 rounded-full transition-all duration-300 group ` +
-                  (isActive
-                    ? "text-primary bg-primary/5"
-                    : "text-gray-700 hover:text-primary hover:bg-gray-50")
+                  (isActive ? linkActive : linkBase)
                 }
               >
                 {({ isActive }) => (
@@ -92,7 +95,7 @@ function Navbar() {
                     {isActive && (
                       <motion.span
                         layoutId="nav-pill"
-                        className="absolute inset-0 bg-primary/10 rounded-full z-0"
+                        className="absolute inset-0 rounded-full z-0 bg-primary/10"
                         transition={{ type: "spring", stiffness: 300, damping: 30 }}
                       />
                     )}
@@ -108,10 +111,8 @@ function Navbar() {
               onMouseLeave={() => setIsDropdownOpen(false)}
             >
               <button
-                className={`relative px-4 py-2 rounded-full transition-all duration-300 flex items-center gap-1 hover:bg-gray-50 hover:text-primary ${
-                  isExploreActive
-                    ? "text-primary bg-primary/5"
-                    : "text-gray-700"
+                className={`relative px-4 py-2 rounded-full transition-all duration-300 flex items-center gap-1 ${
+                  isExploreActive ? linkActive : linkBase
                 }`}
               >
                 <span className="relative z-10">Explore</span>
@@ -124,7 +125,7 @@ function Navbar() {
                 {isExploreActive && !isDropdownOpen && (
                   <motion.span
                     layoutId="nav-pill"
-                    className="absolute inset-0 bg-primary/10 rounded-full z-0"
+                    className="absolute inset-0 rounded-full z-0 bg-primary/10"
                     transition={{ type: "spring", stiffness: 300, damping: 30 }}
                   />
                 )}
@@ -137,7 +138,7 @@ function Navbar() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 15 }}
                     transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
-                    className="absolute right-0 top-full mt-1 w-60 bg-white rounded-2xl shadow-xl border border-gray-100/80 overflow-hidden z-50 py-2"
+                    className="absolute right-0 top-full mt-1 w-60 rounded-2xl shadow-xl overflow-hidden z-50 py-2 border bg-white border-gray-150"
                   >
                     {exploreLinks.map((link) => (
                       <NavLink
@@ -159,7 +160,7 @@ function Navbar() {
             </div>
 
             {/* Auth area */}
-            <div className="ml-4 pl-4 border-l border-gray-200 flex items-center">
+            <div className="ml-4 pl-4 flex items-center gap-3 border-l border-gray-200">
               {isAuthenticated ? (
                 <UserMenu />
               ) : (
@@ -176,7 +177,7 @@ function Navbar() {
                     fontWeight: 600,
                     px: 3,
                     py: 1,
-                    fontSize: "1rem"
+                    fontSize: "1rem",
                   }}
                 >
                   Login
@@ -219,11 +220,20 @@ function Navbar() {
         open={isOpen}
         onClose={() => setIsOpen(false)}
         PaperProps={{
-          sx: { width: 280, p: 3, display: "flex", flexDirection: "column" },
+          sx: {
+            width: 280,
+            p: 3,
+            display: "flex",
+            flexDirection: "column",
+            bgcolor: "background.paper",
+            color: "text.primary",
+          },
         }}
       >
         <div className="flex justify-between items-center mb-8">
-          <span className="text-xl font-bold text-primary">Menu</span>
+          <span className="text-xl font-bold text-primary">
+            Menu
+          </span>
           <IconButton onClick={() => setIsOpen(false)}>
             <CloseIcon />
           </IconButton>
@@ -247,7 +257,7 @@ function Navbar() {
           ))}
 
           {/* Section Divider for Explore links */}
-          <div className="border-t border-gray-100 my-2 pt-2">
+          <div className="border-t my-2 pt-2 border-gray-100">
             <span className="px-4 text-xs font-bold uppercase tracking-wider text-gray-400">
               Transparency & Media
             </span>

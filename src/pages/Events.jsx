@@ -5,6 +5,8 @@ import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import GroupsIcon from '@mui/icons-material/Groups';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import { ScrollStagger } from '../components/MotionContainer';
+import { CardGridSkeleton } from '../components/SkeletonLoader';
 
 export default function Events() {
   const [events, setEvents] = useState([]);
@@ -36,14 +38,6 @@ export default function Events() {
       }));
     }
   }, [activeTab, events]);
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-brand-neutral-bg flex items-center justify-center">
-        <div className="w-10 h-10 border-4 border-brand-blue-accent border-t-transparent rounded-full animate-spin"></div>
-      </div>
-    );
-  }
 
   // Helper to extract first image from potentially comma-separated banner urls
   const getThumbnail = (event) => {
@@ -103,7 +97,9 @@ export default function Events() {
         </div>
 
         {/* Initiatives Roster */}
-        {filteredEvents.length === 0 ? (
+        {loading ? (
+          <CardGridSkeleton count={6} />
+        ) : filteredEvents.length === 0 ? (
           <div className="text-center py-20 bg-white/80 backdrop-blur-md rounded-3xl border border-dashed border-brand-blue-light/60 shadow-lg max-w-xl mx-auto">
             <span className="text-6xl block mb-4">📅</span>
             <h3 className="text-xl font-bold text-brand-navy-dark">No initiatives found</h3>
@@ -112,14 +108,22 @@ export default function Events() {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <ScrollStagger 
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+            margin="-60px"
+          >
             {filteredEvents.map((event) => {
               const status = (event.status || 'UPCOMING').toUpperCase();
-              const eventDateParsed = event.eventDate ? new Date(event.eventDate).toLocaleDateString(undefined, {
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric'
-              }) : '';
+              const eventDateParsed = (() => {
+                if (!event.eventDate) return '';
+                const d = new Date(event.eventDate);
+                if (isNaN(d.getTime())) return '';
+                return d.toLocaleDateString(undefined, {
+                  year: 'numeric',
+                  month: 'short',
+                  day: 'numeric'
+                });
+              })();
 
               return (
                 <div 
@@ -229,7 +233,7 @@ export default function Events() {
                 </div>
               );
             })}
-          </div>
+          </ScrollStagger>
         )}
 
       </div>

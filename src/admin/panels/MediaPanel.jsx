@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import MediaUploader from "../../components/MediaUploader";
 
 const MediaPanel = () => {
   const [filterOwner, setFilterOwner] = useState("ALL");
@@ -14,6 +15,18 @@ const MediaPanel = () => {
     mediaType: "IMAGE",
     orderIndex: "0"
   });
+
+  const activeTimersRef = useRef([]);
+
+  useEffect(() => {
+    const timers = activeTimersRef.current;
+    return () => {
+      timers.forEach((t) => {
+        if (t.type === "interval") clearInterval(t.id);
+        if (t.type === "timeout") clearTimeout(t.id);
+      });
+    };
+  }, []);
 
   // Mock initial media assets following the relational MediaAsset table structure
   const [assets, setAssets] = useState([
@@ -85,12 +98,15 @@ const MediaPanel = () => {
 
   const simulateUpload = (fileName) => {
     setUploadProgress(10);
-    const interval = setInterval(() => {
+    const intervalId = setInterval(() => {
       setUploadProgress((prev) => {
         if (prev >= 100) {
-          clearInterval(interval);
-          setTimeout(() => {
+          clearInterval(intervalId);
+          activeTimersRef.current = activeTimersRef.current.filter((t) => t.id !== intervalId);
+          
+          const timeoutId = setTimeout(() => {
             setUploadProgress(null);
+            activeTimersRef.current = activeTimersRef.current.filter((t) => t.id !== timeoutId);
             // Append simulated asset to assets pool
             const newAsset = {
               id: Date.now(),
@@ -103,7 +119,7 @@ const MediaPanel = () => {
               orderIndex: Number(uploadForm.orderIndex || 0),
               uploadedAt: new Date().toISOString()
             };
-            setAssets([newAsset, ...assets]);
+            setAssets((prevAssets) => [newAsset, ...prevAssets]);
             setUploadForm({
               url: "",
               thumbnailUrl: "",
@@ -115,11 +131,15 @@ const MediaPanel = () => {
             });
             alert("Relational media asset uploaded and mapped successfully!");
           }, 600);
+          
+          activeTimersRef.current.push({ type: "timeout", id: timeoutId });
           return 100;
         }
         return prev + 25;
       });
     }, 250);
+    
+    activeTimersRef.current.push({ type: "interval", id: intervalId });
   };
 
   const handleManualUpload = (e) => {
@@ -134,7 +154,7 @@ const MediaPanel = () => {
 
   const filteredAssets = assets.filter(asset => {
     const matchOwner = filterOwner === "ALL" || asset.ownerType === filterOwner;
-    const matchType = mediaType === "ALL" || asset.mediaType === matchType;
+    const matchType = mediaType === "ALL" || asset.mediaType === mediaType;
     return matchOwner && matchType;
   });
 
@@ -150,29 +170,46 @@ const MediaPanel = () => {
       <div className="grid lg:grid-cols-3 gap-8">
         {/* Upload Form Block */}
         <div className="space-y-6">
-          {/* Drag & Drop Canvas */}
-          <div
-            onDragEnter={handleDrag}
-            onDragOver={handleDrag}
-            onDragLeave={handleDrag}
-            onDrop={handleDrop}
-            className={`border-2 border-dashed rounded-3xl p-6 text-center transition flex flex-col items-center justify-center min-h-[180px] ${
-              dragActive
-                ? "border-primary bg-primary/5 scale-102"
-                : "border-gray-300 hover:border-primary/50 hover:bg-gray-50/50"
-            }`}
-          >
-            <span className="text-4xl mb-3 block select-none">📁</span>
-            <p className="text-sm font-bold text-brand-navy-dark">Drag and drop photos/videos</p>
-            <p className="text-xs text-gray-400 mt-1">Simulate instant direct uploads</p>
-            {uploadProgress !== null && (
-              <div className="w-full mt-4 bg-gray-150 rounded-full h-2 overflow-hidden border">
-                <div
-                  className="bg-primary h-full rounded-full transition-all duration-200"
-                  style={{ width: `${uploadProgress}%` }}
-                ></div>
-              </div>
-            )}
+          {/* Direct Cloudinary Uploader */}
+          <div className="bg-gray-50/30 p-1.5 rounded-3xl border border-gray-100 shadow-sm">
+            <MediaUploader
+              mediaType={uploadForm.mediaType}
+              label={`Direct Cloudinary ${uploadForm.mediaType} Uploader`}
+              value={uploadForm.url}
+              onUploadSuccess={(metadata) => {
+                setUploadForm(prev => ({
+                  ...prev,
+                  url: metadata.secure_url,
+                  thumbnailUrl: metadata.thumbnailUrl || metadata.secure_url,
+                  width: metadata.width,
+                  height: metadata.height,
+                  aspectRatio: metadata.aspect_ratio,
+                  publicId: metadata.public_id,
+                  duration: metadata.duration
+                }));
+                // Append immediately to the local state pool to see it listed!
+                const newAsset = {
+                  id: Date.now(),
+                  ownerType: uploadForm.ownerType,
+                  ownerId: uploadForm.ownerId ? Number(uploadForm.ownerId) : null,
+                  mediaType: uploadForm.mediaType,
+                  url: metadata.secure_url,
+                  thumbnailUrl: metadata.thumbnailUrl || metadata.secure_url,
+                  caption: uploadForm.caption || `Uploaded Asset: ${metadata.public_id}`,
+                  orderIndex: Number(uploadForm.orderIndex || 0),
+                  width: metadata.width,
+                  height: metadata.height,
+                  aspectRatio: metadata.aspect_ratio,
+                  publicId: metadata.public_id,
+                  duration: metadata.duration,
+                  uploadedAt: new Date().toISOString()
+                };
+                setAssets(prev => [newAsset, ...prev]);
+                window.dispatchEvent(new CustomEvent("app-toast", {
+                  detail: { message: "Cloud-native media asset uploaded successfully!", severity: "success" }
+                }));
+              }}
+            />
           </div>
 
           {/* Form */}
@@ -347,7 +384,7 @@ const MediaPanel = () => {
                   </div>
                   <div className="text-[10px] text-gray-400 mt-3 pt-2.5 border-t border-gray-50 font-medium flex justify-between">
                     <span>Order: {asset.orderIndex}</span>
-                    <span>Uploaded: {new Date(asset.uploadedAt).toLocaleDateString()}</span>
+                    <span>Uploaded: {asset.uploadedAt && !isNaN(new Date(asset.uploadedAt).getTime()) ? new Date(asset.uploadedAt).toLocaleDateString() : "—"}</span>
                   </div>
                 </div>
               </div>

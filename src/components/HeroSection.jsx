@@ -85,13 +85,20 @@ const HeroSection = memo(function HeroSection() {
                 animate={loaded ? "visible" : "hidden"}
             >
                 <motion.h1 
-                  className="hero__headline font-bold text-5xl md:text-7xl drop-shadow-lg leading-tight" 
+                  className="hero__headline font-bold text-5xl md:text-7xl drop-shadow-lg leading-tight text-white !text-white" 
                   variants={childVariants}
                 >
                     {settings.HOME_HERO_TITLE}
                 </motion.h1>
+                
+                {/* Premium gold gradient accent line */}
+                <motion.div 
+                  className="w-28 h-1 bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-300 mx-auto my-6 rounded-full shadow-lg"
+                  variants={childVariants}
+                />
+
                 <motion.p 
-                  className="hero__subtitle text-lg md:text-2xl mt-4 font-light text-white/90 max-w-2xl mx-auto drop-shadow-md" 
+                  className="hero__subtitle text-lg md:text-2xl mt-4 font-light text-white/90 !text-white max-w-2xl mx-auto drop-shadow-md" 
                   variants={childVariants}
                 >
                     {settings.HOME_HERO_SUBTITLE}

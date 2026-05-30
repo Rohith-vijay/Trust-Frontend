@@ -9,14 +9,25 @@ export const formatDate = (date) => {
 export const clamp = (num, min, max) => Math.min(Math.max(num, min), max);
 
 export const getBackendUrl = () => {
+  let url = "";
   if (import.meta.env.VITE_API_URL) {
-    return import.meta.env.VITE_API_URL;
+    url = import.meta.env.VITE_API_URL;
+  } else if (import.meta.env.VITE_API_BASE_URL) {
+    url = import.meta.env.VITE_API_BASE_URL;
+  } else {
+    const hostname = typeof window !== "undefined" && window.location ? window.location.hostname : "localhost";
+    url = `http://${hostname}:8080/api`;
   }
-  if (import.meta.env.VITE_API_BASE_URL) {
-    return import.meta.env.VITE_API_BASE_URL;
+
+  if (url) {
+    // Remove any trailing slashes
+    url = url.replace(/\/+$/, "");
+    // Ensure it ends with /api
+    if (!url.endsWith("/api")) {
+      url = `${url}/api`;
+    }
   }
-  const hostname = typeof window !== "undefined" && window.location ? window.location.hostname : "localhost";
-  return `http://${hostname}:8080/api`;
+  return url;
 };
 
 export const getWebSocketUrl = () => {

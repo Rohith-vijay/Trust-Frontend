@@ -5,6 +5,9 @@ const authService = {
   register: async (name, email, password, role = "USER") => {
     const response = await api.post("/auth/register", { fullName: name, email, password, role });
     const data = response.data;
+    if (data.token) {
+      localStorage.setItem('trustcore_access_token', data.token);
+    }
     if (data.refreshToken) {
       localStorage.setItem('trustcore_refresh_token', data.refreshToken);
     }
@@ -18,6 +21,9 @@ const authService = {
   login: async (email, password) => {
     const response = await api.post("/auth/login", { email, password });
     const data = response.data;
+    if (data.token) {
+      localStorage.setItem('trustcore_access_token', data.token);
+    }
     if (data.refreshToken) {
       localStorage.setItem('trustcore_refresh_token', data.refreshToken);
     }
@@ -36,13 +42,13 @@ const authService = {
     } catch (e) {
       // Ignore network errors on logout to ensure local cleanup
     }
+    localStorage.removeItem('trustcore_access_token');
     localStorage.removeItem('trustcore_refresh_token');
     localStorage.removeItem('trustcore_user');
   },
 
   getToken: () => {
-    // Token is in HttpOnly cookie — not accessible from JS
-    return null;
+    return localStorage.getItem('trustcore_access_token');
   },
 
   getCurrentUser: () => {

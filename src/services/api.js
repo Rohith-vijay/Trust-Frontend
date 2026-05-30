@@ -14,13 +14,27 @@ const api = axios.create({
     },
 });
 
+// Request interceptor — attach access token if available
+api.interceptors.request.use(
+    (config) => {
+        const token = localStorage.getItem("trustcore_access_token");
+        if (token) {
+            config.headers["Authorization"] = `Bearer ${token}`;
+        }
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
+    }
+);
+
 let isRefreshing = false;
 let failedQueue = [];
 
-const processQueue = (error) => {
+const processQueue = (error, token = null) => {
     failedQueue.forEach(({ resolve, reject }) => {
         if (error) reject(error);
-        else resolve();
+        else resolve(token);
     });
     failedQueue = [];
 };
@@ -71,7 +85,12 @@ api.interceptors.response.use(
                 return new Promise((resolve, reject) => {
                     failedQueue.push({ resolve, reject });
                 })
-                    .then(() => api(originalRequest))
+                    .then((token) => {
+                        if (token && originalRequest.headers) {
+                            originalRequest.headers["Authorization"] = `Bearer ${token}`;
+                        }
+                        return api(originalRequest);
+                    })
                     .catch((err) => Promise.reject(err));
             }
 
@@ -86,14 +105,27 @@ api.interceptors.response.use(
                     throw new Error('No refresh token available');
                 }
 
-                await api.post('/auth/refresh', { refreshToken });
-                // Backend sets new access_token cookie automatically
+                const refreshResponse = await api.post('/auth/refresh', { refreshToken });
+                const refreshData = refreshResponse.data;
+                const newToken = refreshData?.token;
 
-                processQueue(null);
+                if (refreshData && refreshData.token) {
+                    localStorage.setItem('trustcore_access_token', refreshData.token);
+                }
+                if (refreshData && refreshData.refreshToken) {
+                    localStorage.setItem('trustcore_refresh_token', refreshData.refreshToken);
+                }
+
+                if (newToken && originalRequest.headers) {
+                    originalRequest.headers["Authorization"] = `Bearer ${newToken}`;
+                }
+
+                processQueue(null, newToken);
                 return api(originalRequest);
 
             } catch (refreshError) {
-                processQueue(refreshError);
+                processQueue(refreshError, null);
+                localStorage.removeItem('trustcore_access_token');
                 localStorage.removeItem('trustcore_refresh_token');
                 localStorage.removeItem('trustcore_user');
                 window.dispatchEvent(new CustomEvent("app-toast", {

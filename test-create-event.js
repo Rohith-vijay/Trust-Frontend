@@ -22,7 +22,7 @@ async function testCreateEvent() {
       description: "This is a programmatically created event to test stabilization.",
       location: "Community Hall",
       category: "Education",
-      bannerUrl: "https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?auto=format&fit=crop&w=800&q=80",
+      bannerUrl: "https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?auto=format&fit=crop&w=800&q=80,https://images.unsplash.com/photo-1541963463532-d68292c34b19?auto=format&fit=crop&w=800&q=80,https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=800&q=80",
       eventDate: "2026-06-01T10:00:00",
       registrationDeadline: "2026-05-30T18:00:00",
       maxVolunteers: 25,

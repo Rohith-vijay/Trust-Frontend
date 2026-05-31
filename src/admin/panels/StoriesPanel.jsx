@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import RichTextEditor from "../components/RichTextEditor";
 import SortableList from "../components/SortableList";
 import MediaUploader from "../../components/MediaUploader";
+import databaseService from "../../services/databaseService";
 
 const StoriesPanel = ({
   stories,
@@ -88,10 +89,20 @@ const StoriesPanel = ({
     }
   };
 
-  const triggerEditStart = (s) => {
-    setEditingStory(s);
-    setEditMilestones(s.timeline || s.milestones || []);
-    setEditMetrics(s.metrics || []);
+  const triggerEditStart = async (s) => {
+    // Fetch full story details (the admin list uses summary DTO which lacks timeline/metrics)
+    try {
+      const fullStory = await databaseService.getStoryById(s.id);
+      setEditingStory(fullStory);
+      setEditMilestones(fullStory.timeline || []);
+      setEditMetrics(fullStory.metrics || []);
+    } catch (err) {
+      console.error("Failed to load full story details for edit:", err);
+      // Fallback to summary data if fetch fails
+      setEditingStory(s);
+      setEditMilestones(s.timeline || s.milestones || []);
+      setEditMetrics(s.metrics || []);
+    }
   };
 
   const triggerUpdate = async (e) => {
@@ -676,9 +687,9 @@ const StoriesPanel = ({
                       {s.category}
                     </span>
                   )}
-                  {s.milestones?.length > 0 && (
+                  {(s.timeline?.length > 0 || s.milestones?.length > 0) && (
                     <span className="text-[10px] bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full font-bold border border-blue-100">
-                      📅 {s.milestones.length} Milestones
+                      📅 {(s.timeline || s.milestones || []).length} Milestones
                     </span>
                   )}
                   {s.metrics?.length > 0 && (

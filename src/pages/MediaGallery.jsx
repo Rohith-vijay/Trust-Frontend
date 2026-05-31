@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { pageVariants, pageTransition, sectionVariants } from "../constants/motionVariants";
 import { Typography, IconButton, Box, Chip } from "@mui/material";
@@ -6,69 +6,43 @@ import CloseIcon from "@mui/icons-material/Close";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import SiteContainer from "../components/SiteContainer";
-
-const galleryItems = [
-  {
-    id: 1,
-    category: "Education",
-    title: "Primary Digital Literacy Camp",
-    src: "https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?auto=format&fit=crop&w=600&q=80",
-    fullSrc: "https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?auto=format&fit=crop&w=1200&q=80",
-  },
-  {
-    id: 2,
-    category: "Water Relief",
-    title: "Borewell Setup in Rural Outskirts",
-    src: "https://images.unsplash.com/photo-1541913496-527181cf800f?auto=format&fit=crop&w=600&q=80",
-    fullSrc: "https://images.unsplash.com/photo-1541913496-527181cf800f?auto=format&fit=crop&w=1200&q=80",
-  },
-  {
-    id: 3,
-    category: "Green Camps",
-    title: "Community Afforestation Drive",
-    src: "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=600&q=80",
-    fullSrc: "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=1200&q=80",
-  },
-  {
-    id: 4,
-    category: "Healthcare",
-    title: "Mobile Health Clinic Camp",
-    src: "https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&w=600&q=80",
-    fullSrc: "https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&w=1200&q=80",
-  },
-  {
-    id: 5,
-    category: "Education",
-    title: "Study Material Distribution",
-    src: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=600&q=80",
-    fullSrc: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=1200&q=80",
-  },
-  {
-    id: 6,
-    category: "Water Relief",
-    title: "School Water Filtration Audit",
-    src: "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=600&q=80",
-    fullSrc: "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=1200&q=80",
-  },
-  {
-    id: 7,
-    category: "Green Camps",
-    title: "Urban Seed Sowing",
-    src: "https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?auto=format&fit=crop&w=600&q=80",
-    fullSrc: "https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?auto=format&fit=crop&w=1200&q=80",
-  },
-];
+import databaseService from "../services/databaseService";
 
 function MediaGallery() {
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("ALL");
   const [lightboxIndex, setLightboxIndex] = useState(-1);
 
   const categories = ["ALL", "EDUCATION", "WATER RELIEF", "GREEN CAMPS", "HEALTHCARE"];
 
+  useEffect(() => {
+    databaseService.getMediaAssets("ALL")
+      .then(res => {
+        const galleryCategories = ["GENERAL", "EDUCATION", "WATER RELIEF", "GREEN CAMPS", "HEALTHCARE"];
+        const filtered = (res || []).filter(asset => 
+          galleryCategories.includes((asset.ownerType || "").toUpperCase())
+        );
+        const mapped = filtered.map(asset => ({
+          id: asset.id,
+          category: asset.ownerType || "GENERAL",
+          title: asset.caption || "NGO Platform Highlight",
+          src: asset.url,
+          fullSrc: asset.url
+        }));
+        setItems(mapped);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error("Failed to load gallery items:", err);
+        setLoading(false);
+      });
+  }, []);
+
   const filteredItems = React.useMemo(() => {
-    if (filter === "ALL") return galleryItems;
-    return galleryItems.filter((i) => i.category.toUpperCase() === filter);
-  }, [filter]);
+    if (filter === "ALL") return items;
+    return items.filter((i) => i.category.toUpperCase() === filter);
+  }, [filter, items]);
 
   const handlePrev = (e) => {
     e.stopPropagation();
@@ -141,45 +115,64 @@ function MediaGallery() {
         </div>
 
         {/* Responsive Masonry Layout using CSS Columns */}
-        <motion.div
-          layout
-          className="columns-1 sm:columns-2 md:columns-3 gap-6 max-w-7xl mx-auto px-4 space-y-6"
-        >
-          {filteredItems.map((item, idx) => (
-            <motion.div
-              layout
-              key={item.id}
-              onClick={() => setLightboxIndex(idx)}
-              whileHover={{ scale: 1.02, y: -4 }}
-              transition={{ duration: 0.3 }}
-              className="break-inside-avoid relative overflow-hidden rounded-3xl shadow-sm border border-gray-100 cursor-pointer group bg-white"
-            >
-              <img
-                src={item.src}
-                alt={item.title}
-                className="w-full h-auto object-cover transition-transform duration-700 group-hover:scale-105"
-                loading="lazy"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-400 p-6 flex flex-col justify-end">
-                <Chip
-                  label={item.category.toUpperCase()}
-                  size="small"
-                  sx={{
-                    alignSelf: "flex-start",
-                    mb: 1.5,
-                    bgcolor: "primary.main",
-                    color: "white",
-                    fontWeight: 700,
-                    fontSize: "0.6rem",
-                  }}
+        {loading ? (
+          <div className="text-center py-24 bg-white/65 backdrop-blur shadow-sm border rounded-3xl max-w-lg mx-auto">
+            <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+            <Typography variant="body1" sx={{ fontWeight: 700, color: "text.secondary" }}>
+              Loading campaign media...
+            </Typography>
+          </div>
+        ) : filteredItems.length === 0 ? (
+          <div className="text-center py-20 bg-white/65 backdrop-blur shadow-sm border rounded-3xl max-w-lg mx-auto">
+            <span className="text-5xl block mb-4">🖼️</span>
+            <Typography variant="h6" sx={{ fontWeight: 800, color: "text.primary" }}>
+              No Media Found
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 1, px: 4 }}>
+              There are no uploaded assets in the {filter !== "ALL" ? filter.toLowerCase() : ""} campaign category yet. Check back later!
+            </Typography>
+          </div>
+        ) : (
+          <motion.div
+            layout
+            className="columns-1 sm:columns-2 md:columns-3 gap-6 max-w-7xl mx-auto px-4 space-y-6"
+          >
+            {filteredItems.map((item, idx) => (
+              <motion.div
+                layout
+                key={item.id}
+                onClick={() => setLightboxIndex(idx)}
+                whileHover={{ scale: 1.02, y: -4 }}
+                transition={{ duration: 0.3 }}
+                className="break-inside-avoid relative overflow-hidden rounded-3xl shadow-sm border border-gray-100 cursor-pointer group bg-white"
+              >
+                <img
+                  src={item.src}
+                  alt={item.title}
+                  className="w-full h-auto object-cover transition-transform duration-700 group-hover:scale-105"
+                  loading="lazy"
                 />
-                <Typography variant="subtitle1" sx={{ color: "white", fontWeight: 800 }}>
-                  {item.title}
-                </Typography>
-              </div>
-            </motion.div>
-          ))}
-        </motion.div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-400 p-6 flex flex-col justify-end">
+                  <Chip
+                    label={item.category.toUpperCase()}
+                    size="small"
+                    sx={{
+                      alignSelf: "flex-start",
+                      mb: 1.5,
+                      bgcolor: "primary.main",
+                      color: "white",
+                      fontWeight: 700,
+                      fontSize: "0.6rem",
+                    }}
+                  />
+                  <Typography variant="subtitle1" sx={{ color: "white", fontWeight: 800 }}>
+                    {item.title}
+                  </Typography>
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
+        )}
 
         {/* Interactive Lightbox Overlay */}
         <AnimatePresence>

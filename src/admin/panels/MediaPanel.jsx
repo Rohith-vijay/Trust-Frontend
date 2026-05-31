@@ -1,11 +1,12 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import MediaUploader from "../../components/MediaUploader";
+import databaseService from "../../services/databaseService";
 
 const MediaPanel = () => {
   const [filterOwner, setFilterOwner] = useState("ALL");
   const [mediaType, setMediaType] = useState("ALL");
-  const [uploadProgress, setUploadProgress] = useState(null);
-  const [dragActive, setDragActive] = useState(false);
+  const [assets, setAssets] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [uploadForm, setUploadForm] = useState({
     url: "",
     thumbnailUrl: "",
@@ -16,144 +17,77 @@ const MediaPanel = () => {
     orderIndex: "0"
   });
 
-  const activeTimersRef = useRef([]);
+  const loadAssets = async () => {
+    try {
+      setLoading(true);
+      const res = await databaseService.getMediaAssets("ALL");
+      setAssets(res || []);
+      setLoading(false);
+    } catch (err) {
+      console.error("Failed to load media assets:", err);
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const timers = activeTimersRef.current;
-    return () => {
-      timers.forEach((t) => {
-        if (t.type === "interval") clearInterval(t.id);
-        if (t.type === "timeout") clearTimeout(t.id);
-      });
-    };
+    loadAssets();
   }, []);
 
-  // Mock initial media assets following the relational MediaAsset table structure
-  const [assets, setAssets] = useState([
-    {
-      id: 1,
-      ownerType: "EVENT",
-      ownerId: 101,
-      mediaType: "IMAGE",
-      url: "https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?auto=format&fit=crop&w=600&q=80",
-      thumbnailUrl: "https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?auto=format&fit=crop&w=150&q=80",
-      caption: "Children attending digital literacy session in high school classroom",
-      orderIndex: 0,
-      uploadedAt: "2026-05-18T10:00:00Z"
-    },
-    {
-      id: 2,
-      ownerType: "EVENT",
-      ownerId: 102,
-      mediaType: "IMAGE",
-      url: "https://images.unsplash.com/photo-1541913496-527181cf800f?auto=format&fit=crop&w=600&q=80",
-      thumbnailUrl: "https://images.unsplash.com/photo-1541913496-527181cf800f?auto=format&fit=crop&w=150&q=80",
-      caption: "Field engineers installing deep borewell filtration kit",
-      orderIndex: 0,
-      uploadedAt: "2026-05-19T14:30:00Z"
-    },
-    {
-      id: 3,
-      ownerType: "STORY",
-      ownerId: 201,
-      mediaType: "IMAGE",
-      url: "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=600&q=80",
-      thumbnailUrl: "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=150&q=80",
-      caption: "Urban seed sowing campaign volunteers matching smiles",
-      orderIndex: 1,
-      uploadedAt: "2026-05-20T09:15:00Z"
-    },
-    {
-      id: 4,
-      ownerType: "STORY",
-      ownerId: 201,
-      mediaType: "VIDEO",
-      url: "https://www.w3schools.com/html/mov_bbb.mp4",
-      thumbnailUrl: "https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&w=150&q=80",
-      caption: "Documentary snippet showing the health clinic drive in remote region",
-      orderIndex: 2,
-      uploadedAt: "2026-05-21T08:00:00Z"
-    }
-  ]);
-
-  const handleDrag = (e) => {
+  const handleManualUpload = async (e) => {
     e.preventDefault();
-    e.stopPropagation();
-    if (e.type === "dragenter" || e.type === "dragover") {
-      setDragActive(true);
-    } else if (e.type === "dragleave") {
-      setDragActive(false);
-    }
-  };
-
-  const handleDrop = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(false);
-
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      simulateUpload(e.dataTransfer.files[0].name);
-    }
-  };
-
-  const simulateUpload = (fileName) => {
-    setUploadProgress(10);
-    const intervalId = setInterval(() => {
-      setUploadProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(intervalId);
-          activeTimersRef.current = activeTimersRef.current.filter((t) => t.id !== intervalId);
-          
-          const timeoutId = setTimeout(() => {
-            setUploadProgress(null);
-            activeTimersRef.current = activeTimersRef.current.filter((t) => t.id !== timeoutId);
-            // Append simulated asset to assets pool
-            const newAsset = {
-              id: Date.now(),
-              ownerType: uploadForm.ownerType,
-              ownerId: uploadForm.ownerId ? Number(uploadForm.ownerId) : null,
-              mediaType: uploadForm.mediaType,
-              url: uploadForm.url || "https://images.unsplash.com/photo-1509099836639-18ba1795216d?auto=format&fit=crop&w=600&q=80",
-              thumbnailUrl: uploadForm.thumbnailUrl || "https://images.unsplash.com/photo-1509099836639-18ba1795216d?auto=format&fit=crop&w=150&q=80",
-              caption: uploadForm.caption || `Uploaded Asset: ${fileName || "initiative_photo.jpg"}`,
-              orderIndex: Number(uploadForm.orderIndex || 0),
-              uploadedAt: new Date().toISOString()
-            };
-            setAssets((prevAssets) => [newAsset, ...prevAssets]);
-            setUploadForm({
-              url: "",
-              thumbnailUrl: "",
-              caption: "",
-              ownerType: "GENERAL",
-              ownerId: "",
-              mediaType: "IMAGE",
-              orderIndex: "0"
-            });
-            alert("Relational media asset uploaded and mapped successfully!");
-          }, 600);
-          
-          activeTimersRef.current.push({ type: "timeout", id: timeoutId });
-          return 100;
-        }
-        return prev + 25;
+    const newAsset = {
+      ownerType: uploadForm.ownerType,
+      ownerId: uploadForm.ownerId ? Number(uploadForm.ownerId) : 0,
+      mediaType: uploadForm.mediaType,
+      url: uploadForm.url,
+      thumbnailUrl: uploadForm.thumbnailUrl || uploadForm.url,
+      caption: uploadForm.caption || "Manual Mapping",
+      orderIndex: Number(uploadForm.orderIndex || 0)
+    };
+    try {
+      await databaseService.createMediaAsset(newAsset);
+      window.dispatchEvent(new CustomEvent("app-toast", {
+        detail: { message: "Media asset mapped successfully!", severity: "success" }
+      }));
+      setUploadForm({
+        url: "",
+        thumbnailUrl: "",
+        caption: "",
+        ownerType: "GENERAL",
+        ownerId: "",
+        mediaType: "IMAGE",
+        orderIndex: "0"
       });
-    }, 250);
-    
-    activeTimersRef.current.push({ type: "interval", id: intervalId });
+      loadAssets();
+    } catch (err) {
+      console.error("Manual map failed:", err);
+      alert("Failed to map asset: " + (err.response?.data?.message || err.message || err));
+    }
   };
 
-  const handleManualUpload = (e) => {
-    e.preventDefault();
-    simulateUpload(null);
-  };
-
-  const handleDeleteAsset = (id) => {
-    if (!window.confirm("Remove this media asset?")) return;
-    setAssets(assets.filter(a => a.id !== id));
+  const handleDeleteAsset = async (id) => {
+    if (!window.confirm("Remove this media asset permanently from database?")) return;
+    try {
+      await databaseService.deleteMediaAsset(id);
+      window.dispatchEvent(new CustomEvent("app-toast", {
+        detail: { message: "Media asset deleted successfully!", severity: "success" }
+      }));
+      loadAssets();
+    } catch (err) {
+      console.error("Failed to delete asset:", err);
+      alert("Failed to delete media asset: " + (err.response?.data?.message || err.message || err));
+    }
   };
 
   const filteredAssets = assets.filter(asset => {
-    const matchOwner = filterOwner === "ALL" || asset.ownerType === filterOwner;
+    // If filtering by owner, match exactly. 
+    // Since GENERAL can have sub-categories (EDUCATION, HEALTHCARE, etc.), if filterOwner is "GENERAL", match any of those.
+    const isGeneralType = ["GENERAL", "EDUCATION", "WATER RELIEF", "GREEN CAMPS", "HEALTHCARE"].includes((asset.ownerType || "").toUpperCase());
+    
+    const matchOwner = filterOwner === "ALL" || 
+                       (filterOwner === "GENERAL" && isGeneralType) ||
+                       asset.ownerType === filterOwner;
+                       
     const matchType = mediaType === "ALL" || asset.mediaType === mediaType;
     return matchOwner && matchType;
   });
@@ -176,22 +110,10 @@ const MediaPanel = () => {
               mediaType={uploadForm.mediaType}
               label={`Direct Cloudinary ${uploadForm.mediaType} Uploader`}
               value={uploadForm.url}
-              onUploadSuccess={(metadata) => {
-                setUploadForm(prev => ({
-                  ...prev,
-                  url: metadata.secure_url,
-                  thumbnailUrl: metadata.thumbnailUrl || metadata.secure_url,
-                  width: metadata.width,
-                  height: metadata.height,
-                  aspectRatio: metadata.aspect_ratio,
-                  publicId: metadata.public_id,
-                  duration: metadata.duration
-                }));
-                // Append immediately to the local state pool to see it listed!
+              onUploadSuccess={async (metadata) => {
                 const newAsset = {
-                  id: Date.now(),
                   ownerType: uploadForm.ownerType,
-                  ownerId: uploadForm.ownerId ? Number(uploadForm.ownerId) : null,
+                  ownerId: uploadForm.ownerId ? Number(uploadForm.ownerId) : 0,
                   mediaType: uploadForm.mediaType,
                   url: metadata.secure_url,
                   thumbnailUrl: metadata.thumbnailUrl || metadata.secure_url,
@@ -201,13 +123,18 @@ const MediaPanel = () => {
                   height: metadata.height,
                   aspectRatio: metadata.aspect_ratio,
                   publicId: metadata.public_id,
-                  duration: metadata.duration,
-                  uploadedAt: new Date().toISOString()
+                  duration: metadata.duration
                 };
-                setAssets(prev => [newAsset, ...prev]);
-                window.dispatchEvent(new CustomEvent("app-toast", {
-                  detail: { message: "Cloud-native media asset uploaded successfully!", severity: "success" }
-                }));
+                try {
+                  await databaseService.createMediaAsset(newAsset);
+                  window.dispatchEvent(new CustomEvent("app-toast", {
+                    detail: { message: "Cloud-native media asset uploaded and saved to DB!", severity: "success" }
+                  }));
+                  loadAssets();
+                } catch (err) {
+                  console.error("Save to DB failed:", err);
+                  alert("Cloudinary upload succeeded, but saving to database failed: " + (err.response?.data?.message || err.message || err));
+                }
               }}
             />
           </div>
@@ -259,6 +186,10 @@ const MediaPanel = () => {
                   className="w-full border border-gray-200 rounded-lg px-2 py-1.5 text-xs outline-none bg-white font-semibold cursor-pointer"
                 >
                   <option value="GENERAL">GENERAL</option>
+                  <option value="EDUCATION">EDUCATION</option>
+                  <option value="WATER RELIEF">WATER RELIEF</option>
+                  <option value="GREEN CAMPS">GREEN CAMPS</option>
+                  <option value="HEALTHCARE">HEALTHCARE</option>
                   <option value="STORY">SUCCESS STORY</option>
                   <option value="EVENT">INITIATIVE EVENT</option>
                 </select>
@@ -321,6 +252,10 @@ const MediaPanel = () => {
               >
                 <option value="ALL">ALL ENTITIES</option>
                 <option value="GENERAL">GENERAL MEDIA</option>
+                <option value="EDUCATION">EDUCATION</option>
+                <option value="WATER RELIEF">WATER RELIEF</option>
+                <option value="GREEN CAMPS">GREEN CAMPS</option>
+                <option value="HEALTHCARE">HEALTHCARE</option>
                 <option value="STORY">SUCCESS STORIES</option>
                 <option value="EVENT">INITIATIVE EVENTS</option>
               </select>

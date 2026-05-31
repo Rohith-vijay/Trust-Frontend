@@ -292,6 +292,23 @@ const databaseService = {
     const response = await api.get('/public/health', { skipGlobalToast: true });
     return response.data;
   },
+
+  // ─── Media Assets (Public GET, Admin mutations) ─────────────
+  getMediaAssets: async (ownerType = "GENERAL") => {
+    const response = await api.get("/media", {
+      params: { ownerType }
+    });
+    return response.data;
+  },
+
+  createMediaAsset: async (asset) => {
+    const response = await api.post("/media", asset);
+    return response.data;
+  },
+
+  deleteMediaAsset: async (id) => {
+    await api.delete(`/media/${id}`);
+  },
 };
 
 export default databaseService;

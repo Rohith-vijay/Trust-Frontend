@@ -71,13 +71,13 @@ function Contact() {
               <Typography variant="h5" sx={{ fontWeight: 700, mb: 4 }}>Contact Information</Typography>
               
               <div className="space-y-6 mb-12">
-                <a href="mailto:trust@example.com" className="flex items-center space-x-4 group hover:opacity-80 transition-opacity">
+                <a href="mailto:kvgshanmukhsaitrust@gmail.com" className="flex items-center space-x-4 group hover:opacity-80 transition-opacity">
                   <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center shrink-0">
                     <EmailOutlinedIcon />
                   </div>
                   <div>
                     <Typography variant="caption" sx={{ color: 'white', opacity: 0.8 }}>Email Us</Typography>
-                    <Typography variant="body1" sx={{ fontWeight: 600, color: 'white' }}>trust@example.com</Typography>
+                    <Typography variant="body1" sx={{ fontWeight: 600, color: 'white' }}>kvgshanmukhsaitrust@gmail.com</Typography>
                   </div>
                 </a>
                 

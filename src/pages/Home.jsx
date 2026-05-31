@@ -53,18 +53,31 @@ function Home() {
     fetchData();
   }, [setGlobalLoading]);
 
-  // Build carousel slides from backend events + their media
+  // Build carousel slides from backend events + their media/banners
   const eventSlides = React.useMemo(() => {
     const slides = [];
     events.forEach((ev) => {
-      if (ev.media && ev.media.length > 0) {
+      const bannerImages = ev.bannerUrl ? ev.bannerUrl.split(',').map(s => s.trim()).filter(Boolean) : [];
+      const coverImages = ev.coverImageUrl ? ev.coverImageUrl.split(',').map(s => s.trim()).filter(Boolean) : [];
+      const allImages = [...coverImages, ...bannerImages].filter(url => url !== 'null' && url !== 'undefined');
+
+      if (allImages.length > 0) {
+        allImages.forEach((imgUrl) => {
+          slides.push({
+            src: imgUrl,
+            title: ev.title,
+            caption: ev.description ? (stripHtml(ev.description).slice(0, 80) + "...") : ev.title,
+            id: ev.id
+          });
+        });
+      } else if (ev.media && ev.media.length > 0) {
         ev.media
           .filter((m) => m.mediaType === "IMAGE")
           .forEach((m) => {
             slides.push({
               src: m.mediaUrl,
               title: ev.title,
-              caption: stripHtml(ev.description).slice(0, 80) + "..." || ev.title,
+              caption: ev.description ? (stripHtml(ev.description).slice(0, 80) + "...") : ev.title,
               id: ev.id
             });
           });

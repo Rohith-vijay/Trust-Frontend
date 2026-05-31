@@ -31,8 +31,13 @@ const SuccessStoryCard = React.memo(({ story }) => {
     setSliderPosition(Number(e.target.value));
   };
 
-  const hasBeforeAfter = story.beforeImageUrl && story.afterImageUrl;
-  const cardImage = story.beforeImageUrl || story.imageUrl;
+  const hasBeforeAfter = (story.beforeImageUrl && story.beforeImageUrl !== 'null' && story.beforeImageUrl !== 'undefined') &&
+                         (story.afterImageUrl && story.afterImageUrl !== 'null' && story.afterImageUrl !== 'undefined');
+  const cardImage = (story.beforeImageUrl && story.beforeImageUrl !== 'null' && story.beforeImageUrl !== 'undefined')
+    ? story.beforeImageUrl
+    : (story.imageUrl && story.imageUrl !== 'null' && story.imageUrl !== 'undefined')
+      ? story.imageUrl
+      : null;
 
   // Retrieve first impact metric to showcase on the card badge
   const primaryMetric = useMemo(() => {

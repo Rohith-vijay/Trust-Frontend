@@ -73,10 +73,10 @@ const StoriesPanel = ({
     if (isSubmitting) return;
     setIsSubmitting(true);
     try {
-      // Build story package including milestones and metrics lists
+      // Build story package including timeline and metrics lists
       const packageData = {
         ...storyForm,
-        milestones: newMilestones,
+        timeline: newMilestones,
         metrics: newMetrics
       };
       await onCreateStory(packageData);
@@ -90,7 +90,7 @@ const StoriesPanel = ({
 
   const triggerEditStart = (s) => {
     setEditingStory(s);
-    setEditMilestones(s.milestones || []);
+    setEditMilestones(s.timeline || s.milestones || []);
     setEditMetrics(s.metrics || []);
   };
 
@@ -101,7 +101,7 @@ const StoriesPanel = ({
     try {
       const packageData = {
         ...editingStory,
-        milestones: editMilestones,
+        timeline: editMilestones,
         metrics: editMetrics
       };
       await onUpdateStory(packageData);

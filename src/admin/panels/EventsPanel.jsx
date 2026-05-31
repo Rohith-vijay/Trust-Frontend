@@ -83,7 +83,7 @@ const EventsPanel = ({
     try {
       const payload = {
         ...editingEvent,
-        coverImageUrl: editingEvent.coverImageUrl || editingEvent.thumbnailUrl || editingEvent.coverImage || "",
+        coverImageUrl: editingEvent.thumbnailUrl || editingEvent.coverImageUrl || editingEvent.coverImage || "",
         maxVolunteers: editingEvent.maxVolunteers ? Number(editingEvent.maxVolunteers) : null,
         faqs: editFaqs
       };

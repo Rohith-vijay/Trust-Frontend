@@ -61,7 +61,13 @@ function EventDetails() {
   
   // Use cover/hero or banner image
   const headerImage = event.heroImageUrl || allBannerImages[0] || event.image || photos[0] || null;
-  const extraImages = [...allBannerImages.slice(1), ...photos];
+  const extraImages = [...allBannerImages, ...photos];
+
+  // Unified list of images for the main highlights/gallery carousel
+  const carouselImages = [
+    ...allBannerImages,
+    ...(event.highlights || [])
+  ].filter((item, index, self) => self.indexOf(item) === index);
 
   // Map into structured assets for Masonry Gallery
   const masonryAssets = [
@@ -72,7 +78,7 @@ function EventDetails() {
       caption: event.title + " Media Showcase",
       aspectRatio: m.mediaType === "VIDEO" ? 1.77 : 1.33
     })) || []),
-    ...allBannerImages.slice(1).map((url, idx) => ({
+    ...allBannerImages.map((url, idx) => ({
       id: `b-${idx}`,
       url: url,
       mediaType: "IMAGE",
@@ -189,7 +195,7 @@ function EventDetails() {
             </Card>
 
             {/* Event Highlights Showcase Section */}
-            {event.highlights && event.highlights.length > 0 && (
+            {carouselImages && carouselImages.length > 0 && (
               <div ref={highlightsRef} className="scroll-mt-24">
                 <Card sx={{ borderRadius: 6, boxShadow: '0 10px 30px rgba(0,0,0,0.03)', border: '1px solid rgba(0,0,0,0.03)', p: { xs: 3, md: 5 } }}>
                   <CardContent sx={{ p: 0 }}>
@@ -207,7 +213,7 @@ function EventDetails() {
                         slidesPerView={1}
                         className="h-[320px] md:h-[380px]"
                       >
-                        {event.highlights.map((url, i) => (
+                        {carouselImages.map((url, i) => (
                           <SwiperSlide key={i}>
                             <img src={url} className="w-full h-full object-cover" loading="lazy" alt={`Highlight ${i + 1}`} onError={(e) => { e.target.onerror = null; e.target.src = 'https://via.placeholder.com/800x600?text=Media+Unavailable'; }} />
                           </SwiperSlide>

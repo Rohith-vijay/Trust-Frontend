@@ -536,13 +536,28 @@ const EventsPanel = ({
             <div className="border border-gray-100 rounded-2xl p-5 bg-white hover:shadow-sm transition">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="flex items-start gap-4 min-w-0">
-                  {(ev.coverImageUrl || ev.thumbnailUrl) && (
-                    <img
-                      src={ev.coverImageUrl || ev.thumbnailUrl}
-                      alt={ev.title}
-                      className="w-16 h-16 rounded-xl object-cover flex-shrink-0 border"
-                    />
-                  )}
+                  {(() => {
+                    const getAdminThumb = (item) => {
+                      if (item.coverImageUrl && item.coverImageUrl !== 'null' && item.coverImageUrl !== 'undefined') {
+                        return item.coverImageUrl.split(',')[0].trim();
+                      }
+                      if (item.thumbnailUrl && item.thumbnailUrl !== 'null' && item.thumbnailUrl !== 'undefined') {
+                        return item.thumbnailUrl.split(',')[0].trim();
+                      }
+                      if (item.bannerUrl && item.bannerUrl !== 'null' && item.bannerUrl !== 'undefined') {
+                        return item.bannerUrl.split(',')[0].trim();
+                      }
+                      return null;
+                    };
+                    const thumb = getAdminThumb(ev);
+                    return thumb ? (
+                      <img
+                        src={thumb}
+                        alt={ev.title}
+                        className="w-16 h-16 rounded-xl object-cover flex-shrink-0 border"
+                      />
+                    ) : null;
+                  })()}
                   <div className="min-w-0">
                     <h4 className="font-bold text-brand-navy-dark text-base truncate">{ev.title}</h4>
                     <p className="text-xs text-gray-500 font-semibold mt-1">

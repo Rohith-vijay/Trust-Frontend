@@ -16,9 +16,15 @@ const EventCard = React.memo(({ event }) => {
   }, [nav, event.id]);
 
   const getPrimaryImage = () => {
-    if (event.coverImageUrl) return event.coverImageUrl;
-    if (event.bannerUrl) return event.bannerUrl.split(',')[0];
-    if (event.image) return event.image.split(',')[0];
+    if (event.coverImageUrl && event.coverImageUrl !== 'null' && event.coverImageUrl !== 'undefined') {
+      return event.coverImageUrl.split(',')[0].trim();
+    }
+    if (event.bannerUrl && event.bannerUrl !== 'null' && event.bannerUrl !== 'undefined') {
+      return event.bannerUrl.split(',')[0].trim();
+    }
+    if (event.image && event.image !== 'null' && event.image !== 'undefined') {
+      return event.image.split(',')[0].trim();
+    }
     if (event.media?.[0]?.mediaUrl) return event.media[0].mediaUrl;
     return null;
   };

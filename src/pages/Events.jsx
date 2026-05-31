@@ -40,11 +40,15 @@ export default function Events() {
     }
   }, [activeTab, events]);
 
-  // Helper to extract first image from potentially comma-separated banner urls
+  // Helper to extract first image from potentially comma-separated banner or cover urls
   const getThumbnail = (event) => {
-    if (event.coverImageUrl) return event.coverImageUrl;
-    if (!event.bannerUrl) return '';
-    return event.bannerUrl.split(',')[0].trim();
+    if (event.coverImageUrl && event.coverImageUrl !== 'null' && event.coverImageUrl !== 'undefined') {
+      return event.coverImageUrl.split(',')[0].trim();
+    }
+    if (event.bannerUrl && event.bannerUrl !== 'null' && event.bannerUrl !== 'undefined') {
+      return event.bannerUrl.split(',')[0].trim();
+    }
+    return '';
   };
 
   const getStatusStyle = (status) => {

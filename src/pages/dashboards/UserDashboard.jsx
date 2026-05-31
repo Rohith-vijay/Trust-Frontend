@@ -7,6 +7,7 @@ import { useAuth } from "../../hooks/useAuth";
 import databaseService from "../../services/databaseService";
 import ErrorBoundary from "../../components/ErrorBoundary";
 import { UserDashboardOverviewSkeleton } from "../../components/SkeletonLoader";
+import { stripHtml } from "../../utils";
 
 import {
   Dialog,
@@ -729,7 +730,7 @@ const UserDashboard = () => {
                                     {story.title}
                                   </h4>
                                   <p className="text-[10px] text-slate-400 line-clamp-2 mt-1 leading-relaxed">
-                                    {story.subtitle || story.description}
+                                    {story.subtitle || stripHtml(story.description)}
                                   </p>
                                 </div>
                                 <div className="flex justify-between items-center mt-3 pt-3 border-t border-slate-100 text-[10px] font-bold">

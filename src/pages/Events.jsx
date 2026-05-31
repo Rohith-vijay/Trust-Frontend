@@ -7,6 +7,7 @@ import GroupsIcon from '@mui/icons-material/Groups';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import { ScrollStagger } from '../components/MotionContainer';
 import { CardGridSkeleton } from '../components/SkeletonLoader';
+import { stripHtml } from '../utils';
 
 export default function Events() {
   const [events, setEvents] = useState([]);
@@ -170,7 +171,7 @@ export default function Events() {
                         </p>
                       )}
                       <p className="text-gray-500 text-sm mb-5 line-clamp-2 leading-relaxed">
-                        {event.description}
+                        {stripHtml(event.description)}
                       </p>
 
                       <div className="space-y-2.5 pt-4 border-t border-gray-100 text-xs text-gray-500">

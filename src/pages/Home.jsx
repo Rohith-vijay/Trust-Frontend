@@ -12,6 +12,7 @@ import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 
 import databaseService from "../services/databaseService";
 import { AppContext } from "../context/AppContext";
+import { stripHtml } from "../utils";
 
 // additional sections
 import TeamSection from "../components/TeamSection";
@@ -63,7 +64,7 @@ function Home() {
             slides.push({
               src: m.mediaUrl,
               title: ev.title,
-              caption: ev.description?.slice(0, 80) + "..." || ev.title,
+              caption: stripHtml(ev.description).slice(0, 80) + "..." || ev.title,
               id: ev.id
             });
           });
@@ -203,7 +204,7 @@ function Home() {
                           initial={{ y: 20, opacity: 0 }}
                           whileInView={{ y: 0, opacity: 1 }}
                           transition={{ delay: 0.2 }}
-                          className="text-white text-3xl md:text-5xl font-bold mb-4 drop-shadow-lg"
+                          className="!text-white text-3xl md:text-5xl font-bold mb-4 drop-shadow-lg"
                         >
                           {slide.title}
                         </motion.h3>

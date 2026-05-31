@@ -57,7 +57,7 @@ export const getRoleLabel = (role) => {
         case ROLES.VOLUNTEER:
             return "Volunteer";
         case ROLES.USER:
-            return "Member";
+            return "Donor";
         default:
             return "Guest";
     }

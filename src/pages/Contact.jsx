@@ -101,7 +101,13 @@ function Contact() {
                   <IconButton sx={{ color: 'white', bgcolor: 'rgba(255,255,255,0.1)', '&:hover': { bgcolor: 'rgba(255,255,255,0.2)' } }}>
                     <TwitterIcon />
                   </IconButton>
-                  <IconButton sx={{ color: 'white', bgcolor: 'rgba(255,255,255,0.1)', '&:hover': { bgcolor: 'rgba(255,255,255,0.2)' } }}>
+                  <IconButton 
+                    component="a"
+                    href="https://www.instagram.com/kvgshanmukhsai_trust/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    sx={{ color: 'white', bgcolor: 'rgba(255,255,255,0.1)', '&:hover': { bgcolor: 'rgba(255,255,255,0.2)' } }}
+                  >
                     <InstagramIcon />
                   </IconButton>
                 </div>

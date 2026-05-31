@@ -143,7 +143,7 @@ function Signup() {
                   <Typography variant="body2" sx={{ fontWeight: 600, mb: 1.5, color: 'text.secondary' }}>I want to join as:</Typography>
                   <div className="grid grid-cols-3 gap-3">
                     {[
-                      { value: "USER", label: "User", icon: "👤", desc: "Donate" },
+                      { value: "USER", label: "Donor", icon: "💝", desc: "Donate & Track" },
                       { value: "VOLUNTEER", label: "Volunteer", icon: "🤝", desc: "Join events" },
                       { value: "ADMIN", label: "Admin", icon: "🛡️", desc: "Manage" },
                     ].map((opt) => (

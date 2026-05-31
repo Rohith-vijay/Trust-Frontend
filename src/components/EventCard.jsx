@@ -7,6 +7,7 @@ import LocationOnIcon from '@mui/icons-material/LocationOn';
 import PeopleIcon from '@mui/icons-material/People';
 import ErrorIcon from '@mui/icons-material/Error';
 import { useNavigate } from "react-router-dom";
+import { stripHtml } from "../utils";
 
 const EventCard = React.memo(({ event }) => {
   const nav = useNavigate();
@@ -32,7 +33,7 @@ const EventCard = React.memo(({ event }) => {
       year: "numeric",
     });
   })();
-  const summaryText = event.summary || event.description || "";
+  const summaryText = stripHtml(event.summary || event.description || "");
   const location = event.location || "";
   const category = event.category || "";
 
@@ -210,27 +211,32 @@ const EventCard = React.memo(({ event }) => {
             </Box>
           ) : null}
 
-          {event.instagramLink && (
-            <div className="mt-auto pt-3 border-t border-gray-100 flex items-center justify-between">
-              <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
-                Follow Campaign Updates
-              </Typography>
-              <IconButton 
-                size="small" 
-                href={event.instagramLink} 
-                target="_blank" 
-                onClick={(e) => e.stopPropagation()}
-                sx={{ 
-                  color: '#E1306C', 
-                  bgcolor: 'rgba(225, 48, 108, 0.08)', 
-                  '&:hover': { bgcolor: 'rgba(225, 48, 108, 0.15)' },
-                  transition: 'all 0.2s'
-                }}
-              >
-                <InstagramIcon fontSize="small" />
-              </IconButton>
-            </div>
-          )}
+          {(() => {
+            const instagramUrl = event.instagramLink || event.instagramUrl || "https://www.instagram.com/kvgshanmukhsai_trust/";
+            return (
+              <div className="mt-auto pt-3 border-t border-gray-100 flex items-center justify-between">
+                <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
+                  Follow Campaign Updates
+                </Typography>
+                <IconButton 
+                  size="small" 
+                  component="a"
+                  href={instagramUrl} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  sx={{ 
+                    color: '#E1306C', 
+                    bgcolor: 'rgba(225, 48, 108, 0.08)', 
+                    '&:hover': { bgcolor: 'rgba(225, 48, 108, 0.15)' },
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  <InstagramIcon fontSize="small" />
+                </IconButton>
+              </div>
+            );
+          })()}
         </CardContent>
       </Card>
     </motion.div>

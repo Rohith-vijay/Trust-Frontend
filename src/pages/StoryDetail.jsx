@@ -199,14 +199,9 @@ export default function StoryDetail() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="prose prose-lg max-w-none text-gray-700 leading-relaxed space-y-6"
+            className="prose prose-lg max-w-none text-gray-700 leading-relaxed"
           >
-            <div className="first-letter:text-6xl first-letter:font-bold first-letter:text-brand-gold first-letter:mr-3 first-letter:float-left text-lg leading-relaxed font-light text-gray-600 border-l-4 border-brand-gold pl-4 py-1 italic mb-6">
-              {story.description.substring(0, Math.min(story.description.length, 120))}...
-            </div>
-            <p className="whitespace-pre-line text-gray-700">
-              {story.description.substring(Math.min(story.description.length, 120))}
-            </p>
+            <div dangerouslySetInnerHTML={{ __html: story.description || "" }} />
           </motion.section>
 
           {/* Before/After Interactive Slider */}

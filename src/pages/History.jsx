@@ -113,9 +113,13 @@ function History() {
                       <Typography variant="h5" component="h2" sx={{ fontWeight: 700, mt: 1, mb: 2, color: 'text.primary' }}>
                         {item.event}
                       </Typography>
-                      <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.7 }}>
-                        {item.description}
-                      </Typography>
+                      <Typography 
+                        variant="body2" 
+                        component="div"
+                        color="text.secondary" 
+                        sx={{ lineHeight: 1.7 }}
+                        dangerouslySetInnerHTML={{ __html: item.description || "" }}
+                      />
                       {item.imageUrl && (
                         <div className="mt-4 overflow-hidden rounded-xl">
                           <img src={item.imageUrl} alt={item.event} className="w-full h-auto object-cover hover:scale-105 transition-transform duration-500" />

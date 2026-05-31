@@ -20,12 +20,17 @@ function About() {
           Our Story
         </h1>
 
-        <p className="text-lg text-gray-700 leading-relaxed max-w-3xl mx-auto">
-          Our trust was founded with a mission to bring hope, education,
-          and essential resources to communities in need. Through collective
-          effort and compassion, we strive to create lasting positive impact
-          in society.
-        </p>
+        <div className="text-lg text-gray-700 leading-relaxed max-w-3xl mx-auto space-y-6 text-left md:text-center">
+          <p>
+            K V G Shanmukh Sai Trust was established in the cherished memory of Mr. K.V.G. Shanmukh Sai to honor his compassion, selflessness, and vision of helping people in need and creating a better society. Even at a very young age, he supported those in need with whatever he had, regularly donated blood, and inspired many through his kindness and generosity.
+          </p>
+          <p>
+            His belief that even a single individual can create meaningful change became the inspiration behind this trust. With the collective efforts of dedicated people, the organization now focuses on Education, Healthcare, Environment, and Animal Welfare to create a positive and lasting impact on society.
+          </p>
+          <p>
+            This trust stands as a continuation of his thoughts, values, and pure soul, ensuring that his legacy of kindness and service lives on forever.
+          </p>
+        </div>
 
       </section>
 

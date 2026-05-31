@@ -179,9 +179,12 @@ function EventDetails() {
                 <Typography variant="h5" sx={{ fontWeight: 800, mb: 3, color: 'text.primary', position: 'relative', pb: 1, '&::after': { content: '""', position: 'absolute', bottom: 0, left: 0, width: 45, height: 3, bgcolor: 'primary.main', borderRadius: 2 } }}>
                   About This Initiative
                 </Typography>
-                <Typography variant="body1" sx={{ fontSize: '1.05rem', lineHeight: 1.85, color: 'text.secondary', whiteSpace: 'pre-line' }}>
-                  {event.description}
-                </Typography>
+                <Typography 
+                  variant="body1" 
+                  component="div" 
+                  sx={{ fontSize: '1.05rem', lineHeight: 1.85, color: 'text.secondary' }}
+                  dangerouslySetInnerHTML={{ __html: event.description || "" }}
+                />
               </CardContent>
             </Card>
 
@@ -404,14 +407,14 @@ function EventDetails() {
             </Card>
 
             {/* Social Media & External Embed Integrations */}
-            {(event.instagramUrl || event.youtubeUrl || event.facebookUrl || event.externalMediaUrl) && (
+            {(event.instagramUrl || event.instagramLink || event.youtubeUrl || event.facebookUrl || event.externalMediaUrl) && (
               <Card sx={{ borderRadius: 6, boxShadow: '0 10px 30px rgba(0,0,0,0.03)', border: '1px solid rgba(0,0,0,0.03)', p: 3.5 }}>
                 <Typography variant="subtitle2" sx={{ fontWeight: 850, color: 'text.secondary', mb: 2.5, textTransform: 'uppercase', letterSpacing: 0.5, fontSize: '0.72rem' }}>
                   External Media Integrations
                 </Typography>
                 <div className="grid grid-cols-2 gap-3">
-                  {event.instagramUrl && (
-                    <a href={event.instagramUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center p-3 rounded-xl border border-gray-150 hover:bg-gray-50 text-pink-600 transition-colors gap-2 text-xs font-bold shadow-xs bg-white">
+                  {(event.instagramUrl || event.instagramLink) && (
+                    <a href={event.instagramUrl || event.instagramLink} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center p-3 rounded-xl border border-gray-150 hover:bg-gray-50 text-pink-600 transition-colors gap-2 text-xs font-bold shadow-xs bg-white">
                       <InstagramIcon fontSize="small" /> Instagram
                     </a>
                   )}

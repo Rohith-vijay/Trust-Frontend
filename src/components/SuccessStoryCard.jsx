@@ -6,6 +6,7 @@ import LocationOnIcon from "@mui/icons-material/LocationOn";
 import StarIcon from "@mui/icons-material/Star";
 import FormatQuoteIcon from "@mui/icons-material/FormatQuote";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import { stripHtml } from "../utils";
 
 const SuccessStoryCard = React.memo(({ story }) => {
   const containerRef = useRef(null);
@@ -214,7 +215,7 @@ const SuccessStoryCard = React.memo(({ story }) => {
               overflow: "hidden",
             }}
           >
-            {story.description}
+            {stripHtml(story.description)}
           </Typography>
 
           {/* Emotional Block-Quote Section */}

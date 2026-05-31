@@ -129,9 +129,12 @@ function Vision() {
           className="py-16 px-6 max-w-4xl mx-auto -mt-10 relative z-20"
         >
           <Card elevation={0} sx={{ borderRadius: 6, p: { xs: 4, md: 6 }, boxShadow: '0 20px 40px rgba(0,0,0,0.05)', border: '1px solid rgba(0,0,0,0.03)' }}>
-            <Typography variant="h5" sx={{ fontStyle: 'italic', color: 'text.primary', lineHeight: 1.8, textAlign: 'center', fontWeight: 500 }}>
-              "{mission}"
-            </Typography>
+            <Typography 
+              variant="h5" 
+              component="div"
+              sx={{ fontStyle: 'italic', color: 'text.primary', lineHeight: 1.8, textAlign: 'center', fontWeight: 500 }}
+              dangerouslySetInnerHTML={{ __html: mission }}
+            />
           </Card>
         </motion.section>
       )}

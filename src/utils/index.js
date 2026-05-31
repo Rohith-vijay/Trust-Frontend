@@ -36,3 +36,8 @@ export const getWebSocketUrl = () => {
   const base = backendUrl.endsWith("/api") ? backendUrl.slice(0, -4) : backendUrl;
   return `${base}/ws`;
 };
+
+export const stripHtml = (html = "") => {
+  if (!html) return "";
+  return html.replace(/<[^>]*>/g, "");
+};

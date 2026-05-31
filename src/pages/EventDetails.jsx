@@ -56,17 +56,21 @@ function EventDetails() {
     return <NotFound />;
   }
 
+  const allHeroImages = event.heroImageUrl ? event.heroImageUrl.split(',').map(s => resolveMediaUrl(s.trim())).filter(Boolean) : [];
+  const allCoverImages = event.coverImageUrl ? event.coverImageUrl.split(',').map(s => resolveMediaUrl(s.trim())).filter(Boolean) : [];
   const allBannerImages = event.bannerUrl ? event.bannerUrl.split(',').map(s => resolveMediaUrl(s.trim())).filter(Boolean) : [];
+  const allImageUrls = event.image ? event.image.split(',').map(s => resolveMediaUrl(s.trim())).filter(Boolean) : [];
+
   const photos = event.media?.filter((m) => m.mediaType === "IMAGE").map((m) => resolveMediaUrl(m.mediaUrl)) || event.photos || [];
   const videos = event.media?.filter((m) => m.mediaType === "VIDEO").map((m) => resolveMediaUrl(m.mediaUrl)) || event.videos || [];
   
   // Use cover/hero or banner image
-  const headerImage = resolveMediaUrl(event.heroImageUrl) || resolveMediaUrl(event.coverImageUrl) || allBannerImages[0] || resolveMediaUrl(event.image) || photos[0] || null;
-  const extraImages = [...allBannerImages, ...photos];
+  const headerImage = allHeroImages[0] || allCoverImages[0] || allBannerImages[0] || allImageUrls[0] || photos[0] || null;
+  const extraImages = [...allHeroImages, ...allCoverImages, ...allBannerImages, ...allImageUrls, ...photos];
 
   // Unified list of images for the main highlights/gallery carousel
   const carouselImages = [
-    ...allBannerImages,
+    ...extraImages,
     ...(event.highlights || []).map(h => resolveMediaUrl(h))
   ].filter((item, index, self) => item && self.indexOf(item) === index);
 
@@ -79,7 +83,7 @@ function EventDetails() {
       caption: event.title + " Media Showcase",
       aspectRatio: m.mediaType === "VIDEO" ? 1.77 : 1.33
     })) || []),
-    ...allBannerImages.map((url, idx) => ({
+    ...extraImages.map((url, idx) => ({
       id: `b-${idx}`,
       url: url,
       mediaType: "IMAGE",

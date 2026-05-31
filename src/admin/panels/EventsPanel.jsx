@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import RichTextEditor from "../components/RichTextEditor";
 import SortableList from "../components/SortableList";
 import MediaUploader from "../../components/MediaUploader";
+import { resolveMediaUrl } from "../../utils";
 
 const EventsPanel = ({
   events,
@@ -539,13 +540,13 @@ const EventsPanel = ({
                   {(() => {
                     const getAdminThumb = (item) => {
                       if (item.coverImageUrl && item.coverImageUrl !== 'null' && item.coverImageUrl !== 'undefined') {
-                        return item.coverImageUrl.split(',')[0].trim();
+                        return resolveMediaUrl(item.coverImageUrl.split(',')[0].trim());
                       }
                       if (item.thumbnailUrl && item.thumbnailUrl !== 'null' && item.thumbnailUrl !== 'undefined') {
-                        return item.thumbnailUrl.split(',')[0].trim();
+                        return resolveMediaUrl(item.thumbnailUrl.split(',')[0].trim());
                       }
                       if (item.bannerUrl && item.bannerUrl !== 'null' && item.bannerUrl !== 'undefined') {
-                        return item.bannerUrl.split(',')[0].trim();
+                        return resolveMediaUrl(item.bannerUrl.split(',')[0].trim());
                       }
                       return null;
                     };

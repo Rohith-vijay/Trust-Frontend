@@ -7,7 +7,7 @@ import GroupsIcon from '@mui/icons-material/Groups';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import { ScrollStagger } from '../components/MotionContainer';
 import { CardGridSkeleton } from '../components/SkeletonLoader';
-import { stripHtml } from '../utils';
+import { stripHtml, resolveMediaUrl } from '../utils';
 
 export default function Events() {
   const [events, setEvents] = useState([]);
@@ -43,10 +43,10 @@ export default function Events() {
   // Helper to extract first image from potentially comma-separated banner or cover urls
   const getThumbnail = (event) => {
     if (event.coverImageUrl && event.coverImageUrl !== 'null' && event.coverImageUrl !== 'undefined') {
-      return event.coverImageUrl.split(',')[0].trim();
+      return resolveMediaUrl(event.coverImageUrl.split(',')[0].trim());
     }
     if (event.bannerUrl && event.bannerUrl !== 'null' && event.bannerUrl !== 'undefined') {
-      return event.bannerUrl.split(',')[0].trim();
+      return resolveMediaUrl(event.bannerUrl.split(',')[0].trim());
     }
     return '';
   };

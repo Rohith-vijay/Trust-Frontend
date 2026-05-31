@@ -6,7 +6,7 @@ import LocationOnIcon from "@mui/icons-material/LocationOn";
 import StarIcon from "@mui/icons-material/Star";
 import FormatQuoteIcon from "@mui/icons-material/FormatQuote";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
-import { stripHtml } from "../utils";
+import { stripHtml, resolveMediaUrl } from "../utils";
 
 const SuccessStoryCard = React.memo(({ story }) => {
   const containerRef = useRef(null);
@@ -34,10 +34,14 @@ const SuccessStoryCard = React.memo(({ story }) => {
   const hasBeforeAfter = (story.beforeImageUrl && story.beforeImageUrl !== 'null' && story.beforeImageUrl !== 'undefined') &&
                          (story.afterImageUrl && story.afterImageUrl !== 'null' && story.afterImageUrl !== 'undefined');
   const cardImage = (story.beforeImageUrl && story.beforeImageUrl !== 'null' && story.beforeImageUrl !== 'undefined')
-    ? story.beforeImageUrl
+    ? resolveMediaUrl(story.beforeImageUrl)
     : (story.imageUrl && story.imageUrl !== 'null' && story.imageUrl !== 'undefined')
-      ? story.imageUrl
+      ? resolveMediaUrl(story.imageUrl)
       : null;
+
+  // Also resolve before/after URLs for the slider
+  const resolvedBeforeUrl = resolveMediaUrl(story.beforeImageUrl);
+  const resolvedAfterUrl = resolveMediaUrl(story.afterImageUrl);
 
   // Retrieve first impact metric to showcase on the card badge
   const primaryMetric = useMemo(() => {
@@ -78,7 +82,7 @@ const SuccessStoryCard = React.memo(({ story }) => {
           >
             {/* Before Image (Background) */}
             <img
-              src={story.beforeImageUrl}
+              src={resolvedBeforeUrl}
               alt="Before"
               className="absolute inset-0 w-full h-full object-cover"
               loading="lazy"
@@ -93,7 +97,7 @@ const SuccessStoryCard = React.memo(({ story }) => {
               style={{ width: `${sliderPosition}%` }}
             >
               <img
-                src={story.afterImageUrl}
+                src={resolvedAfterUrl}
                 alt="After"
                 style={{ 
                   width: `${containerWidth}px`, 

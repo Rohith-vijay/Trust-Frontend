@@ -7,7 +7,7 @@ import LocationOnIcon from '@mui/icons-material/LocationOn';
 import PeopleIcon from '@mui/icons-material/People';
 import ErrorIcon from '@mui/icons-material/Error';
 import { useNavigate } from "react-router-dom";
-import { stripHtml } from "../utils";
+import { stripHtml, resolveMediaUrl } from "../utils";
 
 const EventCard = React.memo(({ event }) => {
   const nav = useNavigate();
@@ -17,15 +17,15 @@ const EventCard = React.memo(({ event }) => {
 
   const getPrimaryImage = () => {
     if (event.coverImageUrl && event.coverImageUrl !== 'null' && event.coverImageUrl !== 'undefined') {
-      return event.coverImageUrl.split(',')[0].trim();
+      return resolveMediaUrl(event.coverImageUrl.split(',')[0].trim());
     }
     if (event.bannerUrl && event.bannerUrl !== 'null' && event.bannerUrl !== 'undefined') {
-      return event.bannerUrl.split(',')[0].trim();
+      return resolveMediaUrl(event.bannerUrl.split(',')[0].trim());
     }
     if (event.image && event.image !== 'null' && event.image !== 'undefined') {
-      return event.image.split(',')[0].trim();
+      return resolveMediaUrl(event.image.split(',')[0].trim());
     }
-    if (event.media?.[0]?.mediaUrl) return event.media[0].mediaUrl;
+    if (event.media?.[0]?.mediaUrl) return resolveMediaUrl(event.media[0].mediaUrl);
     return null;
   };
   const imageUrl = getPrimaryImage();

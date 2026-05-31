@@ -23,6 +23,7 @@ import { Navigation, Pagination, Autoplay } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
+import { resolveMediaUrl } from "../utils";
 
 function EventDetails() {
   const { id } = useParams();
@@ -55,19 +56,19 @@ function EventDetails() {
     return <NotFound />;
   }
 
-  const allBannerImages = event.bannerUrl ? event.bannerUrl.split(',').map(s => s.trim()).filter(Boolean) : [];
-  const photos = event.media?.filter((m) => m.mediaType === "IMAGE").map((m) => m.mediaUrl) || event.photos || [];
-  const videos = event.media?.filter((m) => m.mediaType === "VIDEO").map((m) => m.mediaUrl) || event.videos || [];
+  const allBannerImages = event.bannerUrl ? event.bannerUrl.split(',').map(s => resolveMediaUrl(s.trim())).filter(Boolean) : [];
+  const photos = event.media?.filter((m) => m.mediaType === "IMAGE").map((m) => resolveMediaUrl(m.mediaUrl)) || event.photos || [];
+  const videos = event.media?.filter((m) => m.mediaType === "VIDEO").map((m) => resolveMediaUrl(m.mediaUrl)) || event.videos || [];
   
   // Use cover/hero or banner image
-  const headerImage = event.heroImageUrl || allBannerImages[0] || event.image || photos[0] || null;
+  const headerImage = resolveMediaUrl(event.heroImageUrl) || resolveMediaUrl(event.coverImageUrl) || allBannerImages[0] || resolveMediaUrl(event.image) || photos[0] || null;
   const extraImages = [...allBannerImages, ...photos];
 
   // Unified list of images for the main highlights/gallery carousel
   const carouselImages = [
     ...allBannerImages,
-    ...(event.highlights || [])
-  ].filter((item, index, self) => self.indexOf(item) === index);
+    ...(event.highlights || []).map(h => resolveMediaUrl(h))
+  ].filter((item, index, self) => item && self.indexOf(item) === index);
 
   // Map into structured assets for Masonry Gallery
   const masonryAssets = [

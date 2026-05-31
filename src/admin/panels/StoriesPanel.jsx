@@ -3,6 +3,7 @@ import RichTextEditor from "../components/RichTextEditor";
 import SortableList from "../components/SortableList";
 import MediaUploader from "../../components/MediaUploader";
 import databaseService from "../../services/databaseService";
+import { resolveMediaUrl } from "../../utils";
 
 const StoriesPanel = ({
   stories,
@@ -666,7 +667,7 @@ const StoriesPanel = ({
             <div className="flex flex-col sm:flex-row items-center gap-4 border border-gray-100 rounded-2xl p-4 bg-white hover:shadow-sm transition">
               {s.imageUrl && (
                 <img
-                  src={s.imageUrl}
+                  src={resolveMediaUrl(s.imageUrl)}
                   alt={s.title}
                   className="w-20 h-20 rounded-xl object-cover flex-shrink-0 border border-gray-100"
                 />

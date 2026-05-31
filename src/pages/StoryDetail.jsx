@@ -16,6 +16,7 @@ import PlayCircleOutlineIcon from "@mui/icons-material/PlayCircleOutlineOutlined
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import CloseIcon from "@mui/icons-material/Close";
+import { resolveMediaUrl } from "../utils";
 
 export default function StoryDetail() {
   const { id } = useParams();
@@ -132,7 +133,7 @@ export default function StoryDetail() {
       <div className="relative h-[65vh] w-full overflow-hidden bg-black">
         <div
           className="absolute inset-0 bg-cover bg-center opacity-70 transform scale-105 transition-transform duration-[10s] ease-out"
-          style={{ backgroundImage: `url(${story.imageUrl})` }}
+          style={{ backgroundImage: `url(${resolveMediaUrl(story.imageUrl) || resolveMediaUrl(story.beforeImageUrl) || ''})` }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-brand-navy-dark via-brand-navy-dark/40 to-transparent" />
         
@@ -223,7 +224,7 @@ export default function StoryDetail() {
               >
                 {/* After Image (Background) */}
                   <img
-                    src={story.afterImageUrl}
+                    src={resolveMediaUrl(story.afterImageUrl)}
                     alt="Transformation After"
                     className="absolute inset-0 h-full w-full object-cover"
                     draggable="false"
@@ -239,7 +240,7 @@ export default function StoryDetail() {
                   style={{ width: `${sliderPosition}%` }}
                 >
                     <img
-                      src={story.beforeImageUrl}
+                      src={resolveMediaUrl(story.beforeImageUrl)}
                       alt="Transformation Before"
                       className="absolute inset-0 h-[450px] w-full object-cover max-w-none"
                       style={{ width: "100%" }}

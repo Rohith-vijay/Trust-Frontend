@@ -41,3 +41,21 @@ export const stripHtml = (html = "") => {
   if (!html) return "";
   return html.replace(/<[^>]*>/g, "");
 };
+
+/**
+ * Resolves a media URL to an absolute URL.
+ * When Cloudinary is not configured, the backend saves images locally and
+ * returns relative paths like "/uploads/uuid.jpg". These must be resolved
+ * against the backend base URL, not the frontend origin.
+ */
+export const resolveMediaUrl = (url) => {
+  if (!url || url === 'null' || url === 'undefined') return null;
+  // Already absolute URL (Cloudinary, Unsplash, etc.)
+  if (url.startsWith('http://') || url.startsWith('https://')) return url;
+  // Relative path from local fallback — prefix with backend base URL (strip /api suffix)
+  if (url.startsWith('/uploads/') || url.startsWith('uploads/')) {
+    const backendBase = getBackendUrl().replace(/\/api$/, '');
+    return `${backendBase}${url.startsWith('/') ? '' : '/'}${url}`;
+  }
+  return url;
+};

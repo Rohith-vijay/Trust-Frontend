@@ -170,7 +170,7 @@ function Home() {
               className="grid md:grid-cols-3 gap-8 px-8 max-w-7xl mx-auto"
               margin="-60px"
             >
-              {stories.slice(0, 3).map((story) => (
+              {stories.map((story) => (
                 <SuccessStoryCard key={story.id} story={story} />
               ))}
             </ScrollStagger>

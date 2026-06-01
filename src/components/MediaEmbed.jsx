@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import ReactPlayer from "react-player";
 
 const MediaEmbed = ({
@@ -15,6 +15,51 @@ const MediaEmbed = ({
   const [isPlaying, setIsPlaying] = useState(playing);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
+  const videoRef = useRef(null);
+
+  // Determine if it is an external video service that needs ReactPlayer
+  const isYoutube = url && (url.includes("youtube.com") || url.includes("youtu.be"));
+  const isVimeo = url && url.includes("vimeo.com");
+  const isExternalEmbed = isYoutube || isVimeo;
+
+  // Sync state if URL changes
+  useEffect(() => {
+    setIsPlaying(playing);
+    setIsLoading(true);
+    setHasError(false);
+  }, [url, playing]);
+
+  // Sync native video playing prop when it changes programmatically
+  useEffect(() => {
+    if (!isExternalEmbed && videoRef.current) {
+      if (isPlaying) {
+        videoRef.current.play().catch(() => {});
+      } else {
+        videoRef.current.pause();
+      }
+    }
+  }, [isPlaying, isExternalEmbed]);
+
+  const handlePlayClick = (e) => {
+    e.stopPropagation();
+    setIsPlaying(true);
+    
+    // For direct video files, call play() SYNCHRONOUSLY within the user click gesture event
+    // to bypass modern browser unmuted autoplay/gesture block rules perfectly.
+    if (!isExternalEmbed && videoRef.current) {
+      const playPromise = videoRef.current.play();
+      if (playPromise !== undefined) {
+        playPromise.catch((err) => {
+          console.warn("Unmuted video play blocked, falling back to muted playback:", err);
+          videoRef.current.muted = true;
+          videoRef.current.play().catch((err2) => {
+            console.error("Muted playback failed:", err2);
+            setHasError(true);
+          });
+        });
+      }
+    }
+  };
 
   // Normalize aspect ratio to Tailwind or inline CSS format
   const aspectStyle = {
@@ -26,39 +71,63 @@ const MediaEmbed = ({
       {/* Aspect Ratio Container */}
       <div className="relative w-full overflow-hidden" style={aspectStyle}>
         
-        {/* React Player Instance (Eagerly Mounted to preserve user gesture context) */}
-        <div className="absolute inset-0 w-full h-full z-0">
-          <ReactPlayer
-            url={url}
-            width="100%"
-            height="100%"
-            playing={isPlaying}
-            muted={muted}
-            loop={loop}
-            controls={controls}
-            onReady={() => setIsLoading(false)}
-            onStart={() => setIsLoading(false)}
-            onError={(e) => {
-              console.error("Video player error: ", e);
-              setHasError(true);
-              setIsLoading(false);
-            }}
-            style={{ position: "absolute", top: 0, left: 0 }}
-            config={{
-              file: {
-                forceVideo: true,
-                attributes: {
-                  crossOrigin: "anonymous",
-                  controlsList: "nodownload",
-                  style: { width: "100%", height: "100%", objectFit: "cover" }
+        {/* React Player Instance for External Embeds (YouTube / Vimeo) */}
+        {isExternalEmbed && (
+          <div className="absolute inset-0 w-full h-full z-0">
+            <ReactPlayer
+              url={url}
+              width="100%"
+              height="100%"
+              playing={isPlaying}
+              muted={muted}
+              loop={loop}
+              controls={controls}
+              onReady={() => setIsLoading(false)}
+              onStart={() => setIsLoading(false)}
+              onError={(e) => {
+                console.error("ReactPlayer error: ", e);
+                setHasError(true);
+                setIsLoading(false);
+              }}
+              style={{ position: "absolute", top: 0, left: 0 }}
+              config={{
+                youtube: {
+                  playerVars: { showinfo: 0, rel: 0, modestbranding: 1 }
                 }
-              },
-              youtube: {
-                playerVars: { showinfo: 0, rel: 0, modestbranding: 1 }
-              }
-            }}
-          />
-        </div>
+              }}
+            />
+          </div>
+        )}
+
+        {/* Highly Optimized Native HTML5 Video Element for Direct Files & Cloudinary Streams */}
+        {!isExternalEmbed && (
+          <div className="absolute inset-0 w-full h-full z-0">
+            <video
+              ref={videoRef}
+              src={url}
+              className="w-full h-full object-cover"
+              controls={controls && isPlaying}
+              preload="metadata"
+              muted={muted}
+              loop={loop}
+              playsInline
+              crossOrigin="anonymous"
+              onPlay={() => {
+                setIsPlaying(true);
+                setIsLoading(false);
+              }}
+              onPause={() => setIsPlaying(false)}
+              onWaiting={() => setIsLoading(true)}
+              onPlaying={() => setIsLoading(false)}
+              onLoadedData={() => setIsLoading(false)}
+              onError={(e) => {
+                console.error("Native video error: ", e);
+                setHasError(true);
+                setIsLoading(false);
+              }}
+            />
+          </div>
+        )}
 
         {/* Poster Image / Custom Play Overlay for Cinematic Pre-load state */}
         {!isPlaying && posterUrl && (
@@ -70,7 +139,7 @@ const MediaEmbed = ({
               loading="lazy"
             />
             {/* Elegant Cinematic Gradient Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent flex flex-col justify-end p-6" onClick={() => setIsPlaying(true)}>
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent flex flex-col justify-end p-6" onClick={handlePlayClick}>
               {/* Play Button Icon */}
               <div className="absolute inset-0 flex items-center justify-center">
                 <button

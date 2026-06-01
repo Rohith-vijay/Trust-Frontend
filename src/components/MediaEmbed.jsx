@@ -94,7 +94,7 @@ const MediaEmbed = ({
               onReady={() => setIsLoading(false)}
               onStart={() => setIsLoading(false)}
               onError={(e) => {
-                log.error("Video player error: ", e);
+                console.error("Video player error: ", e);
                 setHasError(true);
                 setIsLoading(false);
               }}

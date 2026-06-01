@@ -281,7 +281,7 @@ export default function StoryDetail() {
                 <PlayCircleOutlineIcon className="text-brand-gold mr-2" fontSize="large" /> Journey Video
               </h3>
               <MediaEmbed
-                url={story.videoUrl}
+                url={resolveMediaUrl(story.videoUrl)}
                 posterUrl={story.imageUrl}
                 caption={`${story.title} - Journey Highlight`}
                 aspectRatio="16/9"

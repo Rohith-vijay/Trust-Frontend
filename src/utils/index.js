@@ -16,7 +16,11 @@ export const getBackendUrl = () => {
     url = import.meta.env.VITE_API_BASE_URL;
   } else {
     const hostname = typeof window !== "undefined" && window.location ? window.location.hostname : "localhost";
-    url = `http://${hostname}:8080/api`;
+    if (hostname === "localhost" || hostname === "127.0.0.1") {
+      url = `http://${hostname}:8080/api`;
+    } else {
+      url = "https://trust-backend-production-b792.up.railway.app/api";
+    }
   }
 
   if (url) {

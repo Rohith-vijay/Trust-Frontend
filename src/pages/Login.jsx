@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { pageVariants, pageTransition } from "../constants/motionVariants";
 import { useAuth } from "../hooks/useAuth";
 import { TextField, Button, Card, Typography, InputAdornment, IconButton, Alert, CircularProgress } from "@mui/material";
@@ -13,14 +13,27 @@ function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  useEffect(() => {
+    const verified = searchParams.get("verified");
+    const errType = searchParams.get("error");
+    if (verified === "true") {
+      setSuccess("Your email address has been successfully verified! You can now sign in.");
+    } else if (errType === "invalid") {
+      setError("The verification link is invalid or expired. Please check your inbox or request a new link.");
+    }
+  }, [searchParams]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setSuccess("");
 
     if (!email.trim() || !password.trim()) {
       setError("Please fill in all fields.");
@@ -78,6 +91,12 @@ function Login() {
             {error && (
               <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="mb-6">
                 <Alert severity="error" sx={{ borderRadius: 2 }}>{error}</Alert>
+              </motion.div>
+            )}
+
+            {success && (
+              <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="mb-6">
+                <Alert severity="success" sx={{ borderRadius: 2 }}>{success}</Alert>
               </motion.div>
             )}
 

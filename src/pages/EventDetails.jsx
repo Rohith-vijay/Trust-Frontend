@@ -61,8 +61,8 @@ function EventDetails() {
   const allBannerImages = event.bannerUrl ? event.bannerUrl.split(',').map(s => resolveMediaUrl(s.trim())).filter(Boolean) : [];
   const allImageUrls = event.image ? event.image.split(',').map(s => resolveMediaUrl(s.trim())).filter(Boolean) : [];
 
-  const photos = event.media?.filter((m) => m.mediaType === "IMAGE").map((m) => resolveMediaUrl(m.mediaUrl)) || event.photos || [];
-  const videos = event.media?.filter((m) => m.mediaType === "VIDEO").map((m) => resolveMediaUrl(m.mediaUrl)) || event.videos || [];
+  const photos = event.media?.filter((m) => m.mediaType === "IMAGE").map((m) => resolveMediaUrl(m.mediaUrl)).filter(Boolean) || event.photos || [];
+  const videos = event.media?.filter((m) => m.mediaType === "VIDEO").map((m) => resolveMediaUrl(m.mediaUrl)).filter(Boolean) || event.videos || [];
   
   // Use cover/hero or banner image
   const headerImage = allHeroImages[0] || allCoverImages[0] || allBannerImages[0] || allImageUrls[0] || photos[0] || null;

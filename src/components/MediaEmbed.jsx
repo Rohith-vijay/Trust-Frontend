@@ -26,6 +26,40 @@ const MediaEmbed = ({
       {/* Aspect Ratio Container */}
       <div className="relative w-full overflow-hidden" style={aspectStyle}>
         
+        {/* React Player Instance (Eagerly Mounted to preserve user gesture context) */}
+        <div className="absolute inset-0 w-full h-full z-0">
+          <ReactPlayer
+            url={url}
+            width="100%"
+            height="100%"
+            playing={isPlaying}
+            muted={muted}
+            loop={loop}
+            controls={controls}
+            onReady={() => setIsLoading(false)}
+            onStart={() => setIsLoading(false)}
+            onError={(e) => {
+              console.error("Video player error: ", e);
+              setHasError(true);
+              setIsLoading(false);
+            }}
+            style={{ position: "absolute", top: 0, left: 0 }}
+            config={{
+              file: {
+                forceVideo: true,
+                attributes: {
+                  crossOrigin: "anonymous",
+                  controlsList: "nodownload",
+                  style: { width: "100%", height: "100%", objectFit: "cover" }
+                }
+              },
+              youtube: {
+                playerVars: { showinfo: 0, rel: 0, modestbranding: 1 }
+              }
+            }}
+          />
+        </div>
+
         {/* Poster Image / Custom Play Overlay for Cinematic Pre-load state */}
         {!isPlaying && posterUrl && (
           <div className="absolute inset-0 z-10 cursor-pointer overflow-hidden transition-all duration-700">
@@ -66,45 +100,17 @@ const MediaEmbed = ({
 
         {/* Loading Spinner */}
         {isLoading && isPlaying && !hasError && (
-          <div className="absolute inset-0 flex items-center justify-center bg-brand-navy-dark/90 z-0">
+          <div className="absolute inset-0 flex items-center justify-center bg-brand-navy-dark/90 z-20 pointer-events-none">
             <div className="w-10 h-10 border-4 border-amber-400/20 border-t-amber-400 rounded-full animate-spin"></div>
           </div>
         )}
 
         {/* Error State */}
         {hasError && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center bg-brand-navy-dark text-center p-6 z-20">
+          <div className="absolute inset-0 flex flex-col items-center justify-center bg-brand-navy-dark text-center p-6 z-30">
             <span className="text-4xl mb-3">⚠️</span>
             <p className="text-white text-sm font-bold">Failed to load media</p>
             <p className="text-gray-400 text-xs mt-1">Unsupported video format or invalid URL</p>
-          </div>
-        )}
-
-        {/* React Player Instance */}
-        {(isPlaying || !posterUrl) && (
-          <div className="absolute inset-0 w-full h-full">
-            <ReactPlayer
-              url={url}
-              width="100%"
-              height="100%"
-              playing={isPlaying}
-              muted={muted}
-              loop={loop}
-              controls={controls}
-              onReady={() => setIsLoading(false)}
-              onStart={() => setIsLoading(false)}
-              onError={(e) => {
-                console.error("Video player error: ", e);
-                setHasError(true);
-                setIsLoading(false);
-              }}
-              style={{ position: "absolute", top: 0, left: 0 }}
-              config={{
-                youtube: {
-                  playerVars: { showinfo: 0, rel: 0, modestbranding: 1 }
-                }
-              }}
-            />
           </div>
         )}
       </div>

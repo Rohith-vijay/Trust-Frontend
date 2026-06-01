@@ -270,7 +270,7 @@ export default function StoryDetail() {
           )}
 
           {/* Cinematic Video Section */}
-          {story.videoUrl && (
+          {resolveMediaUrl(story.videoUrl) && (
             <motion.section
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}

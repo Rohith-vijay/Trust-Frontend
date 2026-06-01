@@ -150,26 +150,16 @@ function ForgotPassword() {
 
             {step === 2 && (
               <div className="space-y-6">
-                <div className="text-center">
-                  <div className="w-16 h-16 bg-indigo-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <AlternateEmailIcon sx={{ color: "indigo.500" }} fontSize="large" />
+                <div className="text-center py-4">
+                  <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <AlternateEmailIcon color="primary" fontSize="large" />
                   </div>
                   <Typography variant="h4" sx={{ fontWeight: 800, color: 'text.primary', mb: 1 }}>
                     Reset Link Sent!
                   </Typography>
-                  <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                    We have successfully sent a secure password reset link to <span className="font-semibold">{email}</span>.
+                  <Typography variant="body2" color="text.secondary">
+                    We have successfully sent a secure password reset link to <span className="font-semibold">{email}</span>. Please check your inbox (including your spam folder) and click the link to reset your password.
                   </Typography>
-                </div>
-
-                <div className="bg-amber-50/50 border border-amber-100 rounded-2xl p-5 text-center mt-6">
-                  <span className="text-[10px] font-black uppercase text-amber-800 tracking-wider">Local Sandbox Sandbox</span>
-                  <p className="text-xs text-amber-700 mt-2">
-                    Since you are testing locally, the reset link has also been printed clearly in your <strong>Spring Boot backend console logs</strong>!
-                  </p>
-                  <p className="text-[10px] text-gray-500 mt-2 leading-relaxed">
-                    Copy the generated URL from the logs (which starts with <code className="bg-gray-100 px-1 py-0.5 rounded font-mono">http://localhost:5173/forgot-password?token=...</code>) and open it in a new tab to complete your password reset.
-                  </p>
                 </div>
               </div>
             )}

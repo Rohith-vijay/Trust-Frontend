@@ -20,6 +20,7 @@ const MediaUploader = ({
 
   // Allowed file sizes and types
   const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+  const MAX_VIDEO_SIZE = 50 * 1024 * 1024; // 50MB
   const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif", "image/svg+xml"];
   const ALLOWED_VIDEO_TYPES = ["video/mp4", "video/webm", "video/ogg", "video/quicktime"];
 
@@ -53,8 +54,12 @@ const MediaUploader = ({
     currentFileRef.current = file;
 
     // Validate size
-    if (file.size > MAX_FILE_SIZE && mediaType === "IMAGE") {
+    if (mediaType === "IMAGE" && file.size > MAX_FILE_SIZE) {
       setError("File exceeds 10MB limit. Please compress or choose a smaller image.");
+      return;
+    }
+    if (mediaType === "VIDEO" && file.size > MAX_VIDEO_SIZE) {
+      setError("Video file exceeds 50MB limit. Please compress or choose a smaller video.");
       return;
     }
 
@@ -108,10 +113,10 @@ const MediaUploader = ({
       }
     } catch (err) {
       if (err.name === "CanceledError" || api.isCancel(err)) {
-        log.warn("Upload cancelled by user.");
+        console.warn("Upload cancelled by user.");
         setError("Upload cancelled.");
       } else {
-        log.error("Media upload error: ", err);
+        console.error("Media upload error: ", err);
         setError(err.response?.data?.message || "Failed to upload file. Please try again.");
       }
       setIsUploading(false);
@@ -163,7 +168,7 @@ const MediaUploader = ({
               Drag & drop or <span className="text-primary hover:underline">browse</span>
             </p>
             <p className="text-[10px] text-gray-400 mt-1 uppercase tracking-wider font-semibold">
-              Max size: 10MB ({mediaType === "VIDEO" ? "MP4 / WebM" : "WebP / PNG / JPG"})
+              Max size: {mediaType === "VIDEO" ? "50MB" : "10MB"} ({mediaType === "VIDEO" ? "MP4 / WebM" : "WebP / PNG / JPG"})
             </p>
           </>
         )}

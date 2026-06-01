@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import databaseService from "../services/databaseService";
@@ -25,10 +25,25 @@ export default function StoryDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [sliderPosition, setSliderPosition] = useState(50);
-  const [isResizing, setIsResizing] = useState(false);
+  const containerRef = useRef(null);
+  const [containerWidth, setContainerWidth] = useState(600);
   const [selectedImage, setSelectedImage] = useState(null);
   const [galleryIndex, setGalleryIndex] = useState(0);
   const [showShareToast, setShowShareToast] = useState(false);
+
+  // ResizeObserver to track container width for perfect Before/After image alignment
+  useEffect(() => {
+    if (containerRef.current) {
+      setContainerWidth(containerRef.current.getBoundingClientRect().width);
+      const resizeObserver = new ResizeObserver((entries) => {
+        for (let entry of entries) {
+          setContainerWidth(entry.contentRect.width);
+        }
+      });
+      resizeObserver.observe(containerRef.current);
+      return () => resizeObserver.disconnect();
+    }
+  }, [story]);
 
   useEffect(() => {
     let ignore = false;
@@ -67,26 +82,7 @@ export default function StoryDetail() {
     );
   }
 
-  // Handle Before/After image comparison slider dragging
-  const handleMove = (clientX, rect) => {
-    const x = clientX - rect.left;
-    const percentage = Math.max(0, Math.min(100, (x / rect.width) * 100));
-    setSliderPosition(percentage);
-  };
-
-  const handleTouchMove = (e) => {
-    const container = e.currentTarget.getBoundingClientRect();
-    if (e.touches[0]) {
-      handleMove(e.touches[0].clientX, container);
-    }
-  };
-
-  const handleMouseMove = (e) => {
-    if (e.buttons === 1 || isResizing) {
-      const container = e.currentTarget.getBoundingClientRect();
-      handleMove(e.clientX, container);
-    }
-  };
+  // Native comparison slider is handled directly by range input element below
 
   // Video embed helper
   const getEmbedUrl = (url) => {
@@ -206,7 +202,8 @@ export default function StoryDetail() {
           </motion.section>
 
           {/* Before/After Interactive Slider */}
-          {story.beforeImageUrl && story.afterImageUrl && (
+          {story.beforeImageUrl && story.beforeImageUrl !== 'null' && story.beforeImageUrl !== 'undefined' &&
+           story.afterImageUrl && story.afterImageUrl !== 'null' && story.afterImageUrl !== 'undefined' && (
             <motion.section
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -215,21 +212,17 @@ export default function StoryDetail() {
             >
               <h3 className="text-2xl font-bold text-brand-navy-dark font-heading">The Transformation</h3>
               <div 
-                className="relative h-[450px] w-full rounded-2xl overflow-hidden shadow-2xl select-none cursor-ew-resize border border-gray-200"
-                onTouchMove={handleTouchMove}
-                onMouseMove={handleMouseMove}
-                onMouseDown={() => setIsResizing(true)}
-                onMouseUp={() => setIsResizing(false)}
-                onMouseLeave={() => setIsResizing(false)}
+                ref={containerRef}
+                className="relative h-[450px] w-full rounded-2xl overflow-hidden shadow-2xl select-none border border-gray-200"
               >
                 {/* After Image (Background) */}
-                  <img
-                    src={resolveMediaUrl(story.afterImageUrl)}
-                    alt="Transformation After"
-                    className="absolute inset-0 h-full w-full object-cover"
-                    draggable="false"
-                    onError={(e) => { e.target.onerror = null; e.target.src = 'https://via.placeholder.com/800x450?text=Image+Unavailable'; }}
-                  />
+                <img
+                  src={resolveMediaUrl(story.afterImageUrl)}
+                  alt="Transformation After"
+                  className="absolute inset-0 h-full w-full object-cover"
+                  draggable="false"
+                  onError={(e) => { e.target.onerror = null; e.target.src = 'https://via.placeholder.com/800x450?text=Image+Unavailable'; }}
+                />
                 <div className="absolute bottom-4 right-4 bg-brand-navy-dark/80 text-white text-xs font-bold uppercase tracking-widest px-3 py-1 rounded backdrop-blur">
                   After Impact
                 </div>
@@ -239,28 +232,38 @@ export default function StoryDetail() {
                   className="absolute inset-0 overflow-hidden"
                   style={{ width: `${sliderPosition}%` }}
                 >
-                    <img
-                      src={resolveMediaUrl(story.beforeImageUrl)}
-                      alt="Transformation Before"
-                      className="absolute inset-0 h-[450px] w-full object-cover max-w-none"
-                      style={{ width: "100%" }}
-                      draggable="false"
-                      onError={(e) => { e.target.onerror = null; e.target.src = 'https://via.placeholder.com/800x450?text=Image+Unavailable'; }}
-                    />
+                  <img
+                    src={resolveMediaUrl(story.beforeImageUrl)}
+                    alt="Transformation Before"
+                    className="absolute inset-0 h-[450px] w-full object-cover max-w-none"
+                    style={{ width: `${containerWidth}px` }}
+                    draggable="false"
+                    onError={(e) => { e.target.onerror = null; e.target.src = 'https://via.placeholder.com/800x450?text=Image+Unavailable'; }}
+                  />
                   <div className="absolute bottom-4 left-4 bg-brand-gold/90 text-white text-xs font-bold uppercase tracking-widest px-3 py-1 rounded backdrop-blur">
                     Before Impact
                   </div>
                 </div>
 
-                {/* Slider Handle */}
+                {/* Slider Handle Line & Handle */}
                 <div
-                  className="absolute top-0 bottom-0 w-1 bg-white cursor-ew-resize flex items-center justify-center shadow-lg"
-                  style={{ left: `${sliderPosition}%` }}
+                  className="absolute top-0 bottom-0 w-[2px] bg-white cursor-ew-resize flex items-center justify-center shadow-lg"
+                  style={{ left: `${sliderPosition}%`, transform: "translateX(-50%)" }}
                 >
-                  <div className="w-8 h-8 rounded-full bg-brand-gold border-2 border-white flex items-center justify-center text-white text-xs shadow-lg">
+                  <div className="w-8 h-8 rounded-full bg-white border border-gray-100 flex items-center justify-center text-brand-gold font-black text-xs shadow-lg">
                     ↔
                   </div>
                 </div>
+
+                {/* Range Input overlay covering the element for seamless touch/mouse dragging */}
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={sliderPosition}
+                  onChange={(e) => setSliderPosition(Number(e.target.value))}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-ew-resize z-20"
+                />
               </div>
               <p className="text-sm text-center text-gray-500 italic">Drag the slider horizontally to compare before (left) and after (right) states.</p>
             </motion.section>

@@ -150,7 +150,7 @@ const Dashboard = () => {
   const [storyForm, setStoryForm] = useState({ title: "", subtitle: "", imageUrl: "", category: "", description: "", beforeImageUrl: "", afterImageUrl: "", testimonialQuote: "", testimonialAuthor: "", videoUrl: "" });
   const [memberForm, setMemberForm] = useState({ name: "", role: "", tagline: "", bio: "", imageUrl: "" });
   const [eventForm, setEventForm] = useState({
-    title: "", description: "", location: "", eventDate: "", registrationDeadline: "", maxVolunteers: "", bannerUrl: "", thumbnailUrl: "", heroImageUrl: "", coverImage: "", instagramUrl: "", youtubeUrl: "", facebookUrl: ""
+    title: "", description: "", location: "", category: "", eventDate: "", registrationDeadline: "", maxVolunteers: "", bannerUrl: "", thumbnailUrl: "", heroImageUrl: "", coverImage: "", instagramUrl: "", youtubeUrl: "", facebookUrl: ""
   });
 
   // ── New: impact create form ──
@@ -479,7 +479,7 @@ const Dashboard = () => {
     try {
       await databaseService.createEvent(eventData);
       setEventForm({
-        title: "", description: "", location: "", eventDate: "", registrationDeadline: "", maxVolunteers: "", bannerUrl: "", thumbnailUrl: "", heroImageUrl: "", coverImage: "", instagramUrl: "", youtubeUrl: "", facebookUrl: ""
+        title: "", description: "", location: "", category: "", eventDate: "", registrationDeadline: "", maxVolunteers: "", bannerUrl: "", thumbnailUrl: "", heroImageUrl: "", coverImage: "", instagramUrl: "", youtubeUrl: "", facebookUrl: ""
       });
       await loadEvents();
     } catch (err) { console.error(err); throw err; }

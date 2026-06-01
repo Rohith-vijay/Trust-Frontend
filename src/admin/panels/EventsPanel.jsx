@@ -106,7 +106,7 @@ const EventsPanel = ({
         >
           <p className="text-sm font-bold text-brand-navy-dark border-b pb-2">Schedule New Initiative Event</p>
           
-          <div className="grid sm:grid-cols-2 gap-4">
+          <div className="grid sm:grid-cols-3 gap-4">
             <div className="space-y-1">
               <label className="text-xs font-semibold text-gray-500">Initiative Title *</label>
               <input
@@ -126,6 +126,20 @@ const EventsPanel = ({
                 required
                 className="w-full border border-gray-200 rounded-lg px-3.5 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 bg-white"
               />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-semibold text-gray-500">Category / Focus Initiative *</label>
+              <select
+                value={eventForm.category || ""}
+                onChange={(e) => setEventForm((p) => ({ ...p, category: e.target.value }))}
+                className="w-full border border-gray-200 rounded-lg px-3.5 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 bg-white"
+              >
+                <option value="">General Relief</option>
+                <option value="Environment">Environment</option>
+                <option value="Water">Water</option>
+                <option value="Food">Food</option>
+                <option value="Education">Education</option>
+              </select>
             </div>
           </div>
 
@@ -315,7 +329,7 @@ const EventsPanel = ({
             Editing Event Configuration: <span className="text-primary font-black">{editingEvent.title}</span>
           </p>
 
-          <div className="grid sm:grid-cols-2 gap-4">
+          <div className="grid sm:grid-cols-3 gap-4">
             <div className="space-y-1">
               <label className="text-xs font-semibold text-gray-500">Initiative Title *</label>
               <input
@@ -335,6 +349,20 @@ const EventsPanel = ({
                 required
                 className="w-full border border-gray-200 rounded-lg px-3.5 py-2 text-sm outline-none bg-white"
               />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-semibold text-gray-500">Category / Focus Initiative *</label>
+              <select
+                value={editingEvent.category || ""}
+                onChange={(e) => setEditingEvent((p) => ({ ...p, category: e.target.value }))}
+                className="w-full border border-gray-200 rounded-lg px-3.5 py-2 text-sm outline-none bg-white"
+              >
+                <option value="">General Relief</option>
+                <option value="Environment">Environment</option>
+                <option value="Water">Water</option>
+                <option value="Food">Food</option>
+                <option value="Education">Education</option>
+              </select>
             </div>
           </div>
 

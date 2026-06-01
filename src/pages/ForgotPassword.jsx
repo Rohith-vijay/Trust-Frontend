@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { pageVariants, pageTransition } from "../constants/motionVariants";
 import { TextField, Button, Card, Typography, InputAdornment, IconButton, Alert, CircularProgress } from "@mui/material";
 import AlternateEmailIcon from "@mui/icons-material/AlternateEmail";
@@ -9,20 +9,30 @@ import KeyIcon from "@mui/icons-material/Key";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import api from "../services/api";
 
 function ForgotPassword() {
-  const [step, setStep] = useState(1); // 1: Email, 2: Code, 3: New Password, 4: Success
+  const [step, setStep] = useState(1); // 1: Email, 2: Instructions, 3: New Password, 4: Success
   const [email, setEmail] = useState("");
-  const [code, setCode] = useState("");
+  const [token, setToken] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [simulatedCode, setSimulatedCode] = useState("");
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
-  const handleSendCode = (e) => {
+  // Extract reset token from search params on mount (from click-to-email reset link)
+  useEffect(() => {
+    const tokenParam = searchParams.get("token");
+    if (tokenParam) {
+      setToken(tokenParam);
+      setStep(3);
+    }
+  }, [searchParams]);
+
+  const handleSendCode = async (e) => {
     e.preventDefault();
     setError("");
     if (!email.trim() || !email.includes("@")) {
@@ -31,32 +41,19 @@ function ForgotPassword() {
     }
 
     setLoading(true);
-    // Simulate API delay
-    setTimeout(() => {
-      setLoading(false);
-      // Generate a dynamic mock code for sandbox testing
-      const generatedCode = String(Math.floor(1000 + Math.random() * 9000));
-      setSimulatedCode(generatedCode);
+    try {
+      // POST to Spring Boot forgot password route
+      await api.post("/auth/forgot-password", { email }, { skipGlobalToast: true });
       setStep(2);
-    }, 1000);
-  };
-
-  const handleVerifyCode = (e) => {
-    e.preventDefault();
-    setError("");
-    if (code !== simulatedCode && code !== "8888") {
-      setError("Invalid verification code. For testing, you can use the code shown below.");
-      return;
-    }
-
-    setLoading(true);
-    setTimeout(() => {
+    } catch (err) {
+      const serverMsg = err.response?.data?.message || err.response?.data?.error || "Failed to request password reset. Make sure the email is registered.";
+      setError(serverMsg);
+    } finally {
       setLoading(false);
-      setStep(3);
-    }, 800);
+    }
   };
 
-  const handleResetPassword = (e) => {
+  const handleResetPassword = async (e) => {
     e.preventDefault();
     setError("");
     if (password.length < 6) {
@@ -69,10 +66,16 @@ function ForgotPassword() {
     }
 
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      // POST to Spring Boot reset password route
+      await api.post("/auth/reset-password", { token, newPassword: password }, { skipGlobalToast: true });
       setStep(4);
-    }, 1200);
+    } catch (err) {
+      const serverMsg = err.response?.data?.message || err.response?.data?.error || "Failed to reset password. The link might be expired or invalid.";
+      setError(serverMsg);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -98,7 +101,7 @@ function ForgotPassword() {
                     Forgot Password
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    Enter your email below to receive an access code
+                    Enter your registered email address to receive a secure password reset link
                   </Typography>
                 </div>
 
@@ -139,7 +142,7 @@ function ForgotPassword() {
                       boxShadow: '0 8px 16px rgba(0,0,0,0.1)'
                     }}
                   >
-                    {loading ? <CircularProgress size={24} color="inherit" /> : "Send Verification Code"}
+                    {loading ? <CircularProgress size={24} color="inherit" /> : "Send Reset Link"}
                   </Button>
                 </form>
               </div>
@@ -152,54 +155,21 @@ function ForgotPassword() {
                     <AlternateEmailIcon sx={{ color: "indigo.500" }} fontSize="large" />
                   </div>
                   <Typography variant="h4" sx={{ fontWeight: 800, color: 'text.primary', mb: 1 }}>
-                    Enter Verification Code
+                    Reset Link Sent!
                   </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    We sent a simulated reset code to <span className="font-semibold">{email}</span>
+                  <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                    We have successfully sent a secure password reset link to <span className="font-semibold">{email}</span>.
                   </Typography>
                 </div>
 
-                {error && <Alert severity="error" sx={{ borderRadius: 2 }}>{error}</Alert>}
-
-                <form onSubmit={handleVerifyCode} className="space-y-5">
-                  <TextField
-                    fullWidth
-                    label="Verification Code"
-                    variant="outlined"
-                    placeholder="e.g. 8888"
-                    value={code}
-                    onChange={(e) => setCode(e.target.value)}
-                    disabled={loading}
-                    InputProps={{
-                      sx: { borderRadius: 3, textAlign: 'center', tracking: '0.5em', fontClass: 'font-mono' }
-                    }}
-                  />
-
-                  <Button
-                    fullWidth
-                    variant="contained"
-                    color="primary"
-                    size="large"
-                    type="submit"
-                    disabled={loading}
-                    sx={{
-                      py: 1.5,
-                      borderRadius: 3,
-                      fontWeight: 700,
-                      textTransform: 'none',
-                      fontSize: '1rem',
-                      boxShadow: '0 8px 16px rgba(0,0,0,0.1)'
-                    }}
-                  >
-                    {loading ? <CircularProgress size={24} color="inherit" /> : "Verify Code"}
-                  </Button>
-                </form>
-
-                {/* Sandbox Developer helper display */}
-                <div className="bg-amber-50/50 border border-amber-100 rounded-2xl p-4 text-center mt-6">
-                  <span className="text-[9px] font-black uppercase text-amber-800 tracking-wider">Operational Testing Sandbox</span>
-                  <p className="text-xs text-amber-700 mt-1">Mock Code generated: <strong className="font-mono text-base">{simulatedCode}</strong></p>
-                  <p className="text-[10px] text-gray-400 mt-0.5">(For validation testing, typing either <strong className="font-mono">{simulatedCode}</strong> or <strong className="font-mono">8888</strong> is fully accepted.)</p>
+                <div className="bg-amber-50/50 border border-amber-100 rounded-2xl p-5 text-center mt-6">
+                  <span className="text-[10px] font-black uppercase text-amber-800 tracking-wider">Local Sandbox Sandbox</span>
+                  <p className="text-xs text-amber-700 mt-2">
+                    Since you are testing locally, the reset link has also been printed clearly in your <strong>Spring Boot backend console logs</strong>!
+                  </p>
+                  <p className="text-[10px] text-gray-500 mt-2 leading-relaxed">
+                    Copy the generated URL from the logs (which starts with <code className="bg-gray-100 px-1 py-0.5 rounded font-mono">http://localhost:5173/forgot-password?token=...</code>) and open it in a new tab to complete your password reset.
+                  </p>
                 </div>
               </div>
             )}
@@ -211,10 +181,10 @@ function ForgotPassword() {
                     <LockOutlinedIcon sx={{ color: "emerald.500" }} fontSize="large" />
                   </div>
                   <Typography variant="h4" sx={{ fontWeight: 800, color: 'text.primary', mb: 1 }}>
-                    Reset Password
+                    Choose New Password
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    Set a strong new password for your account
+                    Set a strong new password to regain access to your account
                   </Typography>
                 </div>
 
@@ -288,14 +258,14 @@ function ForgotPassword() {
 
             {step === 4 && (
               <div className="space-y-6 text-center select-none">
-                <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">
+                <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl font-black">
                   ✓
                 </div>
                 <Typography variant="h4" sx={{ fontWeight: 800, color: 'text.primary', mb: 1 }}>
                   Password Reset!
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  Your new credentials have been updated and cached successfully in the mock auth registry.
+                  Your new credentials have been updated successfully in the system database. You can now use them to log in.
                 </Typography>
 
                 <Button

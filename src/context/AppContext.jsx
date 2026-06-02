@@ -15,6 +15,7 @@ export const AppContext = createContext({
   login: async () => { },
   register: async () => { },
   logout: () => { },
+  oauthLogin: () => { },
   showToast: (message, severity) => { },
 });
 
@@ -73,6 +74,13 @@ export const AppProvider = ({ children }) => {
     showToast("Logged out successfully.", "info");
   }, [showToast]);
 
+  const oauthLogin = useCallback((token, refreshToken, userDetails) => {
+    authService.oauthLogin(token, refreshToken, userDetails);
+    setUser(userDetails);
+    setIsAuthenticated(true);
+    showToast("Logged in with Google successfully!", "success");
+  }, [showToast]);
+
   const contextValue = useMemo(() => ({
     // UI state
     loading,
@@ -86,8 +94,9 @@ export const AppProvider = ({ children }) => {
     login,
     register,
     logout,
+    oauthLogin,
     showToast,
-  }), [loading, globalLoading, user, isAuthenticated, login, register, logout, showToast]);
+  }), [loading, globalLoading, user, isAuthenticated, login, register, logout, oauthLogin, showToast]);
 
   return (
     <AppContext.Provider value={contextValue}>

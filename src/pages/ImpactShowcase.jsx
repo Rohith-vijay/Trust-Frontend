@@ -8,6 +8,7 @@ import GalleryFooterCTA from "../components/gallery/GalleryFooterCTA";
 import defaultShowcaseConfig from "../data/defaultShowcaseConfig";
 import { premiumEase } from "../constants/motionVariants";
 import databaseService from "../services/databaseService";
+import { getBackendUrl } from "../utils";
 
 /**
  * ImpactShowcase — /impact-showcase
@@ -28,28 +29,57 @@ function ImpactShowcase() {
     
     const loadCMSConfig = async () => {
       try {
-        const settings = await databaseService.getAllPublicSettings();
-        if (settings && settings.IMPACT_SHOWCASE_CONFIG) {
-          try {
+        // Load general layout configurations
+        let currentConfig = { ...defaultShowcaseConfig };
+        try {
+          const settings = await databaseService.getAllPublicSettings();
+          if (settings && settings.IMPACT_SHOWCASE_CONFIG) {
             const parsed = JSON.parse(settings.IMPACT_SHOWCASE_CONFIG);
-            // Deep merge or validate structural keys exist
             if (parsed && typeof parsed === "object") {
-              // Ensure critical parts exist, otherwise merge with fallback
-              const merged = {
+              currentConfig = {
                 hero: { ...defaultShowcaseConfig.hero, ...parsed.hero },
                 stats: { ...defaultShowcaseConfig.stats, ...parsed.stats },
                 galleryTitle: { ...defaultShowcaseConfig.galleryTitle, ...parsed.galleryTitle },
                 cards: parsed.cards || defaultShowcaseConfig.cards,
                 footerCta: { ...defaultShowcaseConfig.footerCta, ...parsed.footerCta }
               };
-              setConfig(merged);
             }
-          } catch (jsonErr) {
-            console.error("[ImpactShowcase] Malformed CMS Config JSON, using fallback:", jsonErr);
           }
+        } catch (settingsErr) {
+          console.warn("[ImpactShowcase] Public settings load skipped/failed:", settingsErr);
         }
+
+        // Fetch dynamic CMS impact cards from database
+        try {
+          const response = await fetch(getBackendUrl() + "/api/public/impact-showcase/all");
+          if (response.ok) {
+            const dbCards = await response.json();
+            if (dbCards && dbCards.length > 0) {
+              // Map backend entities to what GalleryCard expects
+              const mappedCards = dbCards.map(item => ({
+                id: item.id.toString(),
+                title: item.title,
+                subtitle: item.subtitle || "Impact Initiative",
+                description: item.description,
+                baseImage: item.baseImage || item.icon || "/impact-gallery/gallery_education_base_1779805934541.png",
+                revealImage: item.revealImage || item.icon || "/impact-gallery/gallery_education_reveal_1779805956148.png",
+                stat: item.metricCount || "100+",
+                statLabel: item.statLabel || "Impact Reached",
+                tags: item.tags ? item.tags.split(",").map(t => t.trim()) : [],
+                accentColor: item.accentColor || "rgba(245, 158, 11, 0.18)",
+                enabled: !item.deleted
+              }));
+              currentConfig.cards = mappedCards;
+            }
+          }
+        } catch (cardsErr) {
+          console.error("[ImpactShowcase] Dynamic database cards load failed, using default fallback cards:", cardsErr);
+        }
+
+        setConfig(currentConfig);
       } catch (err) {
-        console.warn("[ImpactShowcase] Failed to load CMS config, using local fallback:", err);
+        console.error("[ImpactShowcase] Global CMS hydration error, using local defaults:", err);
+        setConfig(defaultShowcaseConfig);
       } finally {
         setLoading(false);
       }

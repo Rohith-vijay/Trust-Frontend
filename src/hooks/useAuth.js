@@ -6,7 +6,7 @@ import { ROLES } from "../utils/permissions";
  * Auth hook with role-based convenience helpers
  */
 export const useAuth = () => {
-  const { user, isAuthenticated, login, register, logout } = useContext(AppContext);
+  const { user, isAuthenticated, login, register, logout, oauthLogin } = useContext(AppContext);
 
   return {
     user,
@@ -14,6 +14,7 @@ export const useAuth = () => {
     login,
     register,
     logout,
+    oauthLogin,
 
     // Role convenience checks
     isAdmin: user?.role === ROLES.ADMIN,

@@ -62,6 +62,18 @@ const authService = {
   },
 
   isAuthenticated: () => authService.getCurrentUser() !== null,
+
+  oauthLogin: (token, refreshToken, user) => {
+    if (token) {
+      localStorage.setItem('trustcore_access_token', token);
+    }
+    if (refreshToken) {
+      localStorage.setItem('trustcore_refresh_token', refreshToken);
+    }
+    if (user) {
+      localStorage.setItem('trustcore_user', JSON.stringify(user));
+    }
+  },
 };
 
 export default authService;

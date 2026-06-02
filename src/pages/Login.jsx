@@ -249,7 +249,7 @@ function Login() {
                 fullWidth
                 variant="outlined"
                 size="large"
-                href={`${getBackendUrl()}/oauth2/authorization/google`}
+                href={`${getBackendUrl().replace(/\/api$/, '')}/oauth2/authorization/google`}
                 sx={{
                   py: 1.2,
                   borderRadius: 3,

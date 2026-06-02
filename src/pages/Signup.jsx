@@ -154,12 +154,24 @@ function Signup() {
                   fullWidth label="Full Name" variant="outlined" type="text" name="name"
                   value={form.name} onChange={handleChange} disabled={loading}
                   InputProps={{ startAdornment: <InputAdornment position="start"><PersonOutlinedIcon color="action" /></InputAdornment>, sx: { borderRadius: 3 } }}
+                  slotProps={{
+                    input: {
+                      startAdornment: <InputAdornment position="start"><PersonOutlinedIcon color="action" /></InputAdornment>,
+                      sx: { borderRadius: 3 }
+                    }
+                  }}
                 />
 
                 <TextField
                   fullWidth label="Email Address" variant="outlined" type="email" name="email"
                   value={form.email} onChange={handleChange} disabled={loading}
                   InputProps={{ startAdornment: <InputAdornment position="start"><AlternateEmailIcon color="action" /></InputAdornment>, sx: { borderRadius: 3 } }}
+                  slotProps={{
+                    input: {
+                      startAdornment: <InputAdornment position="start"><AlternateEmailIcon color="action" /></InputAdornment>,
+                      sx: { borderRadius: 3 }
+                    }
+                  }}
                 />
 
                 <TextField
@@ -191,6 +203,34 @@ function Signup() {
                       </InputAdornment>
                     ),
                     sx: { borderRadius: 3 }
+                  }}
+                  slotProps={{
+                    input: {
+                      startAdornment: <InputAdornment position="start"><LockOutlinedIcon color="action" /></InputAdornment>,
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton 
+                            onClick={(e) => {
+                              const input = e.currentTarget.closest('.MuiInputBase-root')?.querySelector('input');
+                              const start = input?.selectionStart;
+                              const end = input?.selectionEnd;
+                              setShowPassword(!showPassword);
+                              setTimeout(() => {
+                                if (input && start !== null && end !== null) {
+                                  input.focus();
+                                  input.setSelectionRange(start, end);
+                                }
+                              }, 0);
+                            }} 
+                            edge="end" 
+                            disabled={loading}
+                          >
+                            {showPassword ? <VisibilityOff /> : <Visibility />}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                      sx: { borderRadius: 3 }
+                    }
                   }}
                 />
 
@@ -260,6 +300,34 @@ function Signup() {
                       </InputAdornment>
                     ),
                     sx: { borderRadius: 3 } 
+                  }}
+                  slotProps={{
+                    input: {
+                      startAdornment: <InputAdornment position="start"><LockOutlinedIcon color="action" /></InputAdornment>,
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton 
+                            onClick={(e) => {
+                              const input = e.currentTarget.closest('.MuiInputBase-root')?.querySelector('input');
+                              const start = input?.selectionStart;
+                              const end = input?.selectionEnd;
+                              setShowConfirmPassword(!showConfirmPassword);
+                              setTimeout(() => {
+                                if (input && start !== null && end !== null) {
+                                  input.focus();
+                                  input.setSelectionRange(start, end);
+                                }
+                              }, 0);
+                            }} 
+                            edge="end" 
+                            disabled={loading}
+                          >
+                            {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                      sx: { borderRadius: 3 }
+                    }
                   }}
                 />
 

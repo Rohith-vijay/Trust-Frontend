@@ -160,13 +160,23 @@ function Login() {
                 onChange={(e) => setEmail(e.target.value)}
                 autoComplete="email"
                 disabled={loading}
-                InputProps={{
+                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
                       <AlternateEmailIcon color="action" />
                     </InputAdornment>
                   ),
                   sx: { borderRadius: 3 }
+                }}
+                slotProps={{
+                  input: {
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <AlternateEmailIcon color="action" />
+                      </InputAdornment>
+                    ),
+                    sx: { borderRadius: 3 }
+                  }
                 }}
               />
 
@@ -209,6 +219,39 @@ function Login() {
                     </InputAdornment>
                   ),
                   sx: { borderRadius: 3 }
+                }}
+                slotProps={{
+                  input: {
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <LockOutlinedIcon color="action" />
+                      </InputAdornment>
+                    ),
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton 
+                          onClick={(e) => {
+                            // Preserves input cursor position upon toggle
+                            const input = e.currentTarget.closest('.MuiInputBase-root')?.querySelector('input');
+                            const start = input?.selectionStart;
+                            const end = input?.selectionEnd;
+                            setShowPassword(!showPassword);
+                            setTimeout(() => {
+                              if (input && start !== null && end !== null) {
+                                input.focus();
+                                input.setSelectionRange(start, end);
+                              }
+                            }, 0);
+                          }} 
+                          edge="end" 
+                          disabled={loading}
+                        >
+                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                    sx: { borderRadius: 3 }
+                  }
                 }}
               />
 

@@ -69,3 +69,162 @@ These stylistic changes are applied without altering routing or component
 structure, keeping the site architecture intact while delivering a cohesive,
 trustworthy, emotionally warm visual experience.
 
+# 🌟 KVG Trust Platform – Frontend
+
+> Frontend application for the **KVG Trust Platform**, developed using React to provide a modern, responsive, and user-friendly interface for volunteers, donors, members, and administrators.
+
+---
+
+## 🚀 Overview
+
+The KVG Trust Platform Frontend is designed to digitize the operations of K V G Shanmukh Sai Trust by providing an intuitive web interface for community engagement, volunteer management, event participation, online donations, and administrative operations.
+
+This application communicates with the Spring Boot backend through REST APIs and delivers a seamless experience across desktop and mobile devices.
+
+---
+
+## 🔗 Related Repository
+
+**Backend Repository:**
+https://github.com/kvgshanmukhsaitrust-ops/trust-backend
+
+---
+
+## ✨ Features
+
+### 🌍 Public Website
+
+* Responsive Home Page
+* About Us
+* Vision & Mission
+* Trust History
+* Success Stories
+* Impact Statistics
+* Team Members
+* Gallery
+* Contact Page
+
+### 📅 Events
+
+* Upcoming Events
+* Completed Events
+* Event Details
+* Volunteer Registration
+
+### ❤️ Donations
+
+* Online Donation Portal
+* Razorpay Payment Integration
+* Donation Success & Failure Pages
+
+### 👥 User Features
+
+* Registration
+* Login
+* Google OAuth Login
+* User Dashboard
+* Profile Management
+
+### 🛠 Admin Portal
+
+* Dashboard
+* Event Management
+* Volunteer Management
+* Member Management
+* CMS
+* Donation Monitoring
+* Website Content Management
+
+---
+
+## 🛠 Tech Stack
+
+* React.js
+* JavaScript
+* Material UI (MUI)
+* HTML5
+* CSS3
+* Axios
+* React Router
+
+---
+
+## 📂 Project Structure
+
+```
+src/
+├── components/
+├── pages/
+├── services/
+├── hooks/
+├── utils/
+├── assets/
+└── layouts/
+```
+
+---
+
+## ⚙️ Getting Started
+
+### Clone the Repository
+
+```bash
+git clone https://github.com/Rohith-vijay/trust_frontend.git
+```
+
+### Install Dependencies
+
+```bash
+npm install
+```
+
+### Run the Development Server
+
+```bash
+npm start
+```
+
+The application will be available at:
+
+```
+http://localhost:3000
+```
+
+---
+
+## 🌐 Live Demo
+
+Frontend:
+
+https://trust-frontend-git-main-rtesting.vercel.app/
+
+> **Note:** The backend deployment may be temporarily unavailable if the hosting service is inactive.
+
+---
+
+## 🚀 Future Enhancements
+
+* AI-powered Volunteer Assistant
+* Multi-language Support
+* Progressive Web App (PWA)
+* Improved Analytics Dashboard
+* Accessibility Enhancements
+* Performance Optimization
+
+---
+
+## 👨‍💻 Developer
+
+**Rohith Vijay**
+
+B.Tech Computer Science Engineering (Generative AI)
+
+KL University
+
+Vice President — K V G Shanmukh Sai Trust
+
+---
+
+## 📄 License
+
+This project is developed for **K V G Shanmukh Sai Trust** as part of its digital transformation initiative.

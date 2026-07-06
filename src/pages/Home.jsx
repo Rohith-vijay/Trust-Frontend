@@ -56,7 +56,8 @@ function Home() {
   // Build carousel slides from backend events + their media/banners
   const eventSlides = React.useMemo(() => {
     const slides = [];
-    events.forEach((ev) => {
+    const safeEvents = Array.isArray(events) ? events : [];
+    safeEvents.forEach((ev) => {
       const bannerImages = ev.bannerUrl ? ev.bannerUrl.split(',').map(s => s.trim()).filter(Boolean) : [];
       const coverImages = ev.coverImageUrl ? ev.coverImageUrl.split(',').map(s => s.trim()).filter(Boolean) : [];
       const allImages = [...coverImages, ...bannerImages].filter(url => url !== 'null' && url !== 'undefined');
@@ -133,7 +134,7 @@ function Home() {
                 <div key={i} className="shimmer-bg-gold h-[140px] rounded-2xl flex flex-col justify-center items-center p-6 border border-amber-100/10 shadow-sm" />
               ))
             ) : (
-              impactData.map((item, i) => (
+              (Array.isArray(impactData) ? impactData : []).map((item, i) => (
                 <Counter
                   key={item.id}
                   end={item.currentValue}
@@ -170,7 +171,7 @@ function Home() {
               className="grid md:grid-cols-3 gap-8 px-8 max-w-7xl mx-auto"
               margin="-60px"
             >
-              {stories.map((story) => (
+              {(Array.isArray(stories) ? stories : []).map((story) => (
                 <SuccessStoryCard key={story.id} story={story} />
               ))}
             </ScrollStagger>

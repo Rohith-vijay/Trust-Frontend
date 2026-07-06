@@ -2,6 +2,7 @@ import { NavLink, useLocation, Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useAuth } from "../hooks/useAuth";
 import UserMenu from "./UserMenu";
+import NotificationBell from "./NotificationBell";
 import { Drawer, IconButton, Button } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
@@ -11,7 +12,22 @@ import { motion, AnimatePresence } from "framer-motion";
 
 function Navbar() {
   const location = useLocation();
-  const { isAuthenticated, isAdmin } = useAuth();
+  const { isAuthenticated, isAdmin, user } = useAuth();
+
+  const getDashboardDetails = () => {
+    if (!user) return null;
+    switch (user.role) {
+      case "ADMIN":
+        return { path: "/admin", label: "Admin Panel" };
+      case "VOLUNTEER":
+        return { path: "/dashboard/volunteer", label: "Volunteer Portal" };
+      case "APPLICANT":
+        return { path: "/dashboard/applicant", label: "Applicant Portal" };
+      default:
+        return { path: "/dashboard", label: "Donor Portal" };
+    }
+  };
+  const dashInfo = getDashboardDetails();
 
   // Public nav links available to everyone
   const publicLinks = [
@@ -104,6 +120,29 @@ function Navbar() {
               </NavLink>
             ))}
 
+            {isAuthenticated && dashInfo && (
+              <NavLink
+                to={dashInfo.path}
+                className={({ isActive }) =>
+                  `relative px-4 py-2 rounded-full transition-all duration-300 group font-bold text-amber-700 hover:text-primary hover:bg-gray-50/50 ` +
+                  (isActive ? linkActive : "")
+                }
+              >
+                {({ isActive }) => (
+                  <>
+                    <span className="relative z-10">{dashInfo.label}</span>
+                    {isActive && (
+                      <motion.span
+                        layoutId="nav-pill"
+                        className="absolute inset-0 rounded-full z-0 bg-primary/10"
+                        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                      />
+                    )}
+                  </>
+                )}
+              </NavLink>
+            )}
+
             {/* Dropdown explore link */}
             <div
               className="relative"
@@ -162,7 +201,10 @@ function Navbar() {
             {/* Auth area */}
             <div className="ml-4 pl-4 flex items-center gap-3 border-l border-gray-200">
               {isAuthenticated ? (
-                <UserMenu />
+                <>
+                  <NotificationBell />
+                  <UserMenu />
+                </>
               ) : (
                 <Button
                   component={Link}
@@ -188,6 +230,7 @@ function Navbar() {
 
           {/* Mobile: Auth + Hamburger */}
           <div className="flex lg:hidden items-center space-x-2">
+            {isAuthenticated && <NotificationBell />}
             {isAuthenticated ? (
               <UserMenu />
             ) : (
@@ -279,18 +322,18 @@ function Navbar() {
             </NavLink>
           ))}
 
-          {isAuthenticated && isAdmin && (
+          {isAuthenticated && dashInfo && (
             <NavLink
-              to="/admin"
+              to={dashInfo.path}
               className={({ isActive }) =>
-                `px-4 py-2.5 rounded-xl transition-all font-medium text-base mt-4 ` +
+                `px-4 py-2.5 rounded-xl transition-all font-semibold text-base mt-4 bg-amber-500/10 text-amber-900 ` +
                 (isActive
-                  ? "bg-primary/10 text-primary font-semibold"
-                  : "text-gray-700 hover:bg-gray-50 hover:text-primary")
+                  ? "bg-primary/20 text-primary font-bold"
+                  : "")
               }
               onClick={() => setIsOpen(false)}
             >
-              Admin Dashboard
+              {dashInfo.label}
             </NavLink>
           )}
         </div>

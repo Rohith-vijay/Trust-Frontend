@@ -21,7 +21,8 @@ const MediaPanel = () => {
     try {
       setLoading(true);
       const res = await databaseService.getMediaAssets("ALL");
-      setAssets(res || []);
+      const fetchedData = res?.data || res || [];
+      setAssets(Array.isArray(fetchedData) ? fetchedData : []);
       setLoading(false);
     } catch (err) {
       console.error("Failed to load media assets:", err);

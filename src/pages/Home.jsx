@@ -12,7 +12,7 @@ import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 
 import databaseService from "../services/databaseService";
 import { AppContext } from "../context/AppContext";
-import { stripHtml } from "../utils";
+import { stripHtml, resolveIconEmoji } from "../utils";
 
 // additional sections
 import TeamSection from "../components/TeamSection";
@@ -138,7 +138,7 @@ function Home() {
                   key={item.id}
                   end={item.currentValue}
                   label={item.category}
-                  icon={item.icon}
+                  icon={resolveIconEmoji(item.icon)}
                   delay={i * 0.08}
                 />
               ))

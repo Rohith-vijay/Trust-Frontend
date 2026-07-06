@@ -63,3 +63,36 @@ export const resolveMediaUrl = (url) => {
   }
   return url;
 };
+
+/**
+ * Maps database icon identifiers (like "water_drop", "school", "forest")
+ * to modern, accessible emojis or visual symbols for consistent UI rendering.
+ */
+export const resolveIconEmoji = (icon) => {
+  if (!icon) return "📊";
+  const name = icon.toLowerCase().trim();
+  switch (name) {
+    case "water":
+    case "water_drop":
+    case "waterdrop":
+    case "💧":
+      return "💧";
+    case "school":
+    case "education":
+    case "students":
+    case "student":
+    case "🎓":
+    case "🏫":
+      return "🎓";
+    case "trees":
+    case "tree":
+    case "forest":
+    case "saplings":
+    case "sapling":
+    case "🌱":
+    case "🌳":
+      return "🌳";
+    default:
+      return icon;
+  }
+};

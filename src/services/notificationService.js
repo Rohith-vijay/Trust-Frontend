@@ -5,9 +5,9 @@ import { getWebSocketUrl } from "../utils";
 
 const notificationService = {
   // REST API Endpoints
-  getNotifications: async (page = 0, size = 15) => {
+  getNotifications: async (category = null, isRead = null, search = null, page = 0, size = 15) => {
     const response = await api.get("/notifications", {
-      params: { page, size }
+      params: { category, isRead, search, page, size }
     });
     return response.data;
   },
@@ -65,8 +65,12 @@ const notificationService = {
           reconnectAttempts = 0;
           notifyStatus("CONNECTED");
           
-          // 1. Subscribe to administrative broadcasts if user is admin
-          if (userEmail && (userEmail.toLowerCase().includes("admin") || userEmail === "admin@trust.org")) {
+          // 1. Subscribe to administrative broadcasts if user is an admin
+          const storedUser = (() => {
+            try { return JSON.parse(localStorage.getItem('trustcore_user') || '{}'); } catch { return {}; }
+          })();
+          const isAdminUser = storedUser?.role === 'ADMIN';
+          if (isAdminUser) {
             stompClient.subscribe("/topic/admin-notifications", (message) => {
               try {
                 const notification = JSON.parse(message.body);

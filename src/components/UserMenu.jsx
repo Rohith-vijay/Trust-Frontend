@@ -81,7 +81,9 @@ const UserMenu = () => {
                                     ? "/admin"
                                     : user?.role === "VOLUNTEER"
                                         ? "/dashboard/volunteer"
-                                        : "/dashboard"
+                                        : user?.role === "APPLICANT"
+                                            ? "/dashboard/applicant"
+                                            : "/dashboard"
                             }
                             onClick={() => setOpen(false)}
                             className="flex items-center space-x-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-primary/5 hover:text-primary transition-colors"

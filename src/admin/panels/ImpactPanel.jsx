@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { resolveIconEmoji } from "../../utils";
 
 const ImpactPanel = ({
   impactStats,
@@ -211,7 +212,7 @@ const ImpactPanel = ({
               >
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-xl bg-gray-50 flex items-center justify-center text-2xl border border-gray-100">
-                    {stat.icon || "📊"}
+                    {resolveIconEmoji(stat.icon)}
                   </div>
                   <div>
                     <p className="font-bold text-brand-navy-dark">{stat.category}</p>

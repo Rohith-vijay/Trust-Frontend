@@ -4,6 +4,7 @@ export const ROLES = {
     ADMIN: "ADMIN",
     USER: "USER",
     VOLUNTEER: "VOLUNTEER",
+    APPLICANT: "APPLICANT",
 };
 
 // Features that can be permission-checked
@@ -16,18 +17,22 @@ export const FEATURES = {
     VIEW_ALL_DONATIONS: "VIEW_ALL_DONATIONS",
     VIEW_DASHBOARD: "VIEW_DASHBOARD",
     MANAGE_USERS: "MANAGE_USERS",
+    APPLY_ASSISTANCE: "APPLY_ASSISTANCE",
+    MANAGE_APPLICATIONS: "MANAGE_APPLICATIONS",
 };
 
 // Permission matrix — which roles can access which features
 const PERMISSION_MAP = {
-    [FEATURES.VIEW_EVENTS]: [ROLES.ADMIN, ROLES.USER, ROLES.VOLUNTEER],
-    [FEATURES.DONATE]: [ROLES.ADMIN, ROLES.USER, ROLES.VOLUNTEER],
+    [FEATURES.VIEW_EVENTS]: [ROLES.ADMIN, ROLES.USER, ROLES.VOLUNTEER, ROLES.APPLICANT],
+    [FEATURES.DONATE]: [ROLES.ADMIN, ROLES.USER, ROLES.VOLUNTEER, ROLES.APPLICANT],
     [FEATURES.APPLY_VOLUNTEER]: [ROLES.USER, ROLES.VOLUNTEER],
     [FEATURES.CREATE_EVENT]: [ROLES.ADMIN],
     [FEATURES.APPROVE_VOLUNTEER]: [ROLES.ADMIN],
     [FEATURES.VIEW_ALL_DONATIONS]: [ROLES.ADMIN],
     [FEATURES.VIEW_DASHBOARD]: [ROLES.ADMIN],
     [FEATURES.MANAGE_USERS]: [ROLES.ADMIN],
+    [FEATURES.APPLY_ASSISTANCE]: [ROLES.APPLICANT],
+    [FEATURES.MANAGE_APPLICATIONS]: [ROLES.ADMIN],
 };
 
 /**
@@ -58,6 +63,8 @@ export const getRoleLabel = (role) => {
             return "Volunteer";
         case ROLES.USER:
             return "Donor";
+        case ROLES.APPLICANT:
+            return "Applicant";
         default:
             return "Guest";
     }
@@ -74,6 +81,8 @@ export const getRoleBadgeClass = (role) => {
             return "bg-green-100 text-green-800";
         case ROLES.USER:
             return "bg-blue-100 text-blue-800";
+        case ROLES.APPLICANT:
+            return "bg-purple-100 text-purple-800";
         default:
             return "bg-gray-100 text-gray-800";
     }

@@ -32,6 +32,7 @@ const ImpactShowcase = lazy(() => import("./pages/ImpactShowcase"));
 const AdminDashboard = lazy(() => import("./admin/Dashboard"));
 const UserDashboard = lazy(() => import("./pages/dashboards/UserDashboard"));
 const VolunteerDashboard = lazy(() => import("./pages/dashboards/VolunteerDashboard"));
+const ApplicantDashboard = lazy(() => import("./pages/dashboards/ApplicantDashboard"));
 
 // Context & protection
 import { AppProvider, AppContext } from "./context/AppContext";
@@ -77,7 +78,9 @@ function App() {
         <CssBaseline />
         <Router>
           <Layout>
-            <AnimatedRoutes />
+            <ErrorBoundary title="Global Application Crash Shield" name="GlobalAppRoot">
+              <AnimatedRoutes />
+            </ErrorBoundary>
           </Layout>
         </Router>
       </ThemeProvider>
@@ -120,7 +123,7 @@ function AnimatedRoutes() {
           <Route
             path="/donation"
             element={
-              <ProtectedRoute allowedRoles={[ROLES.USER, ROLES.VOLUNTEER, ROLES.ADMIN]}>
+              <ProtectedRoute allowedRoles={[ROLES.USER, ROLES.VOLUNTEER, ROLES.ADMIN, ROLES.APPLICANT]}>
                 <ErrorBoundary title="Donation Portal Shield" name="DonationPortalRoot">
                   <Donation />
                 </ErrorBoundary>
@@ -145,6 +148,16 @@ function AnimatedRoutes() {
               <ProtectedRoute allowedRoles={[ROLES.VOLUNTEER]}>
                 <ErrorBoundary title="Volunteer Portal Shield" name="VolunteerDashboardRoot">
                   <VolunteerDashboard />
+                </ErrorBoundary>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/applicant"
+            element={
+              <ProtectedRoute allowedRoles={[ROLES.APPLICANT]}>
+                <ErrorBoundary title="Applicant Portal Shield" name="ApplicantDashboardRoot">
+                  <ApplicantDashboard />
                 </ErrorBoundary>
               </ProtectedRoute>
             }

@@ -49,6 +49,8 @@ function Login() {
           navigate("/admin");
         } else if (role === "VOLUNTEER") {
           navigate("/dashboard/volunteer");
+        } else if (role === "APPLICANT") {
+          navigate("/dashboard/applicant");
         } else {
           navigate("/dashboard");
         }
@@ -86,6 +88,8 @@ function Login() {
         navigate("/admin");
       } else if (user.role === "VOLUNTEER") {
         navigate("/dashboard/volunteer");
+      } else if (user.role === "APPLICANT") {
+        navigate("/dashboard/applicant");
       } else {
         navigate("/dashboard");
       }

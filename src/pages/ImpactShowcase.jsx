@@ -51,7 +51,7 @@ function ImpactShowcase() {
 
         // Fetch dynamic CMS impact cards from database
         try {
-          const response = await fetch(getBackendUrl() + "/api/public/impact-showcase/all");
+          const response = await fetch(getBackendUrl() + "/public/impact-showcase/all");
           if (response.ok) {
             const dbCards = await response.json();
             if (dbCards && dbCards.length > 0) {

@@ -58,6 +58,8 @@ const UsersPanel = ({
                             ? "bg-rose-50 text-rose-700 border-rose-100"
                             : u.role === "VOLUNTEER"
                             ? "bg-indigo-50 text-indigo-700 border-indigo-100"
+                            : u.role === "APPLICANT"
+                            ? "bg-purple-50 text-purple-700 border-purple-100"
                             : "bg-gray-50 text-gray-700 border-gray-100"
                         }`}
                       >
@@ -72,6 +74,7 @@ const UsersPanel = ({
                       >
                         <option value="USER">USER (General)</option>
                         <option value="VOLUNTEER">VOLUNTEER (Field)</option>
+                        <option value="APPLICANT">APPLICANT (Beneficiary)</option>
                         <option value="ADMIN">ADMIN (Full access)</option>
                       </select>
                     </td>

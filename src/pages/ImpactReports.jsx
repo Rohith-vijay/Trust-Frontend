@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import api from '../services/api';
+import { resolveIconEmoji } from '../utils';
 
 export default function ImpactReports() {
   const [reports, setReports] = useState([]);
@@ -276,7 +277,7 @@ export default function ImpactReports() {
                   <div>
                     <div className="flex justify-between items-center mb-2">
                       <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider">{item.category}</h3>
-                      <span className="text-xl">{item.icon || "📈"}</span>
+                      <span className="text-xl">{resolveIconEmoji(item.icon)}</span>
                     </div>
                     <p className="text-3xl font-black text-brand-navy-dark mt-1 mb-4 select-all">
                       {Number(item.currentValue).toLocaleString()} <span className="text-sm font-semibold text-gray-400">{item.unit || ""}</span>

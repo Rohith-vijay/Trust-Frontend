@@ -4,38 +4,74 @@ import { Link } from "react-router-dom";
 import CountUp from "react-countup";
 import { pageVariants, pageTransition } from "../../constants/motionVariants";
 import { useAuth } from "../../hooks/useAuth";
-import { getMyVolunteerApplications } from "../../services/messageService";
+import { 
+    getMyVolunteerApplications, 
+    checkInVolunteer, 
+    checkOutVolunteer, 
+    getVolunteerStats, 
+    getVolunteerLeaderboard 
+} from "../../services/messageService";
 import ErrorBoundary from "../../components/ErrorBoundary";
 import { VolunteerDashboardOverviewSkeleton } from "../../components/SkeletonLoader";
 
 const VolunteerDashboard = () => {
     const { user } = useAuth();
     const [applications, setApplications] = useState([]);
+    const [stats, setStats] = useState(null);
+    const [leaderboard, setLeaderboard] = useState([]);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState("overview");
     const [filterStatus, setFilterStatus] = useState("ALL");
 
+    const formatTime = (timeStr) => {
+        if (!timeStr || timeStr === "null") return "";
+        try {
+            const date = new Date(timeStr);
+            if (isNaN(date.getTime())) return "";
+            return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        } catch (e) {
+            return "";
+        }
+    };
+
+    const fetchAllData = async () => {
+        try {
+            const [appsData, statsData, leaderboardData] = await Promise.all([
+                getMyVolunteerApplications(),
+                getVolunteerStats(),
+                getVolunteerLeaderboard()
+            ]);
+            setApplications(appsData || []);
+            setStats(statsData?.data || statsData || null);
+            setLeaderboard(leaderboardData?.data || leaderboardData || []);
+        } catch (err) {
+            console.error("Error fetching volunteer dashboard data:", err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
-        let isMounted = true;
-        const fetchApplications = async () => {
-            try {
-                const data = await getMyVolunteerApplications();
-                if (isMounted) {
-                    setApplications(data || []);
-                }
-            } catch (err) {
-                console.error("Error fetching my volunteer applications:", err);
-            } finally {
-                if (isMounted) {
-                    setLoading(false);
-                }
-            }
-        };
-        fetchApplications();
-        return () => {
-            isMounted = false;
-        };
+        fetchAllData();
     }, []);
+
+    const handleCheckIn = async (appId) => {
+        try {
+            await checkInVolunteer(appId);
+            await fetchAllData();
+        } catch (err) {
+            alert(err.response?.data?.message || "Check-in failed");
+        }
+    };
+
+    const handleCheckOut = async (appId) => {
+        try {
+            await checkOutVolunteer(appId);
+            await fetchAllData();
+        } catch (err) {
+            alert(err.response?.data?.message || "Check-out failed");
+        }
+    };
 
     const approvedApplications = applications.filter(app => app.status === "APPROVED" || app.status === "approved");
     const pendingApplications = applications.filter(app => app.status === "PENDING" || app.status === "pending");
@@ -43,10 +79,10 @@ const VolunteerDashboard = () => {
     const approvedCount = approvedApplications.length;
     const pendingCount = pendingApplications.length;
 
-    // Simulated volunteer hours: 8 hours per approved initiative
-    const hoursServed = approvedCount * 8;
-    // Impact score formula
-    const impactScore = (hoursServed * 15) + (approvedCount * 50);
+    // Real hours from backend stats
+    const hoursServed = stats?.totalHoursServed || 0;
+    // Impact score from backend
+    const impactScore = stats?.impactScore || 0;
 
     const filteredApplications = applications.filter(app => {
         if (filterStatus === "ALL") return true;
@@ -115,7 +151,7 @@ const VolunteerDashboard = () => {
                     </div>
                     
                     {/* Navigation Tabs */}
-                    <div className="flex bg-slate-200/60 p-1 rounded-xl self-start md:self-auto border border-slate-300/30">
+                    <div className="flex bg-slate-200/60 p-1 rounded-xl self-start md:self-auto border border-slate-300/30 gap-1">
                         <button
                             onClick={() => setActiveTab("overview")}
                             className={`px-4 py-2 text-xs font-bold rounded-lg transition-all ${
@@ -135,6 +171,16 @@ const VolunteerDashboard = () => {
                             }`}
                         >
                             Applications ({applications.length})
+                        </button>
+                        <button
+                            onClick={() => setActiveTab("leaderboard")}
+                            className={`px-4 py-2 text-xs font-bold rounded-lg transition-all ${
+                                activeTab === "leaderboard" 
+                                ? "bg-white text-emerald-700 shadow-sm" 
+                                : "text-slate-600 hover:text-slate-900"
+                            }`}
+                        >
+                            Leaderboard
                         </button>
                     </div>
                 </div>
@@ -401,7 +447,7 @@ const VolunteerDashboard = () => {
                                 </motion.div>
                                 </ErrorBoundary>
                             </motion.div>
-                        ) : (
+                        ) : activeTab === "applications" ? (
                             /* Detailed Roster Applications Grid */
                             <motion.div
                                 key="applications"
@@ -446,37 +492,257 @@ const VolunteerDashboard = () => {
                                             </Link>
                                         </div>
                                     ) : (
-                                        <div className="overflow-x-auto">
-                                            <table className="w-full border-collapse align-middle">
-                                                <thead>
-                                                    <tr className="bg-slate-50 border-b border-slate-150 text-[10px] text-slate-400 font-extrabold uppercase tracking-wider">
-                                                        <th className="px-6 py-4 text-left">Initiative Roster Name</th>
-                                                        <th className="px-6 py-4 text-left">Placement Notes / Cover message</th>
-                                                        <th className="px-6 py-4 text-center">Status</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody className="divide-y divide-slate-100">
-                                                    {filteredApplications.map((app, idx) => (
-                                                        <tr key={app.id || idx} className="hover:bg-slate-50/50 transition-colors">
-                                                            <td className="px-6 py-4 whitespace-nowrap text-xs font-extrabold text-slate-800">
-                                                                {app.eventTitle || `Initiative ID: ${app.eventId}`}
-                                                            </td>
-                                                            <td className="px-6 py-4">
-                                                                <p className="text-xs text-slate-500 max-w-md font-medium leading-relaxed">
-                                                                    {app.message || <span className="italic text-slate-400">No message attached</span>}
-                                                                </p>
-                                                            </td>
-                                                            <td className="px-6 py-4 text-center whitespace-nowrap">
-                                                                <span className={`inline-flex px-3 py-1 rounded-full text-[10px] font-extrabold border uppercase ${
+                                        <div>
+                                            {/* Desktop table layout */}
+                                            <div className="hidden md:block overflow-x-auto">
+                                                <table className="w-full border-collapse align-middle">
+                                                    <thead>
+                                                        <tr className="bg-slate-50 border-b border-slate-150 text-[10px] text-slate-400 font-extrabold uppercase tracking-wider">
+                                                            <th className="px-6 py-4 text-left">Initiative Roster Name</th>
+                                                            <th className="px-6 py-4 text-left">Placement Notes / Cover message</th>
+                                                            <th className="px-6 py-4 text-center">Attendance Logs</th>
+                                                            <th className="px-6 py-4 text-center">Status</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody className="divide-y divide-slate-100">
+                                                        {filteredApplications.map((app, idx) => {
+                                                            const isApproved = app.status === "APPROVED" || app.status === "approved";
+                                                            const hasCheckedIn = app.checkInTime && app.checkInTime !== "null";
+                                                            const hasCheckedOut = app.checkOutTime && app.checkOutTime !== "null";
+
+                                                            return (
+                                                                <tr key={app.id || idx} className="hover:bg-slate-50/50 transition-colors">
+                                                                    <td className="px-6 py-4 whitespace-nowrap text-xs font-extrabold text-slate-800">
+                                                                        {app.eventTitle || `Initiative ID: ${app.eventId}`}
+                                                                    </td>
+                                                                    <td className="px-6 py-4">
+                                                                        <div className="space-y-1">
+                                                                            <div className="flex items-center gap-2">
+                                                                                <span className="text-[10px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-black uppercase">
+                                                                                    Assigned: {app.assignedRole || "General Support"}
+                                                                                </span>
+                                                                            </div>
+                                                                            <p className="text-xs text-slate-500 max-w-md font-medium leading-relaxed">
+                                                                                {app.message || <span className="italic text-slate-400">No message attached</span>}
+                                                                            </p>
+                                                                        </div>
+                                                                    </td>
+                                                                    <td className="px-6 py-4 text-center whitespace-nowrap">
+                                                                        {isApproved ? (
+                                                                            <div className="flex flex-col items-center gap-1.5">
+                                                                                {/* Logs */}
+                                                                                {hasCheckedIn && (
+                                                                                    <div className="text-[10px] text-slate-500 font-medium space-y-0.5">
+                                                                                        <div>Check-in: {formatTime(app.checkInTime)}</div>
+                                                                                        {hasCheckedOut && <div>Check-out: {formatTime(app.checkOutTime)}</div>}
+                                                                                    </div>
+                                                                                )}
+
+                                                                                {/* Actions */}
+                                                                                {!hasCheckedIn ? (
+                                                                                    <button
+                                                                                        onClick={() => handleCheckIn(app.id)}
+                                                                                        className="text-[10px] font-black bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1 rounded-full transition active:scale-95 shadow-sm shadow-emerald-250"
+                                                                                    >
+                                                                                        Check In ⏱️
+                                                                                    </button>
+                                                                                ) : !hasCheckedOut ? (
+                                                                                    <button
+                                                                                        onClick={() => handleCheckOut(app.id)}
+                                                                                        className="text-[10px] font-black bg-rose-600 hover:bg-rose-500 text-white px-3 py-1 rounded-full transition active:scale-95 shadow-sm shadow-rose-250 animate-pulse"
+                                                                                    >
+                                                                                        Check Out 🚪
+                                                                                    </button>
+                                                                                ) : (
+                                                                                    <span className="text-[10px] font-bold text-slate-500 flex flex-col items-center">
+                                                                                        <span>Served: {app.hoursServed} hrs</span>
+                                                                                        <span className={app.attendanceVerified ? "text-emerald-600" : "text-amber-600"}>
+                                                                                            {app.attendanceVerified ? "✓ Verified" : "⏳ Pending verification"}
+                                                                                        </span>
+                                                                                    </span>
+                                                                                )}
+                                                                            </div>
+                                                                        ) : (
+                                                                            <span className="text-xs text-slate-400 italic">Attendance unlocked upon approval</span>
+                                                                        )}
+                                                                    </td>
+                                                                    <td className="px-6 py-4 text-center whitespace-nowrap">
+                                                                        <span className={`inline-flex px-3 py-1 rounded-full text-[10px] font-extrabold border uppercase ${
+                                                                            app.status === "APPROVED" || app.status === "approved" ? "bg-emerald-50 text-emerald-700 border-emerald-200" :
+                                                                            app.status === "REJECTED" || app.status === "rejected" ? "bg-rose-50 text-rose-700 border-rose-200" :
+                                                                            "bg-amber-50 text-amber-700 border-amber-200"
+                                                                        }`}>
+                                                                            {app.status || "PENDING"}
+                                                                        </span>
+                                                                    </td>
+                                                                </tr>
+                                                            );
+                                                        })}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+
+                                            {/* Mobile card layout */}
+                                            <div className="block md:hidden divide-y divide-slate-100">
+                                                {filteredApplications.map((app, idx) => {
+                                                    const isApproved = app.status === "APPROVED" || app.status === "approved";
+                                                    const hasCheckedIn = app.checkInTime && app.checkInTime !== "null";
+                                                    const hasCheckedOut = app.checkOutTime && app.checkOutTime !== "null";
+
+                                                    return (
+                                                        <div key={app.id || idx} className="p-5 space-y-4 hover:bg-slate-50/50 transition-colors">
+                                                            <div className="flex justify-between items-start gap-2">
+                                                                <div>
+                                                                    <h4 className="text-xs font-black text-slate-800">
+                                                                        {app.eventTitle || `Initiative ID: ${app.eventId}`}
+                                                                    </h4>
+                                                                    <div className="mt-1 flex items-center gap-2">
+                                                                        <span className="text-[10px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-black uppercase">
+                                                                            Assigned: {app.assignedRole || "General Support"}
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+                                                                <span className={`inline-flex px-3 py-1 rounded-full text-[10px] font-extrabold border uppercase flex-shrink-0 ${
                                                                     app.status === "APPROVED" || app.status === "approved" ? "bg-emerald-50 text-emerald-700 border-emerald-200" :
                                                                     app.status === "REJECTED" || app.status === "rejected" ? "bg-rose-50 text-rose-700 border-rose-200" :
                                                                     "bg-amber-50 text-amber-700 border-amber-200"
                                                                 }`}>
                                                                     {app.status || "PENDING"}
                                                                 </span>
-                                                            </td>
-                                                        </tr>
-                                                    ))}
+                                                            </div>
+
+                                                            {app.message && (
+                                                                <p className="text-xs text-slate-500 font-medium leading-relaxed bg-slate-50/60 p-2.5 rounded-xl border border-slate-100">
+                                                                    {app.message}
+                                                                </p>
+                                                            )}
+
+                                                            <div className="pt-3 border-t border-slate-100 flex flex-col gap-2">
+                                                                <div className="flex items-center justify-between">
+                                                                    <span className="text-[10px] font-extrabold uppercase text-slate-400">Attendance Log</span>
+                                                                    <div>
+                                                                        {isApproved ? (
+                                                                            <div className="flex flex-col items-end gap-1.5">
+                                                                                {hasCheckedIn && (
+                                                                                    <div className="text-[10px] text-slate-500 font-medium space-y-0.5 text-right mb-1">
+                                                                                        <div>Check-in: {formatTime(app.checkInTime)}</div>
+                                                                                        {hasCheckedOut && <div>Check-out: {formatTime(app.checkOutTime)}</div>}
+                                                                                    </div>
+                                                                                )}
+
+                                                                                {!hasCheckedIn ? (
+                                                                                    <button
+                                                                                        onClick={() => handleCheckIn(app.id)}
+                                                                                        className="text-[10px] font-black bg-emerald-600 hover:bg-emerald-500 text-white px-3.5 py-1.5 rounded-full transition active:scale-95 shadow-sm shadow-emerald-250"
+                                                                                    >
+                                                                                        Check In ⏱️
+                                                                                    </button>
+                                                                                ) : !hasCheckedOut ? (
+                                                                                    <button
+                                                                                        onClick={() => handleCheckOut(app.id)}
+                                                                                        className="text-[10px] font-black bg-rose-600 hover:bg-rose-500 text-white px-3.5 py-1.5 rounded-full transition active:scale-95 shadow-sm shadow-rose-250 animate-pulse"
+                                                                                    >
+                                                                                        Check Out 🚪
+                                                                                    </button>
+                                                                                ) : (
+                                                                                    <span className="text-[10px] font-bold text-slate-500 flex flex-col items-end">
+                                                                                        <span>Served: {app.hoursServed} hrs</span>
+                                                                                        <span className={app.attendanceVerified ? "text-emerald-600" : "text-amber-600"}>
+                                                                                            {app.attendanceVerified ? "✓ Verified" : "⏳ Pending verification"}
+                                                                                        </span>
+                                                                                    </span>
+                                                                                )}
+                                                                            </div>
+                                                                        ) : (
+                                                                            <span className="text-xs text-slate-400 italic">Attendance unlocked upon approval</span>
+                                                                        )}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </motion.div>
+                        ) : (
+                            /* Leaderboard Table */
+                            <motion.div
+                                key="leaderboard"
+                                initial={{ opacity: 0, y: 15 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: 15 }}
+                                className="space-y-6"
+                            >
+                                <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
+                                    <h3 className="text-lg font-bold text-slate-800">Global Leaderboard</h3>
+                                    <p className="text-xs text-slate-400 mt-0.5">Top contributors ranked by cumulative verified service hours.</p>
+                                </div>
+
+                                <div className="bg-white rounded-3xl border border-slate-150 overflow-hidden shadow-xl">
+                                    {leaderboard.length === 0 ? (
+                                        <div className="p-16 text-center text-slate-400">
+                                            <span className="text-5xl block">🏆</span>
+                                            <h4 className="font-bold text-slate-600 text-sm mt-4">Leaderboard Awaiting Logs</h4>
+                                            <p className="text-slate-450 text-xs mt-1">Check-in and serve to rank on the leaderboard.</p>
+                                        </div>
+                                    ) : (
+                                        <div className="overflow-x-auto">
+                                            <table className="w-full border-collapse align-middle">
+                                                <thead>
+                                                    <tr className="bg-slate-50 border-b border-slate-150 text-[10px] text-slate-400 font-extrabold uppercase tracking-wider">
+                                                        <th className="px-6 py-4 text-center w-20">Rank</th>
+                                                        <th className="px-6 py-4 text-left">Volunteer Profile</th>
+                                                        <th className="px-6 py-4 text-center">Drives Attended</th>
+                                                        <th className="px-6 py-4 text-center">Total Hours Served</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody className="divide-y divide-slate-100">
+                                                    {leaderboard.map((entry) => {
+                                                        const isCurrentUser = entry.userId === user?.id;
+                                                        let medal = null;
+                                                        if (entry.rank === 1) medal = "🥇";
+                                                        else if (entry.rank === 2) medal = "🥈";
+                                                        else if (entry.rank === 3) medal = "🥉";
+
+                                                        return (
+                                                            <tr 
+                                                                key={entry.userId} 
+                                                                className={`transition-colors ${isCurrentUser ? "bg-emerald-50/40 hover:bg-emerald-50/60 font-bold" : "hover:bg-slate-50/50"}`}
+                                                            >
+                                                                <td className="px-6 py-4 text-center text-sm font-heading font-black text-slate-800">
+                                                                    {medal ? <span className="text-xl">{medal}</span> : entry.rank}
+                                                                </td>
+                                                                <td className="px-6 py-4">
+                                                                    <div className="flex items-center gap-3">
+                                                                        <img 
+                                                                            src={entry.avatarUrl || "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=100"} 
+                                                                            alt={entry.userFullName} 
+                                                                            className="w-8 h-8 rounded-full border border-slate-200 object-cover" 
+                                                                        />
+                                                                        <div>
+                                                                            <span className="text-xs font-black text-slate-800">
+                                                                                {entry.userFullName}
+                                                                            </span>
+                                                                            {isCurrentUser && (
+                                                                                <span className="ml-2 text-[9px] bg-emerald-600 text-white font-extrabold px-1.5 py-0.5 rounded uppercase">
+                                                                                    You
+                                                                                </span>
+                                                                            )}
+                                                                        </div>
+                                                                    </div>
+                                                                </td>
+                                                                <td className="px-6 py-4 text-center text-xs font-semibold text-slate-600">
+                                                                    {entry.totalEventsAttended} initiatives
+                                                                </td>
+                                                                <td className="px-6 py-4 text-center text-xs font-black text-emerald-700">
+                                                                    {entry.totalHoursServed} hrs
+                                                                </td>
+                                                            </tr>
+                                                        );
+                                                    })}
                                                 </tbody>
                                             </table>
                                         </div>

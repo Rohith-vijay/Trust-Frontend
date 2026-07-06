@@ -333,20 +333,21 @@ function Signup() {
 
                 <Box sx={{ mt: 3, mb: 4 }}>
                   <Typography variant="body2" sx={{ fontWeight: 600, mb: 1.5, color: 'text.secondary' }}>I want to join as:</Typography>
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-3 gap-2">
                     {[
-                      { value: "USER", label: "Donor", icon: "💝", desc: "Donate & Track" },
-                      { value: "VOLUNTEER", label: "Volunteer", icon: "🤝", desc: "Join events" },
+                      { value: "USER", label: "Donor", icon: "💝", desc: "Donate" },
+                      { value: "VOLUNTEER", label: "Volunteer", icon: "🤝", desc: "Join" },
+                      { value: "APPLICANT", label: "Applicant", icon: "🏥", desc: "Assistance" },
                     ].map((opt) => (
                       <button
                         key={opt.value} type="button" onClick={() => setForm((prev) => ({ ...prev, role: opt.value }))}
-                        className={`flex flex-col items-center justify-center p-3 rounded-2xl border-2 transition-all duration-200 text-center ${
+                        className={`flex flex-col items-center justify-center p-2.5 rounded-2xl border-2 transition-all duration-200 text-center ${
                           form.role === opt.value ? "border-primary bg-primary/5 shadow-inner" : "border-gray-100 hover:border-gray-300 bg-white"
                         }`}
                       >
-                        <span className="text-xl mb-1">{opt.icon}</span>
-                        <Typography variant="caption" sx={{ fontWeight: 700, color: form.role === opt.value ? "primary.main" : "text.secondary" }}>{opt.label}</Typography>
-                        <Typography variant="caption" sx={{ fontSize: '0.65rem', color: 'text.disabled', lineHeight: 1 }}>{opt.desc}</Typography>
+                        <span className="text-lg mb-1">{opt.icon}</span>
+                        <Typography variant="caption" sx={{ fontWeight: 700, fontSize: '0.7rem', color: form.role === opt.value ? "primary.main" : "text.secondary" }}>{opt.label}</Typography>
+                        <Typography variant="caption" sx={{ fontSize: '0.6rem', color: 'text.disabled', lineHeight: 1 }}>{opt.desc}</Typography>
                       </button>
                     ))}
                   </div>

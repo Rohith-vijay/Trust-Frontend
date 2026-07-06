@@ -59,6 +59,36 @@ export async function updateApplicationStatus(id, status) {
     return response.data;
 }
 
+export async function checkInVolunteer(id) {
+    const response = await api.post(`/volunteers/${id}/check-in`);
+    return response.data;
+}
+
+export async function checkOutVolunteer(id) {
+    const response = await api.post(`/volunteers/${id}/check-out`);
+    return response.data;
+}
+
+export async function assignVolunteerRole(id, role) {
+    const response = await api.put(`/volunteers/${id}/role`, null, { params: { role } });
+    return response.data;
+}
+
+export async function verifyVolunteerAttendance(id, hours, verified) {
+    const response = await api.put(`/volunteers/${id}/attendance`, null, { params: { hours, verified } });
+    return response.data;
+}
+
+export async function getVolunteerStats() {
+    const response = await api.get("/volunteers/stats");
+    return response.data;
+}
+
+export async function getVolunteerLeaderboard() {
+    const response = await api.get("/volunteers/leaderboard");
+    return response.data;
+}
+
 // ─── User Personal Activity Log ─────────────────────────────
 
 // GET /api/users/me/activity

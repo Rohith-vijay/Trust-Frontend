@@ -841,24 +841,32 @@ const UserDashboard = () => {
                           initial={{ opacity: 0, x: -8 }}
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ delay: idx * 0.04 }}
-                          className="flex items-center gap-4 px-6 py-4 hover:bg-slate-50/70 transition-all group"
+                          className="flex flex-col sm:flex-row sm:items-center gap-4 px-6 py-4 hover:bg-slate-50/70 transition-all group border-b border-slate-50 last:border-0"
                         >
-                          {/* Timeline dot */}
-                          <div className="flex-shrink-0 flex flex-col items-center">
-                            <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 ${
-                              don.status === "SUCCESS" ? "border-emerald-200 bg-emerald-50" :
-                              don.status === "FAILED" ? "border-rose-200 bg-rose-50" :
-                              don.status === "REFUNDED" ? "border-purple-200 bg-purple-50" :
-                              "border-amber-200 bg-amber-50"
-                            }`}>
-                              <StatusIcon status={don.status} size={18} />
+                          {/* Timeline dot & status / mobile amount */}
+                          <div className="flex items-center justify-between w-full sm:w-auto flex-shrink-0">
+                            <div className="flex items-center gap-3">
+                              <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 ${
+                                don.status === "SUCCESS" ? "border-emerald-200 bg-emerald-50" :
+                                don.status === "FAILED" ? "border-rose-200 bg-rose-50" :
+                                don.status === "REFUNDED" ? "border-purple-200 bg-purple-50" :
+                                "border-amber-200 bg-amber-50"
+                              }`}>
+                                <StatusIcon status={don.status} size={18} />
+                              </div>
+                              <span className="sm:hidden text-xs font-mono font-bold text-brand-navy-dark px-2 py-0.5 rounded bg-slate-100">
+                                {don.receiptNumber || "Pending"}
+                              </span>
+                            </div>
+                            <div className="sm:hidden text-right">
+                              <p className="text-sm font-black text-slate-800">{formatRupee(don.amount)}</p>
                             </div>
                           </div>
 
                           {/* Details */}
-                          <div className="flex-1 min-w-0">
+                          <div className="flex-1 min-w-0 w-full">
                             <div className="flex items-center gap-2 flex-wrap">
-                              <span className="text-xs font-mono font-bold text-brand-navy-dark px-2 py-0.5 rounded bg-slate-100 group-hover:bg-brand-navy-dark group-hover:text-white transition-colors">
+                              <span className="hidden sm:inline-block text-xs font-mono font-bold text-brand-navy-dark px-2 py-0.5 rounded bg-slate-100 group-hover:bg-brand-navy-dark group-hover:text-white transition-colors">
                                 {don.receiptNumber || "Pending"}
                               </span>
                               <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold border ${
@@ -883,20 +891,20 @@ const UserDashboard = () => {
                             </p>
                           </div>
 
-                          {/* Amount */}
-                          <div className="flex-shrink-0 text-right">
+                          {/* Amount (desktop only) */}
+                          <div className="hidden sm:block flex-shrink-0 text-right">
                             <p className="text-sm font-black text-slate-800">{formatRupee(don.amount)}</p>
                           </div>
 
-                          {/* Download */}
-                          <div className="flex-shrink-0">
+                          {/* Download & View actions */}
+                          <div className="flex-shrink-0 w-full sm:w-auto pt-2 sm:pt-0 border-t sm:border-0 border-slate-100 flex items-center gap-2">
                             {don.status === "SUCCESS" ? (
-                              <div className="flex items-center gap-2">
+                              <div className="flex items-center gap-2 w-full sm:w-auto">
                                 <Tooltip title="Download PDF Receipt" arrow>
                                   <button
                                     onClick={() => handleDownloadReceipt(don.id)}
                                     disabled={downloadingId === don.id}
-                                    className="text-xs text-brand-gold hover:underline font-extrabold inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-amber-50 transition-all disabled:opacity-60"
+                                    className="flex-1 sm:flex-none text-xs text-brand-gold hover:underline font-extrabold inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-amber-50 transition-all border border-amber-100 sm:border-0 disabled:opacity-60"
                                   >
                                     {downloadingId === don.id ? (
                                       <CircularProgress size={12} sx={{ color: "#B07A3F" }} />

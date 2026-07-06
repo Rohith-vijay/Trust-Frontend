@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import databaseService from "../../services/databaseService";
 import { motion, AnimatePresence } from "framer-motion";
+import { assignVolunteerRole, verifyVolunteerAttendance } from "../../services/messageService";
 
-const VolunteersPanel = ({ volunteerApps, onApproveVolunteer, onRejectVolunteer, formatDate, EmptyState }) => {
+const VolunteersPanel = ({ volunteerApps, onApproveVolunteer, onRejectVolunteer, formatDate, EmptyState, onRefresh }) => {
   const [matchData, setMatchData] = useState({}); // { [appId]: { score, reasoning, loading } }
 
   const handleMatchCheck = async (app) => {
@@ -156,7 +157,97 @@ const VolunteersPanel = ({ volunteerApps, onApproveVolunteer, onRejectVolunteer,
                       )}
                     </div>
 
-                    <p className="text-[10px] text-gray-400 font-bold">
+                    {/* Management Controls for Approved Volunteers */}
+                    {(app.status === "approved" || app.status === "APPROVED") && (
+                      <div className="mt-4 p-4 bg-slate-50 border border-slate-100 rounded-2xl space-y-3 text-xs">
+                        <div className="font-bold text-slate-700 flex items-center gap-1">
+                          <span>🛠️</span> Placements & Hours Management
+                        </div>
+                        
+                        {/* Assign Role */}
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="text-[11px] font-semibold text-slate-500 w-24">Assign Role:</span>
+                          <input 
+                            type="text" 
+                            defaultValue={app.assignedRole || ""} 
+                            placeholder="e.g. Lead Coordinator"
+                            className="bg-white border border-slate-200 rounded-lg px-2.5 py-1 text-xs w-48 focus:ring-1 focus:ring-primary focus:outline-none"
+                            onBlur={async (e) => {
+                              const val = e.target.value;
+                              if (val !== (app.assignedRole || "")) {
+                                try {
+                                  await assignVolunteerRole(app.id, val);
+                                  onRefresh();
+                                } catch (err) {
+                                  alert("Failed to assign role");
+                                }
+                              }
+                            }}
+                          />
+                        </div>
+
+                        {/* Attendance Logs */}
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="text-[11px] font-semibold text-slate-500 w-24">Logs:</span>
+                          <span className="text-[10px] text-slate-500">
+                            {app.checkInTime ? `Check-in: ${new Date(app.checkInTime).toLocaleString()}` : "Not checked in yet"}
+                            {app.checkOutTime && ` | Check-out: ${new Date(app.checkOutTime).toLocaleString()}`}
+                          </span>
+                        </div>
+
+                        {/* Hours & Verification */}
+                        <div className="flex flex-wrap items-center gap-4">
+                          <div className="flex items-center gap-2">
+                            <span className="text-[11px] font-semibold text-slate-500 w-24">Hours Logged:</span>
+                            <input 
+                              type="number" 
+                              step="0.5"
+                              defaultValue={app.hoursServed || 0}
+                              className="bg-white border border-slate-200 rounded-lg px-2 py-1 text-xs w-16 text-center font-bold"
+                              id={`hours-${app.id}`}
+                            />
+                          </div>
+
+                          <div className="flex items-center gap-2">
+                            {app.attendanceVerified ? (
+                              <button
+                                type="button"
+                                onClick={async () => {
+                                  const hours = parseFloat(document.getElementById(`hours-${app.id}`).value) || 0;
+                                  try {
+                                    await verifyVolunteerAttendance(app.id, hours, false);
+                                    onRefresh();
+                                  } catch (err) {
+                                    alert("Failed to update verification");
+                                  }
+                                }}
+                                className="text-[10px] font-black text-rose-600 bg-rose-50 hover:bg-rose-100 px-3 py-1 rounded-full border border-rose-150"
+                              >
+                                Revoke Verification
+                              </button>
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={async () => {
+                                  const hours = parseFloat(document.getElementById(`hours-${app.id}`).value) || 0;
+                                  try {
+                                    await verifyVolunteerAttendance(app.id, hours, true);
+                                    onRefresh();
+                                  } catch (err) {
+                                    alert("Failed to verify attendance");
+                                  }
+                                }}
+                                className="text-[10px] font-black text-emerald-600 bg-emerald-50 hover:bg-emerald-100 px-3 py-1 rounded-full border border-emerald-150 shadow-sm"
+                              >
+                                Verify Attendance ✓
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    <p className="text-[10px] text-gray-400 font-bold mt-2">
                       Applied on: {formatDate(app.createdAt || app.appliedAt)}
                     </p>
                   </div>

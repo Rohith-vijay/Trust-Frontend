@@ -31,6 +31,7 @@ const SettingsPanel = lazy(() => import("./panels/SettingsPanel"));
 
 const MessagesPanelComponent = lazy(() => import("./panels/MessagesPanel")); // specific naming to avoid any keyword clash
 const AuditLogsPanel = lazy(() => import("./panels/AuditLogsPanel"));
+const CasesPanel = lazy(() => import("./panels/CasesPanel"));
 
 // ─── ERROR BOUNDARY SHIELD ───
 class ErrorBoundary extends React.Component {
@@ -581,6 +582,7 @@ const Dashboard = () => {
     { key: "members", label: "Members", icon: "👤" },
     { key: "events", label: "Events", icon: "📅" },
     { key: "donations", label: "Donations", icon: "💰" },
+    { key: "cases", label: "Cases", icon: "🏥" },
     { key: "users", label: "Users", icon: "👥" },
     { key: "media", label: "Media Assets", icon: "🖼️" },
     { key: "pages", label: "Pages", icon: "📄" },
@@ -866,6 +868,7 @@ const Dashboard = () => {
                   onRejectVolunteer={handleRejectVolunteer}
                   formatDate={formatDate}
                   EmptyState={EmptyState}
+                  onRefresh={refreshCore}
                 />
               )}
 
@@ -946,6 +949,14 @@ const Dashboard = () => {
                   totalDonationPages={totalDonationPages}
                   tabLoading={tabLoading}
                   onLoadDonations={loadDonations}
+                  formatDate={formatDate}
+                  LoadingSpinner={LoadingSpinner}
+                  EmptyState={EmptyState}
+                />
+              )}
+
+              {activeTab === "cases" && (
+                <CasesPanel
                   formatDate={formatDate}
                   LoadingSpinner={LoadingSpinner}
                   EmptyState={EmptyState}

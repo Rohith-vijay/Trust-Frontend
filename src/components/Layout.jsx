@@ -52,6 +52,7 @@ function Layout({ children }) {
       case "/admin":
       case "/dashboard":
       case "/dashboard/volunteer":
+      case "/dashboard/applicant":
         bgClass = "bg-neutralLight";
         break;
       case "/unauthorized":

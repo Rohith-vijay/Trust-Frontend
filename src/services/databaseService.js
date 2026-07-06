@@ -309,6 +309,119 @@ const databaseService = {
   deleteMediaAsset: async (id) => {
     await api.delete(`/media/${id}`);
   },
+
+  // ─── Beneficiary Case Management ──────────────────────────────
+  applyForAssistance: async (caseData) => {
+    const response = await api.post("/cases", caseData);
+    return response.data;
+  },
+
+  getMyCases: async (page = 0, size = 10) => {
+    const response = await api.get("/cases/my", {
+      params: { page, size }
+    });
+    return response.data;
+  },
+
+  getCaseDetails: async (caseNumber) => {
+    const response = await api.get(`/cases/${caseNumber}`);
+    return response.data;
+  },
+
+  uploadCaseDocument: async (caseNumber, docName, docUrl, publicId = null, fileType = null) => {
+    const response = await api.post(`/cases/${caseNumber}/documents`, null, {
+      params: { docName, docUrl, publicId, fileType }
+    });
+    return response.data;
+  },
+
+  sendCaseMessage: async (caseNumber, messageContent, isInternal = false) => {
+    const response = await api.post(`/cases/${caseNumber}/messages`, { messageContent, isInternal });
+    return response.data;
+  },
+
+  getCaseMessages: async (caseNumber) => {
+    const response = await api.get(`/cases/${caseNumber}/messages`);
+    return response.data;
+  },
+
+  getAllCases: async (page = 0, size = 10, status = null) => {
+    const params = { page, size };
+    if (status) params.status = status;
+    const response = await api.get("/cases", { params });
+    return response.data;
+  },
+
+  updateCaseStatus: async (caseNumber, status, comment = "") => {
+    const response = await api.put(`/cases/${caseNumber}/status`, { status, comment });
+    return response.data;
+  },
+
+  assignCaseOfficer: async (caseNumber, officerId) => {
+    const response = await api.put(`/cases/${caseNumber}/assign`, null, {
+      params: { officerId }
+    });
+    return response.data;
+  },
+
+  updateCaseInternalNotes: async (caseNumber, notes) => {
+    const response = await api.put(`/cases/${caseNumber}/notes`, notes, {
+      headers: { "Content-Type": "text/plain" }
+    });
+    return response.data;
+  },
+
+  updateCaseOutcome: async (caseNumber, outcome) => {
+    const response = await api.put(`/cases/${caseNumber}/outcome`, outcome, {
+      headers: { "Content-Type": "text/plain" }
+    });
+    return response.data;
+  },
+
+  deleteCaseDocument: async (caseNumber, docId) => {
+    const response = await api.delete(`/cases/${caseNumber}/documents/${docId}`);
+    return response.data;
+  },
+
+  scheduleCaseVisit: async (caseNumber, visitTime) => {
+    const response = await api.put(`/cases/${caseNumber}/schedule`, { visitTime });
+    return response.data;
+  },
+
+  updateCaseEstimatedCost: async (caseNumber, cost) => {
+    const response = await api.put(`/cases/${caseNumber}/estimated-cost`, { cost });
+    return response.data;
+  },
+
+  updateCaseApprovedAmount: async (caseNumber, amount) => {
+    const response = await api.put(`/cases/${caseNumber}/approved-amount`, { amount });
+    return response.data;
+  },
+
+  updateCaseDisbursedAmount: async (caseNumber, amount) => {
+    const response = await api.put(`/cases/${caseNumber}/disbursed-amount`, { amount });
+    return response.data;
+  },
+
+  updateCaseCommitteeNotes: async (caseNumber, notes) => {
+    const response = await api.put(`/cases/${caseNumber}/committee-notes`, { notes });
+    return response.data;
+  },
+
+  updateCaseTags: async (caseNumber, tags) => {
+    const response = await api.put(`/cases/${caseNumber}/tags`, { tags });
+    return response.data;
+  },
+
+  toggleCaseEscalation: async (caseNumber, escalate) => {
+    const response = await api.put(`/cases/${caseNumber}/escalate`, { escalate });
+    return response.data;
+  },
+
+  updateUserProfile: async (name) => {
+    const response = await api.put(`/users/me/profile`, { name });
+    return response.data;
+  },
 };
 
 export default databaseService;

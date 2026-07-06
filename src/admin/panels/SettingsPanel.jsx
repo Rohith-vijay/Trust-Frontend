@@ -8,7 +8,7 @@ const SettingsPanel = ({ settingInputs, setSettingInputs, onSaveSetting }) => {
         {/* Hero Image */}
         <div className="space-y-2">
           <label className="block text-sm font-bold text-gray-700">Hero Background Image URL</label>
-          <div className="flex gap-3">
+          <div className="flex flex-col sm:flex-row gap-3">
             <input
               type="text"
               value={settingInputs.HOME_HERO_IMAGE}
@@ -16,11 +16,11 @@ const SettingsPanel = ({ settingInputs, setSettingInputs, onSaveSetting }) => {
                 setSettingInputs((p) => ({ ...p, HOME_HERO_IMAGE: e.target.value }))
               }
               placeholder="e.g. https://images.unsplash.com/photo-..."
-              className="flex-1 border border-gray-200 rounded-lg px-3.5 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 bg-white"
+              className="flex-grow border border-gray-200 rounded-lg px-3.5 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 bg-white"
             />
             <button
               onClick={() => onSaveSetting("HOME_HERO_IMAGE")}
-              className="bg-primary text-white px-5 py-2 rounded-lg text-sm font-bold hover:brightness-95 transition whitespace-nowrap"
+              className="bg-primary text-white px-5 py-2 rounded-lg text-sm font-bold hover:brightness-95 transition whitespace-nowrap w-full sm:w-auto"
             >
               Save Key
             </button>
@@ -40,7 +40,7 @@ const SettingsPanel = ({ settingInputs, setSettingInputs, onSaveSetting }) => {
         {/* Hero Title */}
         <div className="space-y-2">
           <label className="block text-sm font-bold text-gray-700">Hero Headline Title</label>
-          <div className="flex gap-3">
+          <div className="flex flex-col sm:flex-row gap-3">
             <input
               type="text"
               value={settingInputs.HOME_HERO_TITLE}
@@ -48,11 +48,11 @@ const SettingsPanel = ({ settingInputs, setSettingInputs, onSaveSetting }) => {
                 setSettingInputs((p) => ({ ...p, HOME_HERO_TITLE: e.target.value }))
               }
               placeholder="e.g. Bringing Hope and Relieving Distress."
-              className="flex-1 border border-gray-200 rounded-lg px-3.5 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 bg-white"
+              className="flex-grow border border-gray-200 rounded-lg px-3.5 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 bg-white"
             />
             <button
               onClick={() => onSaveSetting("HOME_HERO_TITLE")}
-              className="bg-primary text-white px-5 py-2 rounded-lg text-sm font-bold hover:brightness-95 transition whitespace-nowrap"
+              className="bg-primary text-white px-5 py-2 rounded-lg text-sm font-bold hover:brightness-95 transition whitespace-nowrap w-full sm:w-auto"
             >
               Save Key
             </button>
@@ -62,7 +62,7 @@ const SettingsPanel = ({ settingInputs, setSettingInputs, onSaveSetting }) => {
         {/* Hero Subtitle */}
         <div className="space-y-2">
           <label className="block text-sm font-bold text-gray-700">Hero Subtitle Paragraph</label>
-          <div className="flex gap-3">
+          <div className="flex flex-col sm:flex-row gap-3">
             <textarea
               value={settingInputs.HOME_HERO_SUBTITLE}
               onChange={(e) =>
@@ -70,11 +70,11 @@ const SettingsPanel = ({ settingInputs, setSettingInputs, onSaveSetting }) => {
               }
               placeholder="e.g. Empowering vulnerable communities across clean water, education, and health camps."
               rows={2}
-              className="flex-1 border border-gray-200 rounded-lg px-3.5 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 bg-white resize-none"
+              className="flex-grow border border-gray-200 rounded-lg px-3.5 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 bg-white resize-none"
             />
             <button
               onClick={() => onSaveSetting("HOME_HERO_SUBTITLE")}
-              className="bg-primary text-white px-5 py-2 rounded-lg text-sm font-bold hover:brightness-95 transition self-start whitespace-nowrap"
+              className="bg-primary text-white px-5 py-2 rounded-lg text-sm font-bold hover:brightness-95 transition self-start whitespace-nowrap w-full sm:w-auto"
             >
               Save Key
             </button>
@@ -85,7 +85,7 @@ const SettingsPanel = ({ settingInputs, setSettingInputs, onSaveSetting }) => {
         <div className="grid sm:grid-cols-2 gap-6 pt-2">
           <div className="space-y-2">
             <label className="block text-sm font-bold text-gray-700">Hero Call to Action Text</label>
-            <div className="flex gap-3">
+            <div className="flex flex-col sm:flex-row gap-3">
               <input
                 type="text"
                 value={settingInputs.HOME_HERO_CTA_TEXT}
@@ -97,7 +97,7 @@ const SettingsPanel = ({ settingInputs, setSettingInputs, onSaveSetting }) => {
               />
               <button
                 onClick={() => onSaveSetting("HOME_HERO_CTA_TEXT")}
-                className="bg-primary text-white px-4 py-2 rounded-lg text-sm font-bold hover:brightness-95 transition whitespace-nowrap"
+                className="bg-primary text-white px-4 py-2 rounded-lg text-sm font-bold hover:brightness-95 transition whitespace-nowrap w-full sm:w-auto"
               >
                 Save
               </button>
@@ -105,7 +105,7 @@ const SettingsPanel = ({ settingInputs, setSettingInputs, onSaveSetting }) => {
           </div>
           <div className="space-y-2">
             <label className="block text-sm font-bold text-gray-700">Hero Call to Action Redirect Path</label>
-            <div className="flex gap-3">
+            <div className="flex flex-col sm:flex-row gap-3">
               <input
                 type="text"
                 value={settingInputs.HOME_HERO_CTA_LINK}
@@ -117,7 +117,7 @@ const SettingsPanel = ({ settingInputs, setSettingInputs, onSaveSetting }) => {
               />
               <button
                 onClick={() => onSaveSetting("HOME_HERO_CTA_LINK")}
-                className="bg-primary text-white px-4 py-2 rounded-lg text-sm font-bold hover:brightness-95 transition whitespace-nowrap"
+                className="bg-primary text-white px-4 py-2 rounded-lg text-sm font-bold hover:brightness-95 transition whitespace-nowrap w-full sm:w-auto"
               >
                 Save
               </button>

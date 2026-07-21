@@ -45,12 +45,10 @@ const notificationService = {
 
       // Handle offline status immediately
       if (typeof window !== "undefined" && !window.navigator.onLine) {
-        console.log("[NotificationEngine] Browser is offline. Suspending connection attempts...");
         notifyStatus("OFFLINE");
         return;
       }
       
-      console.log(`[NotificationEngine] Connecting WebSocket (attempt ${reconnectAttempts + 1}) to ${socketUrl}...`);
       notifyStatus("CONNECTING");
 
       socket = new SockJS(socketUrl);
@@ -61,7 +59,6 @@ const notificationService = {
       stompClient.connect(
         {},
         (frame) => {
-          console.log(`[NotificationEngine] WebSocket connected successfully: ${frame}`);
           reconnectAttempts = 0;
           notifyStatus("CONNECTED");
           
@@ -100,7 +97,6 @@ const notificationService = {
           if (!isExplicitDisconnect) {
             const delay = Math.min(1000 * Math.pow(2, reconnectAttempts), 30000);
             reconnectAttempts++;
-            console.log(`[NotificationEngine] Reconnecting in ${delay / 1000}s...`);
             reconnectTimeout = setTimeout(connect, delay);
           }
         }
@@ -109,7 +105,6 @@ const notificationService = {
 
     // Resilient Network state event listeners
     const handleOnline = () => {
-      console.log("[NotificationEngine] Browser online event detected. Initiating immediate reconnect...");
       reconnectAttempts = 0;
       if (reconnectTimeout) {
         clearTimeout(reconnectTimeout);
@@ -119,7 +114,6 @@ const notificationService = {
     };
 
     const handleOffline = () => {
-      console.log("[NotificationEngine] Browser offline event detected.");
       notifyStatus("OFFLINE");
       if (reconnectTimeout) {
         clearTimeout(reconnectTimeout);

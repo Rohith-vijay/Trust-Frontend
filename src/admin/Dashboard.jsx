@@ -368,7 +368,7 @@ const Dashboard = () => {
       try {
         if (stompClient && typeof stompClient.disconnect === "function") {
           stompClient.disconnect(() => {
-            console.log("[NotificationEngine] STOMP Client disconnected cleanly.");
+            // WebSocket disconnected cleanly
           });
         }
       } catch (err) {

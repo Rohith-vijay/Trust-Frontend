@@ -109,16 +109,22 @@ function Donation() {
 
   // Download PDF Receipt handler
   const handleDownloadReceipt = async (donationId) => {
+    if (!donationId) {
+      window.print();
+      return;
+    }
     try {
       const blob = await databaseService.downloadDonationReceipt(donationId);
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
+      a.style.display = 'none';
       a.href = url;
       a.download = `receipt-${donationId}.pdf`;
+      document.body.appendChild(a);
       a.click();
+      document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
     } catch (err) {
-      console.error('Receipt download failed, falling back to print:', err);
       window.print();
     }
   };
@@ -157,17 +163,23 @@ function Donation() {
       };
       
       const donationResponse = await databaseService.createDonation(donationPayload);
+      if (!donationResponse || !donationResponse.id) {
+        throw new Error("Failed to initialize donation record on the server.");
+      }
       const donationId = donationResponse.id;
 
       // 2. Request a Razorpay Order
       const orderResponse = await databaseService.createPaymentOrder(donationId);
+      if (!orderResponse || !orderResponse.orderId) {
+        throw new Error("Failed to generate payment gateway order.");
+      }
 
       // Save checkout settings
       const session = {
         donationId,
         orderId: orderResponse.orderId,
         amount: orderResponse.amount,
-        currency: orderResponse.currency,
+        currency: orderResponse.currency || "INR",
         key: orderResponse.key,
       };
 
@@ -235,6 +247,7 @@ function Donation() {
 
           // Success Outcome
           setSuccessReceipt({
+            donationId: session.donationId,
             receiptNumber: "REC-" + Date.now().toString().substring(5),
             amount: parseFloat(amount),
             transactionId: response.razorpay_payment_id,
@@ -276,6 +289,12 @@ function Donation() {
     setLoading(true);
     setError("");
 
+    if (!checkoutData) {
+      setError("No active payment session found.");
+      setLoading(false);
+      return;
+    }
+
     if (outcome === "CANCEL") {
       setLoading(false);
       setError("Payment cancelled by the user. Feel free to adjust the amount or retry.");
@@ -313,6 +332,7 @@ function Donation() {
       await databaseService.verifyPayment(mockVerifyPayload);
 
       setSuccessReceipt({
+        donationId: checkoutData.donationId,
         receiptNumber: "REC-MOCK-" + Math.random().toString(36).substring(2, 8).toUpperCase(),
         amount: parseFloat(amount),
         transactionId: mockPaymentId,
@@ -458,7 +478,7 @@ function Donation() {
                     <Typography variant="subtitle2" className="font-bold text-gray-400">Total Gift Amount</Typography>
                     {successReceipt.message && (
                       <Typography variant="caption" color="text.secondary" className="italic mt-1 block">
-                        Message: "{successReceipt.message}"
+                        Message: &quot;{successReceipt.message}&quot;
                       </Typography>
                     )}
                   </div>
@@ -474,7 +494,7 @@ function Donation() {
                     variant="contained"
                     color="primary"
                     startIcon={<DownloadIcon />}
-                    onClick={() => handleDownloadReceipt(checkoutData?.donationId)}
+                    onClick={() => handleDownloadReceipt(successReceipt?.donationId || checkoutData?.donationId)}
                     sx={{ py: 1.5, borderRadius: 4, fontWeight: 700, textTransform: "none" }}
                   >
                     Download PDF Receipt
@@ -630,7 +650,7 @@ function Donation() {
                       variant="outlined"
                       value={donorName}
                       onChange={(e) => setDonorName(e.target.value)}
-                      disabled={loading || user !== null}
+                      disabled={loading || !!user}
                       InputProps={{ sx: { borderRadius: 3 } }}
                       helperText={user ? "Sealed to your authenticated session profile." : ""}
                     />
@@ -641,7 +661,7 @@ function Donation() {
                       type="email"
                       value={donorEmail}
                       onChange={(e) => setDonorEmail(e.target.value)}
-                      disabled={loading || user !== null}
+                      disabled={loading || !!user}
                       InputProps={{ sx: { borderRadius: 3 } }}
                     />
 

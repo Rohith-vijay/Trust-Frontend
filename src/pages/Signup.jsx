@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { pageVariants, pageTransition } from "../constants/motionVariants";
 import { useAuth } from "../hooks/useAuth";
 import { TextField, Button, Card, Typography, InputAdornment, IconButton, Alert, CircularProgress, Box } from "@mui/material";
@@ -20,6 +20,7 @@ function Signup() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { register } = useAuth();
+  const navigate = useNavigate();
 
   // Real-time password strength computation
   const getPasswordStrength = (pwd) => {
@@ -90,8 +91,17 @@ function Signup() {
 
     setLoading(true);
     try {
-      await register(form.name, form.email, form.password, form.role);
-      setIsRegistered(true);
+      const res = await register(form.name, form.email, form.password, form.role);
+      const role = res.user?.role || form.role;
+      if (role === "ADMIN") {
+        navigate("/admin");
+      } else if (role === "VOLUNTEER") {
+        navigate("/dashboard/volunteer");
+      } else if (role === "APPLICANT") {
+        navigate("/dashboard/applicant");
+      } else {
+        navigate("/dashboard");
+      }
     } catch (err) {
       const message = err.response?.data?.message || err.response?.data?.error || "Registration failed. Please try again.";
       setError(message);

@@ -63,6 +63,10 @@ export const AppProvider = ({ children }) => {
 
   const register = useCallback(async (name, email, password, role) => {
     const result = await authService.register(name, email, password, role);
+    if (result.token && result.user) {
+      setUser(result.user);
+      setIsAuthenticated(true);
+    }
     showToast("Registration successful!", "success");
     return result;
   }, [showToast]);

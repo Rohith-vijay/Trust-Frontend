@@ -323,7 +323,7 @@ const Dashboard = () => {
 
     const loadAlerts = async () => {
       try {
-        const res = await notificationService.getNotifications(0, 20);
+        const res = await notificationService.getNotifications(null, null, null, 0, 20);
         const countRes = await notificationService.getUnreadCount();
         setNotifications(res.data?.content || res.content || []);
         setUnreadAlertsCount(countRes.data != null ? countRes.data : countRes);

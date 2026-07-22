@@ -17,7 +17,7 @@ export const getBackendUrl = () => {
   } else {
     const hostname = typeof window !== "undefined" && window.location ? window.location.hostname : "localhost";
     if (hostname === "localhost" || hostname === "127.0.0.1") {
-      url = `http://${hostname}:8080/api`;
+      url = "/api";
     } else {
       url = "https://trust-backend-production-b792.up.railway.app/api";
     }

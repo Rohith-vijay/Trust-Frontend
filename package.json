@@ -31,6 +31,7 @@
     "react": "^19.2.0",
     "react-countup": "^6.5.3",
     "react-dom": "^19.2.0",
+    "react-easy-crop": "^6.2.3",
     "react-intersection-observer": "^10.0.3",
     "react-player": "^3.4.0",
     "react-router-dom": "^7.13.0",

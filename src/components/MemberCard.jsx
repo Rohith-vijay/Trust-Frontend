@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Card, Typography, IconButton } from "@mui/material";
 import TouchAppIcon from '@mui/icons-material/TouchApp';
+import SmartImage from "./SmartImage";
 
 const MemberCard = React.memo(({ member }) => {
   const [flipped, setFlipped] = useState(false);
@@ -45,11 +46,11 @@ const MemberCard = React.memo(({ member }) => {
         >
           <div className={`h-48 bg-gradient-to-br ${bgGradient} flex items-center justify-center relative overflow-hidden shrink-0`}>
             {member.photo ? (
-              <img
+              <SmartImage
                 src={member.photo}
                 alt={member.name}
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                loading="lazy"
+                imageType="team"
+                className="transition-transform duration-700 group-hover:scale-105"
               />
             ) : (
               <>

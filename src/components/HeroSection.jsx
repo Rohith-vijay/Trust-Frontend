@@ -1,5 +1,6 @@
 import { memo, useState, useEffect } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
+import SmartImage from "./SmartImage";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@mui/material";
 import FavoriteIcon from '@mui/icons-material/Favorite';
@@ -65,12 +66,11 @@ const HeroSection = memo(function HeroSection() {
     return (
         <section className="hero" id="hero">
             <motion.div className="hero__image-wrap" style={{ rotateX, rotateY, scale }}>
-                <img
+                <SmartImage
                     className="hero__image object-cover w-full h-full"
                     src={settings.HOME_HERO_IMAGE}
                     alt="Community portrait"
-                    loading="eager"
-                    fetchPriority="high"
+                    imageType="hero"
                     draggable={false}
                 />
             </motion.div>

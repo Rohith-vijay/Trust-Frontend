@@ -1,5 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
+import SmartImage from "./SmartImage";
 import { Card, CardMedia, CardContent, Typography, Chip, IconButton, Box } from "@mui/material";
 import InstagramIcon from '@mui/icons-material/Instagram';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
@@ -86,19 +87,11 @@ const EventCard = React.memo(({ event }) => {
           }
         }}
       >
-        {imageUrl && (
           <div className="relative overflow-hidden group h-[220px] shrink-0">
-            <CardMedia
-              component="img"
-              height="220"
-              image={imageUrl}
+            <SmartImage
+              src={imageUrl}
               alt={event.title}
-              sx={{
-                height: '100%',
-                width: '100%',
-                objectFit: 'cover',
-                transition: "transform 0.8s cubic-bezier(0.4, 0, 0.2, 1)",
-              }}
+              imageType="event"
               className="group-hover:scale-108"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-300" />

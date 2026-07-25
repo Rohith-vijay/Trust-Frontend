@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import RichTextEditor from "../components/RichTextEditor";
 import SortableList from "../components/SortableList";
 import MediaUploader from "../../components/MediaUploader";
+import SmartImageUploader from "../../components/SmartImageUploader";
 import databaseService from "../../services/databaseService";
 import { resolveMediaUrl } from "../../utils";
 
@@ -167,8 +168,8 @@ const StoriesPanel = ({
               />
             </div>
             <div className="space-y-1">
-              <MediaUploader
-                mediaType="IMAGE"
+              <SmartImageUploader
+                imageType="story"
                 label="Cover Thumbnail Image *"
                 value={storyForm.imageUrl}
                 onUploadSuccess={(metadata) => setStoryForm((p) => ({ ...p, imageUrl: metadata.secure_url }))}
@@ -181,16 +182,16 @@ const StoriesPanel = ({
             <p className="text-xs font-bold text-gray-700">Before & After Showcase (Optional)</p>
             <div className="grid sm:grid-cols-2 gap-4">
               <div className="space-y-1">
-                <MediaUploader
-                  mediaType="IMAGE"
+                <SmartImageUploader
+                  imageType="story"
                   label="Before Status Image"
                   value={storyForm.beforeImageUrl || ""}
                   onUploadSuccess={(metadata) => setStoryForm((p) => ({ ...p, beforeImageUrl: metadata.secure_url }))}
                 />
               </div>
               <div className="space-y-1">
-                <MediaUploader
-                  mediaType="IMAGE"
+                <SmartImageUploader
+                  imageType="story"
                   label="After Status Image"
                   value={storyForm.afterImageUrl || ""}
                   onUploadSuccess={(metadata) => setStoryForm((p) => ({ ...p, afterImageUrl: metadata.secure_url }))}
@@ -429,8 +430,8 @@ const StoriesPanel = ({
               />
             </div>
             <div className="space-y-1">
-              <MediaUploader
-                mediaType="IMAGE"
+              <SmartImageUploader
+                imageType="story"
                 label="Cover Thumbnail Image"
                 value={editingStory.imageUrl || ""}
                 onUploadSuccess={(metadata) => setEditingStory((p) => ({ ...p, imageUrl: metadata.secure_url }))}
@@ -443,16 +444,16 @@ const StoriesPanel = ({
             <p className="text-xs font-bold text-gray-700">Before & After Showcase</p>
             <div className="grid sm:grid-cols-2 gap-4">
               <div className="space-y-1">
-                <MediaUploader
-                  mediaType="IMAGE"
+                <SmartImageUploader
+                  imageType="story"
                   label="Before Status Image"
                   value={editingStory.beforeImageUrl || ""}
                   onUploadSuccess={(metadata) => setEditingStory((p) => ({ ...p, beforeImageUrl: metadata.secure_url }))}
                 />
               </div>
               <div className="space-y-1">
-                <MediaUploader
-                  mediaType="IMAGE"
+                <SmartImageUploader
+                  imageType="story"
                   label="After Status Image"
                   value={editingStory.afterImageUrl || ""}
                   onUploadSuccess={(metadata) => setEditingStory((p) => ({ ...p, afterImageUrl: metadata.secure_url }))}

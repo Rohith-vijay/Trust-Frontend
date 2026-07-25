@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import SmartImageUploader from "../../components/SmartImageUploader";
 
 const MembersPanel = ({
   members,
@@ -80,7 +81,13 @@ const MembersPanel = ({
             />
           </div>
           <div className="space-y-1">
-            <label className="text-xs font-semibold text-gray-500">Photo URL</label>
+            <SmartImageUploader
+              imageType="team"
+              label="Upload & Crop Photo"
+              value={memberForm.imageUrl}
+              onUploadSuccess={(metadata) => setMemberForm((p) => ({ ...p, imageUrl: metadata.secure_url }))}
+            />
+            <label className="text-[10px] font-semibold text-gray-500 block pt-1">Or Photo URL</label>
             <input
               value={memberForm.imageUrl}
               onChange={(e) => setMemberForm((p) => ({ ...p, imageUrl: e.target.value }))}
@@ -164,7 +171,13 @@ const MembersPanel = ({
                     />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-xs font-semibold text-gray-500">Photo URL</label>
+                    <SmartImageUploader
+                      imageType="team"
+                      label="Upload & Crop Photo"
+                      value={editingMember.imageUrl || ""}
+                      onUploadSuccess={(metadata) => setEditingMember((p) => ({ ...p, imageUrl: metadata.secure_url }))}
+                    />
+                    <label className="text-[10px] font-semibold text-gray-500 block pt-1">Or Photo URL</label>
                     <input
                       value={editingMember.imageUrl || ""}
                       onChange={(e) =>

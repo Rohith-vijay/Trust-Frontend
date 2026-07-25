@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import RichTextEditor from "../components/RichTextEditor";
 import SortableList from "../components/SortableList";
 import MediaUploader from "../../components/MediaUploader";
+import SmartImageUploader from "../../components/SmartImageUploader";
 import { resolveMediaUrl } from "../../utils";
 
 const EventsPanel = ({
@@ -180,24 +181,24 @@ const EventsPanel = ({
             <p className="text-xs font-bold text-gray-700">Relational Image Architecture</p>
             <div className="grid sm:grid-cols-3 gap-3">
               <div className="space-y-1">
-                <MediaUploader
-                  mediaType="IMAGE"
+                <SmartImageUploader
+                  imageType="event"
                   label="Thumbnail Image (Listings) *"
                   value={eventForm.thumbnailUrl || ""}
                   onUploadSuccess={(metadata) => setEventForm((p) => ({ ...p, thumbnailUrl: metadata.secure_url }))}
                 />
               </div>
               <div className="space-y-1">
-                <MediaUploader
-                  mediaType="IMAGE"
+                <SmartImageUploader
+                  imageType="hero"
                   label="Hero Image (Header banner)"
                   value={eventForm.heroImageUrl || ""}
                   onUploadSuccess={(metadata) => setEventForm((p) => ({ ...p, heroImageUrl: metadata.secure_url }))}
                 />
               </div>
               <div className="space-y-1">
-                <MediaUploader
-                  mediaType="IMAGE"
+                <SmartImageUploader
+                  imageType="event"
                   label="Cover Image (Fallback)"
                   value={eventForm.coverImage || ""}
                   onUploadSuccess={(metadata) => setEventForm((p) => ({ ...p, coverImage: metadata.secure_url }))}
@@ -403,24 +404,24 @@ const EventsPanel = ({
             <p className="text-xs font-bold text-gray-700">Relational Image Architecture</p>
             <div className="grid sm:grid-cols-3 gap-3">
               <div className="space-y-1">
-                <MediaUploader
-                  mediaType="IMAGE"
+                <SmartImageUploader
+                  imageType="event"
                   label="Thumbnail Image *"
                   value={editingEvent.thumbnailUrl || ""}
                   onUploadSuccess={(metadata) => setEditingEvent((p) => ({ ...p, thumbnailUrl: metadata.secure_url }))}
                 />
               </div>
               <div className="space-y-1">
-                <MediaUploader
-                  mediaType="IMAGE"
+                <SmartImageUploader
+                  imageType="hero"
                   label="Hero Image"
                   value={editingEvent.heroImageUrl || ""}
                   onUploadSuccess={(metadata) => setEditingEvent((p) => ({ ...p, heroImageUrl: metadata.secure_url }))}
                 />
               </div>
               <div className="space-y-1">
-                <MediaUploader
-                  mediaType="IMAGE"
+                <SmartImageUploader
+                  imageType="event"
                   label="Cover Image"
                   value={editingEvent.coverImage || ""}
                   onUploadSuccess={(metadata) => setEditingEvent((p) => ({ ...p, coverImage: metadata.secure_url }))}

@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
+import SmartImage from "./SmartImage";
 import { motion } from "framer-motion";
 import { Card, CardContent, Typography, Chip, Box } from "@mui/material";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
@@ -137,11 +138,11 @@ const SuccessStoryCard = React.memo(({ story }) => {
           </div>
         ) : cardImage ? (
           <div className="relative overflow-hidden group h-[220px] shrink-0">
-            <img
+            <SmartImage
               src={cardImage}
               alt={story.title}
-              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-              loading="lazy"
+              imageType="story"
+              className="transition-transform duration-700 group-hover:scale-105"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
           </div>

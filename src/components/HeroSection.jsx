@@ -1,148 +1,256 @@
 import { memo, useState, useEffect } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
-import SmartImage from "./SmartImage";
+import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@mui/material";
-import FavoriteIcon from '@mui/icons-material/Favorite';
 import api from "../services/api";
+
+// Subcomponents
+import HeroBackground from "./hero/HeroBackground";
+import HeroOverlay from "./hero/HeroOverlay";
+import HeroHeading from "./hero/HeroHeading";
+import HeroDescription from "./hero/HeroDescription";
+import HeroButtons from "./hero/HeroButtons";
+import HeroImpactCards from "./hero/HeroImpactCards";
+import HeroStats from "./hero/HeroStats";
+import HeroMissionBadges from "./hero/HeroMissionBadges";
+import ScrollIndicator from "./hero/ScrollIndicator";
+
 import "./HeroSection.css";
 
 const HeroSection = memo(function HeroSection() {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
+  const [loaded, setLoaded] = useState(false);
+  
+  // Dynamic CMS Settings
+  const [settings, setSettings] = useState({
+    HOME_HERO_IMAGE: "/hero-bg-clean.jpg",
+    HOME_HERO_TITLE: "TOGETHER, WE CAN BUILD A BETTER TOMORROW",
+    HOME_HERO_SUBTITLE: "K.V.G. Shanmuka Sai Charitable Trust is committed to empowering lives, supporting communities, and creating lasting change through compassion, education, and service.",
+    HOME_HERO_HIGHLIGHT: "A BETTER TOMORROW",
+    HOME_HERO_CTA_TEXT: "Support Our Mission",
+    HOME_HERO_CTA_LINK: "/donation",
+    HOME_HERO_SECONDARY_TEXT: "JOIN US IN MAKING A DIFFERENCE",
+    HOME_HERO_SECONDARY_LINK: "/volunteer",
+    HOME_HERO_OPACITY: "0.35",
+    HOME_HERO_STATS_LIVES: "1000+",
+    HOME_HERO_STATS_PROJECTS: "50+",
+    HOME_HERO_STATS_EDUCATION: "For a Better Future",
+    HOME_HERO_STATS_VISION: "Stronger Together"
+  });
 
-    /* ── CMS settings from backend ── */
-    const [settings, setSettings] = useState({
-        HOME_HERO_IMAGE: "/hero-portrait.png",
-        HOME_HERO_TITLE: "Bringing Hope to Every Corner.",
-        HOME_HERO_SUBTITLE: "From education to clean water, our work is driven by empathy and measurable results.",
-        HOME_HERO_CTA_TEXT: "Support Our Mission",
-        HOME_HERO_CTA_LINK: "/donation",
-    });
-    const [loaded, setLoaded] = useState(false);
+  // Dynamic Impact Stats from DB
+  const [impactData, setImpactData] = useState([]);
 
-    useEffect(() => {
-        api.get("/public/settings/all")
-            .then((res) => {
-                const s = res.data || {};
-                setSettings({
-                    HOME_HERO_IMAGE:    s.HOME_HERO_IMAGE    || "/hero-portrait.png",
-                    HOME_HERO_TITLE:    s.HOME_HERO_TITLE    || "Bringing Hope to Every Corner.",
-                    HOME_HERO_SUBTITLE: s.HOME_HERO_SUBTITLE || "From education to clean water, our work is driven by empathy and measurable results.",
-                    HOME_HERO_CTA_TEXT: s.HOME_HERO_CTA_TEXT || "Support Our Mission",
-                    HOME_HERO_CTA_LINK: s.HOME_HERO_CTA_LINK || "/donation",
-                });
-            })
-            .catch((err) => console.error("Failed to fetch hero settings:", err))
-            .finally(() => setLoaded(true));
-    }, []);
-
-    /* ── Scroll-driven 3D tilt ── */
-    const { scrollY } = useScroll();
-    const rotateX = useTransform(scrollY, [0, 800], [0, 8],   { clamp: true });
-    const rotateY = useTransform(scrollY, [0, 800], [0, -6],  { clamp: true });
-    const scale   = useTransform(scrollY, [0, 800], [1, 1.05],{ clamp: true });
-
-    const contentVariants = {
-        hidden:  { opacity: 0, scale: 0.95, y: 30 },
-        visible: {
-            opacity: 1, scale: 1, y: 0,
-            transition: { duration: 1, ease: [0.16, 1, 0.3, 1], staggerChildren: 0.2 },
-        },
-    };
-    const childVariants = {
-        hidden:  { opacity: 0, y: 20 },
-        visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } },
-    };
-
-    const handleCTA = () => {
-        const link = settings.HOME_HERO_CTA_LINK;
-        if (link?.startsWith("http")) {
-            window.open(link, "_blank", "noopener");
-        } else {
-            navigate(link || "/donation");
+  useEffect(() => {
+    // 1. Fetch CMS settings
+    api.get("/public/settings/all")
+      .then((res) => {
+        const s = res.data || {};
+        
+        // Handle image mapping for backward compatibility:
+        // If the backend has "/hero-portrait.png" or "/hero-new-collage.jpg" (which contains baked-in text),
+        // we map it to "/hero-bg-clean.jpg" so the clean, dynamic overlay can render without text overlap.
+        let bgImg = s.HOME_HERO_IMAGE || "/hero-bg-clean.jpg";
+        if (bgImg === "/hero-portrait.png" || bgImg === "/hero-new-collage.jpg") {
+          bgImg = "/hero-bg-clean.jpg";
         }
-    };
 
-    return (
-        <section className="hero" id="hero">
-            <motion.div className="hero__image-wrap" style={{ rotateX, rotateY, scale }}>
-                <SmartImage
-                    className="hero__image object-cover w-full h-full"
-                    src={settings.HOME_HERO_IMAGE}
-                    alt="Community portrait"
-                    imageType="hero"
-                    draggable={false}
-                />
-            </motion.div>
+        setSettings({
+          HOME_HERO_IMAGE:          bgImg,
+          HOME_HERO_TITLE:          s.HOME_HERO_TITLE          || "TOGETHER, WE CAN BUILD A BETTER TOMORROW",
+          HOME_HERO_SUBTITLE:       s.HOME_HERO_SUBTITLE       || "K.V.G. Shanmuka Sai Charitable Trust is committed to empowering lives, supporting communities, and creating lasting change through compassion, education, and service.",
+          HOME_HERO_HIGHLIGHT:      s.HOME_HERO_HIGHLIGHT      || "A BETTER TOMORROW",
+          HOME_HERO_CTA_TEXT:       s.HOME_HERO_CTA_TEXT       || "Support Our Mission",
+          HOME_HERO_CTA_LINK:       s.HOME_HERO_CTA_LINK       || "/donation",
+          HOME_HERO_SECONDARY_TEXT:  s.HOME_HERO_SECONDARY_TEXT  || "JOIN US IN MAKING A DIFFERENCE",
+          HOME_HERO_SECONDARY_LINK:  s.HOME_HERO_SECONDARY_LINK  || "/volunteer",
+          HOME_HERO_OPACITY:         s.HOME_HERO_OPACITY         || "0.35",
+          HOME_HERO_STATS_LIVES:     s.HOME_HERO_STATS_LIVES     || "1000+",
+          HOME_HERO_STATS_PROJECTS:  s.HOME_HERO_STATS_PROJECTS  || "50+",
+          HOME_HERO_STATS_EDUCATION: s.HOME_HERO_STATS_EDUCATION || "For a Better Future",
+          HOME_HERO_STATS_VISION:    s.HOME_HERO_STATS_VISION    || "Stronger Together"
+        });
+      })
+      .catch((err) => console.error("Failed to load hero CMS settings:", err))
+      .finally(() => setLoaded(true));
 
-            <div className="hero__overlay"   aria-hidden="true" />
-            <div className="hero__vignette"  aria-hidden="true" />
+    // 2. Fetch live impact stats
+    api.get("/impact-stats")
+      .then((res) => {
+        if (Array.isArray(res.data)) {
+          setImpactData(res.data);
+        }
+      })
+      .catch((err) => console.error("Failed to load impact stats inside hero:", err));
+  }, []);
 
-            <motion.div
-                className="hero__content"
-                variants={contentVariants}
-                initial="hidden"
-                animate={loaded ? "visible" : "hidden"}
-            >
-                <motion.h1 
-                  className="hero__headline font-bold text-5xl md:text-7xl drop-shadow-lg leading-tight text-white !text-white" 
-                  variants={childVariants}
-                >
-                    {settings.HOME_HERO_TITLE}
-                </motion.h1>
-                
-                {/* Premium gold gradient accent line */}
-                <motion.div 
-                  className="w-28 h-1 bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-300 mx-auto my-6 rounded-full shadow-lg"
-                  variants={childVariants}
-                />
+  // CTA Click handlers
+  const handlePrimaryCTA = () => {
+    const link = settings.HOME_HERO_CTA_LINK;
+    if (link?.startsWith("http")) {
+      window.open(link, "_blank", "noopener,noreferrer");
+    } else {
+      navigate(link || "/donation");
+    }
+  };
 
-                <motion.p 
-                  className="hero__subtitle text-lg md:text-2xl mt-4 font-light text-white/90 !text-white max-w-2xl mx-auto drop-shadow-md" 
-                  variants={childVariants}
-                >
-                    {settings.HOME_HERO_SUBTITLE}
-                </motion.p>
-                {settings.HOME_HERO_CTA_TEXT && (
-                    <motion.div variants={childVariants} className="mt-10">
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            size="large"
-                            onClick={handleCTA}
-                            startIcon={<FavoriteIcon />}
-                            sx={{
-                                borderRadius: "50px",
-                                px: 5,
-                                py: 1.5,
-                                fontSize: "1.1rem",
-                                fontWeight: 700,
-                                textTransform: "none",
-                                boxShadow: "0 10px 25px rgba(0,0,0,0.3)",
-                                '&:hover': {
-                                    transform: "translateY(-2px)",
-                                    boxShadow: "0 15px 35px rgba(0,0,0,0.4)"
-                                },
-                                transition: "all 0.3s ease"
-                            }}
-                        >
-                            {settings.HOME_HERO_CTA_TEXT}
-                        </Button>
-                    </motion.div>
-                )}
-            </motion.div>
+  const handleSecondaryCTA = () => {
+    const link = settings.HOME_HERO_SECONDARY_LINK;
+    if (link?.startsWith("http")) {
+      window.open(link, "_blank", "noopener,noreferrer");
+    } else {
+      navigate(link || "/volunteer");
+    }
+  };
 
-            <motion.div
-                className="hero__scroll-hint flex flex-col items-center absolute bottom-10 left-1/2 -translate-x-1/2 text-white/70"
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 1.5, duration: 1, repeat: Infinity, repeatType: "reverse" }}
-            >
-                <span className="text-xs uppercase tracking-widest mb-2 font-medium">Scroll to explore</span>
-                <div className="w-[1px] h-12 bg-gradient-to-b from-white/70 to-transparent" />
-            </motion.div>
-        </section>
+  // Helper function to extract and format live stats for dynamic cards
+  const getDynamicImpactStat = (keyName, fallbackVal, fallbackLabel, fallbackDesc, fallbackIcon, iconColorClass) => {
+    const matched = impactData.find(
+      (item) => item.category?.toLowerCase() === keyName.toLowerCase() ||
+                item.icon?.toLowerCase() === keyName.toLowerCase()
     );
+    if (matched) {
+      return {
+        key: keyName,
+        value: matched.currentValue !== undefined ? `${Number(matched.currentValue).toLocaleString("en-IN")}+` : fallbackVal,
+        label: matched.category ? matched.category.replace(/_/g, " ") : fallbackLabel,
+        description: matched.unit || fallbackDesc,
+        icon: matched.icon || fallbackIcon,
+        iconColorClass
+      };
+    }
+    return {
+      key: keyName,
+      value: fallbackVal,
+      label: fallbackLabel,
+      description: fallbackDesc,
+      icon: fallbackIcon,
+      iconColorClass
+    };
+  };
+
+  const row1Cards = [
+    getDynamicImpactStat("water", "1,00,000+", "LITRES OF WATER", "Clean drinking water supplied.", "water_drop", "text-blue-500"),
+    getDynamicImpactStat("trees", "2,500+", "TREES PLANTED", "Greening our planet for a better future.", "forest", "text-green-500"),
+  ];
+
+  const row2Cards = [
+    getDynamicImpactStat("students", "500+", "STUDENTS SUPPORTED", "Supporting education and learning opportunities.", "school", "text-amber-500"),
+    getDynamicImpactStat("carriages", "50+", "CARRIAGES DONATED", "Providing food support to people in need.", "restaurant", "text-red-500"),
+  ];
+
+  // Highlight specific text segment dynamically with gold-gradient
+  const renderHeadline = (title, highlight) => {
+    if (!highlight) return title;
+    const index = title.toLowerCase().indexOf(highlight.toLowerCase());
+    if (index === -1) return title;
+    const before = title.substring(0, index);
+    const matchedText = title.substring(index, index + highlight.length);
+    const after = title.substring(index + highlight.length);
+    return (
+      <>
+        {before}
+        <span className="highlight">{matchedText}</span>
+        {after}
+      </>
+    );
+  };
+
+  // Framer motion variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.15,
+        delayChildren: 0.1,
+      },
+    },
+  };
+
+  const childVariants = {
+    hidden: { opacity: 0, y: 24 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] },
+    },
+  };
+
+  return (
+    <section className="hero" id="hero">
+      {/* 1. Sharp LCP Background Image */}
+      <HeroBackground src={settings.HOME_HERO_IMAGE} alt="Community Collage Background" />
+
+      {/* 2. Visual Gradients & Vignettes */}
+      <HeroOverlay opacity={parseFloat(settings.HOME_HERO_OPACITY)} />
+
+      {/* 3. Responsive Content Overlays */}
+      <div className="hero__container">
+        <div className="hero__grid">
+          {/* Left column: Text, badges, impact cards, and action buttons */}
+          <motion.div
+            className="hero__left-col"
+            variants={containerVariants}
+            initial="hidden"
+            animate={loaded ? "visible" : "hidden"}
+          >
+            {/* dynamic title */}
+            <HeroHeading 
+              text={renderHeadline(settings.HOME_HERO_TITLE, settings.HOME_HERO_HIGHLIGHT)}
+              variants={childVariants}
+            />
+
+            {/* dynamic subtitle */}
+            <HeroDescription 
+              text={settings.HOME_HERO_SUBTITLE}
+              variants={childVariants}
+            />
+
+            {/* dynamic badges */}
+            <HeroMissionBadges variants={childVariants} />
+
+            {/* dynamic impact cards Row 1 */}
+            <HeroImpactCards 
+              items={row1Cards}
+              className="row1"
+              variants={childVariants}
+            />
+
+            {/* CTA action buttons */}
+            <HeroButtons
+              primaryText={settings.HOME_HERO_CTA_TEXT}
+              secondaryText={settings.HOME_HERO_SECONDARY_TEXT}
+              onPrimaryClick={handlePrimaryCTA}
+              onSecondaryClick={handleSecondaryCTA}
+              variants={childVariants}
+            />
+
+            {/* dynamic impact cards Row 2 */}
+            <HeroImpactCards 
+              items={row2Cards}
+              className="row2"
+              variants={childVariants}
+            />
+          </motion.div>
+
+          {/* Right column: Spacer to keep content on the left */}
+          <div className="hero__right-col"></div>
+        </div>
+
+        {/* 4. Bottom Statistics bar */}
+        <HeroStats
+          lives={settings.HOME_HERO_STATS_LIVES}
+          projects={settings.HOME_HERO_STATS_PROJECTS}
+          education={settings.HOME_HERO_STATS_EDUCATION}
+          vision={settings.HOME_HERO_STATS_VISION}
+          variants={childVariants}
+        />
+      </div>
+
+      {/* 5. Scroll helper indicator */}
+      <ScrollIndicator />
+    </section>
+  );
 });
 
 export default HeroSection;

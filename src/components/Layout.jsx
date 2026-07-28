@@ -81,7 +81,7 @@ function Layout({ children }) {
           exit="exit"
           variants={variants}
           transition={pageTransition}
-          className="flex-grow w-full mx-auto py-10"
+          className={`flex-grow w-full mx-auto ${location.pathname === "/" ? "pt-16 pb-0" : "py-10"}`}
         >
           {children}
         </motion.main>

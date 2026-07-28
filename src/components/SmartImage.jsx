@@ -19,7 +19,6 @@ const SmartImage = ({
       setError(false);
       
       const img = new Image();
-      img.src = src;
       img.onload = () => {
         setCurrentSrc(src);
         setLoading(false);
@@ -30,6 +29,7 @@ const SmartImage = ({
         setError(true);
         setLoading(false);
       };
+      img.src = src;
     } else {
       setCurrentSrc(fallbackSrc);
       setLoading(false);

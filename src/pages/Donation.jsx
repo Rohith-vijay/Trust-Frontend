@@ -366,9 +366,9 @@ function Donation() {
       animate="animate"
       exit="exit"
       transition={pageTransition}
-      className="py-24 min-h-screen bg-gray-50/50"
+      className="py-10 md:py-24 min-h-screen bg-gray-50/50"
     >
-      <div className="max-w-4xl mx-auto px-6 print:p-0">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 print:p-0">
         
         {/* Header (Hidden when printing invoice) */}
         {!successReceipt && (

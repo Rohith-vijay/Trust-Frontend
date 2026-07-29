@@ -405,3 +405,107 @@ h1, h2, h3, h4, h5, h6 {
   .shadow-premium-lg   { box-shadow: var(--kvg-shadow-lg); }
   .shadow-premium-xl   { box-shadow: var(--kvg-shadow-xl); }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   GLOBAL MOBILE SAFETY RULES
+   Applied after all other styles so they win the cascade.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── 1. Prevent horizontal scroll globally ─────────────────────────────── */
+/* Root containers: prevent any child from causing horizontal overflow.
+   overflow-x: clip is preferred over hidden so sticky/fixed children still work. */
+html {
+  overflow-x: clip;
+  max-width: 100%;
+}
+body {
+  overflow-x: hidden;
+  max-width: 100%;
+  /* Safe-area inset support for notched Android/iPhone devices */
+  padding-left:   env(safe-area-inset-left, 0px);
+  padding-right:  env(safe-area-inset-right, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* ── 2. CMS content text overflow protection ───────────────────────────── */
+/* Admin-entered titles can be very long — prevent them breaking layout */
+h1, h2, h3, h4, h5, h6 {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+p, li, span, label, td, th {
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+/* ── 3. Image layout-shift prevention ──────────────────────────────────── */
+/* All images reserve their space before loading to prevent CLS */
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* ── 4. Touch target minimum size (WCAG 2.5.5) ─────────────────────────── */
+/* Ensure every interactive element is at least 44×44px tappable */
+@media (max-width: 1023px) {
+  button:not([class*="MuiIconButton"]):not([class*="absolute"]),
+  [role="button"],
+  .MuiIconButton-root,
+  .MuiTab-root,
+  nav a {
+    min-height: 44px;
+  }
+}
+
+/* ── 5. Reduce expensive animations on mobile (performance) ─────────────── */
+@media (max-width: 767px) {
+  /* Reduce blur-heavy backdrop filters on mobile GPU */
+  .glass-panel,
+  .glass-panel-navy,
+  .glass-panel-gold {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+
+  /* Tighten heavy box-shadows on mobile */
+  .card-premium:hover,
+  .hover-glow-gold:hover {
+    box-shadow: 0 8px 20px rgba(176, 122, 63, 0.1);
+    transform: translateY(-2px);
+  }
+
+  /* Reduce parallax/large scale transforms */
+  .gpu-accelerated {
+    will-change: auto;
+  }
+}
+
+/* ── 6. Respect user reduced-motion preference ──────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ── 7. Safe-area-aware fixed navbar ────────────────────────────────────── */
+/* Navbar sits below any device notch */
+nav[class*="fixed"] {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+/* ── 8. Landscape phone adjustments ─────────────────────────────────────── */
+@media (max-height: 500px) and (orientation: landscape) {
+  /* Reduce heavy section padding in landscape to keep content visible */
+  .section-py {
+    padding-top:    clamp(1rem, 3vw, 2.5rem);
+    padding-bottom: clamp(1rem, 3vw, 2.5rem);
+  }
+}
+

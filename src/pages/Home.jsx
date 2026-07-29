@@ -154,13 +154,13 @@ function Home() {
 
         {/* SUCCESS STORIES */}
         <motion.section
-          className="py-24 bg-gradient-to-b from-warmBg to-white rounded-3xl"
+          className="py-10 md:py-24 bg-gradient-to-b from-warmBg to-white rounded-3xl"
           variants={sectionVariants}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-100px" }}
         >
-            <Typography variant="h3" component="h2" align="center" sx={{ fontWeight: 800, color: 'primary.main', mb: { xs: 4, md: 8 } }}>
+            <Typography variant="h3" component="h2" align="center" sx={{ fontWeight: 800, color: 'primary.main', mb: { xs: 4, md: 8 }, overflowWrap: 'anywhere', wordBreak: 'break-word' }}>
             Success Stories
           </Typography>
 
@@ -187,7 +187,7 @@ function Home() {
             whileInView="visible"
             viewport={{ once: true, margin: "-100px" }}
           >
-            <Typography variant="h3" component="h2" align="center" sx={{ fontWeight: 800, color: 'text.primary', mb: { xs: 4, md: 8 } }}>
+            <Typography variant="h3" component="h2" align="center" sx={{ fontWeight: 800, color: 'text.primary', mb: { xs: 4, md: 8 }, overflowWrap: 'anywhere', wordBreak: 'break-word' }}>
               Event Highlights
             </Typography>
 

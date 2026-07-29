@@ -147,7 +147,7 @@ function Vision() {
           whileInView="visible"
           viewport={{ once: true, margin: "-100px" }}
         >
-          <Typography variant="h3" component="h2" align="center" sx={{ fontWeight: 800, color: 'primary.main', mb: 8 }}>
+          <Typography variant="h3" component="h2" align="center" sx={{ fontWeight: 800, color: 'primary.main', mb: { xs: 4, md: 8 }, overflowWrap: 'anywhere', wordBreak: 'break-word' }}>
             Long‑Term Goals
           </Typography>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">

@@ -65,7 +65,7 @@ export default function Events() {
   };
 
   return (
-    <div className="min-h-screen bg-warmBg py-16 px-4 sm:px-6 lg:px-8 font-body">
+    <div className="min-h-screen bg-warmBg py-10 md:py-16 px-4 sm:px-6 lg:px-8 font-body">
       <div className="max-w-7xl mx-auto">
         
         {/* Header Section */}
@@ -83,8 +83,8 @@ export default function Events() {
         </div>
 
         {/* Tab Filters */}
-        <div className="flex justify-center mb-10">
-          <div className="flex bg-white/70 p-1.5 rounded-2xl shadow-md border border-gray-200 backdrop-blur-md">
+        <div className="flex justify-center mb-10 overflow-x-auto px-4">
+          <div className="flex min-w-max bg-white/70 p-1.5 rounded-2xl shadow-md border border-gray-200 backdrop-blur-md">
             {['ALL', 'UPCOMING', 'ONGOING', 'COMPLETED'].map((tab) => (
               <button
                 key={tab}
@@ -188,7 +188,7 @@ export default function Events() {
                         {event.location && (
                           <div className="flex items-center">
                             <LocationOnIcon fontSize="inherit" className="mr-2 text-brand-navy-dark/60" />
-                            <span>{event.location}</span>
+                            <span className="truncate max-w-[140px] sm:max-w-none block">{event.location}</span>
                           </div>
                         )}
                         {event.maxVolunteers && (

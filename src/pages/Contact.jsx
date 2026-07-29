@@ -52,7 +52,7 @@ function Contact() {
       animate="animate"
       exit="exit"
       transition={pageTransition}
-      className="min-h-screen py-24 px-6 md:px-16 lg:px-24 bg-gray-50/50"
+      className="min-h-screen py-12 md:py-24 px-4 md:px-12 lg:px-24 bg-gray-50/50"
     >
       <div className="max-w-6xl mx-auto">
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="text-center mb-16">
@@ -67,7 +67,7 @@ function Contact() {
         <div className="grid lg:grid-cols-5 gap-12">
           {/* Contact Info Panel */}
           <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6, delay: 0.2 }} className="lg:col-span-2 space-y-8">
-            <Card elevation={0} sx={{ borderRadius: 6, p: 4, bgcolor: 'primary.main', color: 'white', boxShadow: '0 20px 40px rgba(176, 122, 63, 0.2)' }}>
+            <Card elevation={0} sx={{ borderRadius: 6, p: { xs: 3, md: 4 }, bgcolor: 'primary.main', color: 'white', boxShadow: '0 20px 40px rgba(176, 122, 63, 0.2)' }}>
               <Typography variant="h5" sx={{ fontWeight: 700, mb: 4 }}>Contact Information</Typography>
               
               <div className="space-y-6 mb-12">
@@ -77,7 +77,7 @@ function Contact() {
                   </div>
                   <div>
                     <Typography variant="caption" sx={{ color: 'white', opacity: 0.8 }}>Email Us</Typography>
-                    <Typography variant="body1" sx={{ fontWeight: 600, color: 'white' }}>kvgshanmukhsaitrust@gmail.com</Typography>
+                    <Typography variant="body1" sx={{ fontWeight: 600, color: 'white', wordBreak: 'break-all' }}>kvgshanmukhsaitrust@gmail.com</Typography>
                   </div>
                 </a>
                 
@@ -117,7 +117,7 @@ function Contact() {
 
           {/* Form Panel */}
           <motion.div initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6, delay: 0.4 }} className="lg:col-span-3">
-            <Card elevation={0} sx={{ borderRadius: 6, p: { xs: 4, md: 6 }, boxShadow: '0 20px 40px rgba(0,0,0,0.05)', border: '1px solid rgba(0,0,0,0.03)' }}>
+            <Card elevation={0} sx={{ borderRadius: 6, p: { xs: 3, md: 6 }, boxShadow: '0 20px 40px rgba(0,0,0,0.05)', border: '1px solid rgba(0,0,0,0.03)' }}>
               <Typography variant="h5" sx={{ fontWeight: 700, mb: 4, color: 'text.primary' }}>Send Us a Message</Typography>
               
               {sent ? (
@@ -151,7 +151,7 @@ function Contact() {
                   <Button
                     variant="contained" color="primary" size="large" type="submit" disabled={sending}
                     endIcon={sending ? <CircularProgress size={20} color="inherit" /> : <SendIcon />}
-                    sx={{ px: 6, py: 1.5, borderRadius: 3, fontWeight: 700, textTransform: 'none', fontSize: '1rem', boxShadow: '0 8px 16px rgba(0,0,0,0.1)' }}
+                    sx={{ px: 6, py: 1.5, borderRadius: 3, fontWeight: 700, textTransform: 'none', fontSize: '1rem', boxShadow: '0 8px 16px rgba(0,0,0,0.1)', width: { xs: '100%', sm: 'auto' } }}
                   >
                     {sending ? "Sending..." : "Send Message"}
                   </Button>

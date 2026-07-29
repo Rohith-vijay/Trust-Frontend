@@ -112,7 +112,7 @@ function Home() {
 
       <SiteContainer>
         {/* IMPACT COUNTERS */}
-        <section className="py-24 bg-white relative overflow-hidden">
+        <section className="py-12 md:py-24 bg-white relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-gray-50/50 to-white -z-10" />
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -160,7 +160,7 @@ function Home() {
           whileInView="visible"
           viewport={{ once: true, margin: "-100px" }}
         >
-          <Typography variant="h3" component="h2" align="center" sx={{ fontWeight: 800, color: 'primary.main', mb: 8 }}>
+            <Typography variant="h3" component="h2" align="center" sx={{ fontWeight: 800, color: 'primary.main', mb: { xs: 4, md: 8 } }}>
             Success Stories
           </Typography>
 
@@ -168,7 +168,7 @@ function Home() {
             <CardGridSkeleton count={3} />
           ) : (
             <ScrollStagger 
-              className="grid md:grid-cols-3 gap-8 px-8 max-w-7xl mx-auto"
+              className="grid md:grid-cols-3 gap-6 sm:gap-8 px-4 sm:px-6 max-w-7xl mx-auto"
               margin="-60px"
             >
               {(Array.isArray(stories) ? stories : []).map((story) => (
@@ -181,13 +181,13 @@ function Home() {
         {/* EVENT HIGHLIGHTS */}
         {eventSlides.length > 0 && (
           <motion.section
-            className="py-24"
+          className="py-12 md:py-24"
             variants={sectionVariants}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: "-100px" }}
           >
-            <Typography variant="h3" component="h2" align="center" sx={{ fontWeight: 800, color: 'text.primary', mb: 8 }}>
+            <Typography variant="h3" component="h2" align="center" sx={{ fontWeight: 800, color: 'text.primary', mb: { xs: 4, md: 8 } }}>
               Event Highlights
             </Typography>
 
@@ -205,7 +205,7 @@ function Home() {
               >
                 {eventSlides.map((slide, i) => (
                   <SwiperSlide key={i}>
-                    <div className="relative w-full h-[500px] group">
+                    <div className="relative w-full h-[280px] sm:h-[400px] md:h-[500px] group">
                       <img
                         src={slide.src}
                         alt={slide.title}
@@ -213,7 +213,7 @@ function Home() {
                         loading="lazy"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
-                      <div className="absolute bottom-0 left-0 right-0 p-10 md:p-16">
+                      <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-8 md:p-16">
                         <motion.h3 
                           initial={{ y: 20, opacity: 0 }}
                           whileInView={{ y: 0, opacity: 1 }}

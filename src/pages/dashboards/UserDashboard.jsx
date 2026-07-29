@@ -392,7 +392,8 @@ const UserDashboard = () => {
             </p>
           </div>
 
-          <div className="flex bg-slate-200/60 p-1 rounded-xl self-start md:self-auto border border-slate-300/30 gap-1">
+          <div className="overflow-x-auto">
+            <div className="flex bg-slate-200/60 p-1 rounded-xl self-start md:self-auto border border-slate-300/30 gap-1 min-w-max">
             {TABS.map((tab) => (
               <button
                 key={tab.id}
@@ -407,6 +408,7 @@ const UserDashboard = () => {
                 {tab.label}
               </button>
             ))}
+            </div>
           </div>
         </div>
 

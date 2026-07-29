@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 const MessagesPanel = ({ messages, unreadCount, onMarkRead, onDeleteMessage, formatDate, EmptyState }) => {
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6 gap-2">
         <h3 className="text-lg font-bold text-brand-navy-dark">
           Contact Messages
           {unreadCount > 0 && (
@@ -35,7 +35,7 @@ const MessagesPanel = ({ messages, unreadCount, onMarkRead, onDeleteMessage, for
                     : "border-primary/20 bg-primary/5 shadow-sm"
                 }`}
               >
-                <div className="flex items-start justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center space-x-2">
                       {!msg.read && (
@@ -53,7 +53,7 @@ const MessagesPanel = ({ messages, unreadCount, onMarkRead, onDeleteMessage, for
                       {msg.message}
                     </p>
                   </div>
-                  <div className="flex items-center space-x-3 ml-4 flex-shrink-0">
+                  <div className="flex items-center gap-2 mt-2 sm:mt-0 sm:ml-4 flex-shrink-0">
                     {!msg.read && (
                       <button
                         onClick={() => onMarkRead(msg.id)}

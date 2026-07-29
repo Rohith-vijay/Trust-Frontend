@@ -65,14 +65,14 @@ const TeamSection = () => {
         <div className="text-center py-12 text-gray-400">Loading team members...</div>
       ) : (
         <motion.div
-          className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 max-w-7xl mx-auto px-6 h-auto"
+          className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 sm:gap-8 max-w-7xl mx-auto px-4 sm:px-6 h-auto"
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-100px" }}
         >
           {teamMembers.map((m) => (
-            <motion.div key={m.id} variants={itemVariants} className="h-[400px]">
+            <motion.div key={m.id} variants={itemVariants} className="h-[380px] sm:h-[400px]">
               <MemberCard member={m} />
             </motion.div>
           ))}

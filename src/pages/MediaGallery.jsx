@@ -61,7 +61,7 @@ function MediaGallery() {
       animate="animate"
       exit="exit"
       transition={pageTransition}
-      className="bg-gray-50/50 min-h-screen py-24"
+      className="bg-gray-50/50 min-h-screen py-10 md:py-24"
     >
       <SiteContainer>
         {/* Title */}
@@ -78,7 +78,7 @@ function MediaGallery() {
               fontWeight: 800,
               color: "primary.main",
               mb: 3,
-              fontSize: { xs: "2.5rem", md: "3.5rem" },
+              fontSize: { xs: 'clamp(1.75rem, 6vw, 2.5rem)', md: '3.5rem' },
             }}
           >
             Media & Campaign Gallery
@@ -135,7 +135,7 @@ function MediaGallery() {
         ) : (
           <motion.div
             layout
-            className="columns-1 sm:columns-2 md:columns-3 gap-6 max-w-7xl mx-auto px-4 space-y-6"
+            className="columns-1 sm:columns-2 md:columns-3 gap-4 max-w-7xl mx-auto px-4"
           >
             {filteredItems.map((item, idx) => (
               <motion.div
@@ -144,7 +144,7 @@ function MediaGallery() {
                 onClick={() => setLightboxIndex(idx)}
                 whileHover={{ scale: 1.02, y: -4 }}
                 transition={{ duration: 0.3 }}
-                className="break-inside-avoid relative overflow-hidden rounded-3xl shadow-sm border border-gray-100 cursor-pointer group bg-white"
+                className="break-inside-avoid mb-4 relative overflow-hidden rounded-3xl shadow-sm border border-gray-100 cursor-pointer group bg-white"
               >
                 <img
                   src={item.src}
@@ -193,7 +193,7 @@ function MediaGallery() {
 
               <IconButton
                 onClick={handlePrev}
-                sx={{ position: "absolute", left: 20, color: "white", bgcolor: "white/10" }}
+                sx={{ position: "absolute", left: { xs: 8, sm: 20 }, color: "white", bgcolor: "white/10" }}
               >
                 <ChevronLeftIcon fontSize="large" />
               </IconButton>
@@ -223,7 +223,7 @@ function MediaGallery() {
 
               <IconButton
                 onClick={handleNext}
-                sx={{ position: "absolute", right: 20, color: "white", bgcolor: "white/10" }}
+                sx={{ position: "absolute", right: { xs: 8, sm: 20 }, color: "white", bgcolor: "white/10" }}
               >
                 <ChevronRightIcon fontSize="large" />
               </IconButton>

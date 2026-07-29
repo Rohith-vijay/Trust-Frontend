@@ -118,7 +118,7 @@ const DonationsPanel = ({
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6 gap-2">
         <h3 className="text-lg font-bold text-brand-navy-dark">
           Donation Transactions
         </h3>
@@ -138,7 +138,7 @@ const DonationsPanel = ({
       ) : (
         <div>
           <div className="overflow-x-auto bg-white rounded-2xl border border-gray-100 shadow-sm mb-4">
-            <table className="w-full text-left text-sm">
+            <table className="w-full text-left text-sm min-w-[700px]">
               <thead>
                 <tr className="border-b border-gray-100 text-gray-500 font-bold bg-gray-50/50">
                   <th className="py-4 px-5">ID / Receipt No</th>

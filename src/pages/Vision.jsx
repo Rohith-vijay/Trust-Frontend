@@ -103,7 +103,7 @@ function Vision() {
       className="bg-gray-50 text-dark min-h-screen"
     >
       {/* Hero */}
-      <section className="relative text-center py-32 overflow-hidden bg-white">
+      <section className="relative text-center py-16 md:py-32 overflow-hidden bg-white">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5" />
         <motion.div 
           className="relative z-10 max-w-4xl mx-auto px-6"
@@ -111,7 +111,7 @@ function Vision() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
-          <Typography variant="h2" component="h1" sx={{ fontWeight: 900, color: 'primary.main', mb: 3, fontSize: { xs: '2.5rem', md: '4rem' } }}>
+          <Typography variant="h2" component="h1" sx={{ fontWeight: 900, color: 'primary.main', mb: 3, fontSize: { xs: '1.75rem', sm: '2.5rem', md: '4rem' } }}>
             {heroTitle}
           </Typography>
           <Typography variant="h6" color="text.secondary" sx={{ fontWeight: 400, lineHeight: 1.6 }}>
@@ -139,7 +139,7 @@ function Vision() {
         </motion.section>
       )}
 
-      <div className="max-w-7xl mx-auto px-6 py-16 space-y-32">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 md:py-16 space-y-16 md:space-y-32">
         {/* Long-term goals */}
         <motion.section
           variants={containerVariants}
@@ -194,7 +194,7 @@ function Vision() {
             <Typography variant="h4" component="h2" sx={{ fontWeight: 800, color: 'primary.main', mb: 6 }}>
               Impact Projections
             </Typography>
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
               {impacts.map((i, idx) => (
                 <Card key={idx} elevation={0} sx={{ borderRadius: 4, bgcolor: 'primary.50', border: '1px solid rgba(0,0,0,0.03)' }}>
                   <CardContent sx={{ p: 3, textAlign: 'center' }}>

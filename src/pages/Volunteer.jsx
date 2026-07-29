@@ -65,8 +65,8 @@ function Volunteer() {
   const itemVariants = { hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } };
 
   return (
-    <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={pageTransition} className="py-24 bg-gray-50/50 min-h-screen">
-      <motion.section variants={sectionVariants} initial="hidden" animate="visible" className="text-center max-w-4xl mx-auto px-6 mb-20">
+    <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={pageTransition} className="py-12 md:py-24 bg-gray-50/50 min-h-screen">
+      <motion.section variants={sectionVariants} initial="hidden" animate="visible" className="text-center max-w-4xl mx-auto px-4 sm:px-6 mb-10 md:mb-20">
         <Typography variant="h2" component="h1" sx={{ fontWeight: 800, color: 'primary.main', mb: 3, fontSize: { xs: '2.5rem', md: '3.5rem' } }}>
           Volunteer with Us
         </Typography>
@@ -75,7 +75,7 @@ function Volunteer() {
         </Typography>
       </motion.section>
 
-      <motion.section variants={containerVariants} initial="hidden" animate="visible" className="max-w-6xl mx-auto px-6 mb-20 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      <motion.section variants={containerVariants} initial="hidden" animate="visible" className="max-w-6xl mx-auto px-4 sm:px-6 mb-10 md:mb-20 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {[
           { title: "Education", outcome: "Reach 2,000+ students", icon: "📚" },
           { title: "Food", outcome: "Distribute 15,000 meals", icon: "🍲" },
@@ -92,7 +92,7 @@ function Volunteer() {
         ))}
       </motion.section>
 
-      <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-start">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 grid md:grid-cols-2 gap-12 items-start">
         <motion.section variants={sectionVariants} initial="hidden" animate="visible" className="space-y-6">
           <Typography variant="h4" sx={{ fontWeight: 800, color: 'text.primary', mb: 4 }}>
             Grow Skills & Leadership
@@ -144,7 +144,7 @@ function Volunteer() {
                 ) : (
                   <TextField select fullWidth label="Select Event to Volunteer For *" value={selectedEventId} onChange={(e) => setSelectedEventId(e.target.value)} disabled={submitting} InputProps={{ sx: { borderRadius: 3 } }}>
                     {events.map((ev) => (
-                      <MenuItem key={ev.id} value={ev.id}>
+                      <MenuItem key={ev.id} value={ev.id} sx={{ whiteSpace: 'normal' }}>
                         {ev.title} {ev.eventDate && !isNaN(new Date(ev.eventDate).getTime()) ? `— ${new Date(ev.eventDate).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}` : ""}
                       </MenuItem>
                     ))}

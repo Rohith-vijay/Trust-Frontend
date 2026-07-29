@@ -47,7 +47,7 @@ function History() {
       animate="animate"
       exit="exit"
       transition={pageTransition}
-      className="py-24 px-6 max-w-5xl mx-auto min-h-screen"
+      className="py-12 md:py-24 px-4 sm:px-6 max-w-5xl mx-auto min-h-screen"
     >
       <motion.div
         initial={{ opacity: 0, y: -20 }}
@@ -92,11 +92,11 @@ function History() {
                   <div className="hidden md:block w-1/2" />
 
                   {/* Card */}
-                  <div className={`w-full md:w-1/2 pl-16 md:pl-0 ${isEven ? 'md:pr-12' : 'md:pl-12'}`}>
+                  <div className={`w-full md:w-1/2 pl-10 sm:pl-14 md:pl-0 ${isEven ? 'md:pr-12' : 'md:pl-12'}`}>
                     <Paper
                       elevation={0}
                       sx={{
-                        p: 4,
+                        p: { xs: 2, sm: 3, md: 4 },
                         borderRadius: 4,
                         border: '1px solid rgba(0,0,0,0.05)',
                         boxShadow: '0 10px 30px rgba(0,0,0,0.04)',

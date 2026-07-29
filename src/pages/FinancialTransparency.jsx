@@ -22,7 +22,7 @@ function FinancialTransparency() {
       animate="animate"
       exit="exit"
       transition={pageTransition}
-      className="bg-gray-50/50 min-h-screen py-24"
+      className="bg-gray-50/50 min-h-screen py-12 md:py-24"
     >
       <SiteContainer>
         {/* Title */}
@@ -30,7 +30,7 @@ function FinancialTransparency() {
           variants={sectionVariants}
           initial="hidden"
           animate="visible"
-          className="text-center max-w-4xl mx-auto px-6 mb-16"
+          className="text-center max-w-4xl mx-auto px-4 sm:px-6 mb-16"
         >
           <Typography
             variant="h2"
@@ -54,7 +54,7 @@ function FinancialTransparency() {
         </motion.section>
 
         {/* Audit Compliance Seals Ribbon */}
-        <Grid container spacing={3} sx={{ maxW: "6xl", mx: "auto", px: 3, mb: 12 }}>
+        <Grid container spacing={3} sx={{ maxWidth: "lg", mx: "auto", px: 3, mb: 12 }}>
           {[
             { icon: <VerifiedUserIcon sx={{ fontSize: 32, color: "#B07A3F" }} />, title: "80G Compliant Receipts", desc: "All local donations receive instant 80G tax deductions receipts under Section 80G of IT guidelines." },
             { icon: <AccountBalanceWalletIcon sx={{ fontSize: 32, color: "#F59E0B" }} />, title: "Annual Independent Audits", desc: "Our financial books are audited annually by certified Chartered Accountants, published publically." },
@@ -94,7 +94,7 @@ function FinancialTransparency() {
         </Grid>
 
         {/* Charts & Fund Allocations Breakdown */}
-        <Grid container spacing={6} sx={{ maxW: "7xl", mx: "auto", px: 3, alignItems: "center" }}>
+        <Grid container spacing={6} sx={{ maxWidth: "lg", mx: "auto", px: 3, alignItems: "center" }}>
           
           {/* Chart Left column: Responsive SVG Donut Chart */}
           <Grid item xs={12} md={6}>
@@ -117,7 +117,7 @@ function FinancialTransparency() {
               </Typography>
 
               {/* Elegant SVG Donut Chart */}
-              <div className="relative w-64 h-64 flex items-center justify-center">
+              <div className="relative w-full max-w-[256px] aspect-square flex items-center justify-center mx-auto">
                 <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
                   {/* Segment 1: Relief (85%) -> Circumference = 2 * PI * r = 2 * 3.14 * 35 = 220 */}
                   {/* Stroke-dasharray: percent*220/100, 220 */}
@@ -158,9 +158,9 @@ function FinancialTransparency() {
                 </svg>
 
                 {/* Center text overlay */}
-                <div className="absolute flex flex-col items-center justify-center bg-white w-44 h-44 rounded-full shadow-inner border border-gray-50">
+                <div className="absolute flex flex-col items-center justify-center bg-white w-3/4 h-3/4 rounded-full shadow-inner border border-gray-50">
                   <span className="text-4xl font-extrabold text-amber-700">85%</span>
-                  <span className="text-[10px] text-gray-400 font-extrabold tracking-wider mt-1">DIRECT COMMUNITY AID</span>
+                  <span className="text-[10px] text-gray-400 font-extrabold tracking-wider mt-1 text-center px-2">DIRECT COMMUNITY AID</span>
                 </div>
               </div>
 

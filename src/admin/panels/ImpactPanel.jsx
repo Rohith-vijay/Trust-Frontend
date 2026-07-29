@@ -235,7 +235,7 @@ const ImpactPanel = ({
                       }}
                     />
                   </div>
-                  <div className="flex items-center gap-2 border-l pl-3 self-end py-1">
+                  <div className="flex items-center gap-2 sm:border-l sm:pl-3 self-start sm:self-end py-1">
                     <button
                       onClick={() => setEditingImpact({ ...stat })}
                       className="text-xs text-blue-500 hover:text-blue-700 font-bold px-2 py-1 hover:bg-blue-50 rounded-md transition"

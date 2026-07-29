@@ -242,7 +242,7 @@ export default function ImpactReports() {
   };
 
   return (
-    <div className="min-h-screen bg-warmBg py-16 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-warmBg py-12 md:py-24 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-12">
           <span className="px-3 py-1 bg-brand-navy-dark text-white font-bold text-xs rounded-full shadow-sm tracking-wider uppercase select-none">
@@ -262,7 +262,7 @@ export default function ImpactReports() {
             <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-brand-gold"></div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 mb-12">
             {reports.map((item, idx) => {
               const pct = 50 + (idx * 15) % 45; // Vary percentages beautifully (50%, 65%, 80%, etc.)
               return (

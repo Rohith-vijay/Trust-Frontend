@@ -823,7 +823,7 @@ const Dashboard = () => {
       {/* Main sidebar tab wrapper */}
       <div className="bg-white rounded-3xl shadow-sm border border-gray-150 overflow-hidden flex flex-col md:flex-row min-h-[600px]">
         {/* Navigation Sidebar Panel */}
-        <div className="w-full md:w-64 bg-gray-50/50 border-r border-gray-150 flex flex-row md:flex-col p-4 overflow-x-auto md:overflow-visible space-x-2 md:space-x-0 md:space-y-1 scrollbar-hide md:min-w-[240px]">
+        <div className="w-full md:w-64 bg-gray-50/50 border-b md:border-b-0 md:border-r border-gray-150 flex flex-row md:flex-col p-3 md:p-4 overflow-x-auto md:overflow-visible space-x-2 md:space-x-0 md:space-y-1 scrollbar-hide md:min-w-[240px]">
           {tabs.map((tab) => (
             <button
               key={tab.key}

@@ -119,7 +119,7 @@ function Signup() {
       animate="animate"
       exit="exit"
       transition={pageTransition}
-      className="min-h-[85vh] flex items-center justify-center py-12 px-4 bg-gray-50/50"
+      className="min-h-[85vh] flex items-center justify-center py-12 px-4 sm:px-6 bg-gray-50/50"
     >
       <div className="w-full max-w-lg">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
@@ -261,7 +261,7 @@ function Signup() {
                         }}
                       />
                     </div>
-                    <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0.5, mt: 1 }}>
+                    <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 0.5, mt: 1 }}>
                       <Typography variant="caption" sx={{ color: strength.checklist.minLength ? "success.main" : "text.disabled", display: 'flex', alignItems: 'center', gap: 0.5 }}>
                         {strength.checklist.minLength ? "✓" : "○"} Min. 8 characters
                       </Typography>
@@ -343,7 +343,7 @@ function Signup() {
 
                 <Box sx={{ mt: 3, mb: 4 }}>
                   <Typography variant="body2" sx={{ fontWeight: 600, mb: 1.5, color: 'text.secondary' }}>I want to join as:</Typography>
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                     {[
                       { value: "USER", label: "Donor", icon: "💝", desc: "Donate" },
                       { value: "VOLUNTEER", label: "Volunteer", icon: "🤝", desc: "Join" },

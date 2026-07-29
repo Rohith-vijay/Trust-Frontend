@@ -582,7 +582,7 @@ function Donation() {
                   <Typography variant="body2" sx={{ fontWeight: 700, mb: 1.5, color: "text.primary" }}>
                     Select Donation Amount (INR)
                   </Typography>
-                  <div className="grid grid-cols-4 gap-3 mb-4">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
                     {PRESETS.map((val) => (
                       <Button
                         key={val}

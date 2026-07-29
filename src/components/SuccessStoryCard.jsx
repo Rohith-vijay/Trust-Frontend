@@ -134,6 +134,7 @@ const SuccessStoryCard = React.memo(({ story }) => {
               value={sliderPosition}
               onChange={handleSliderChange}
               className="absolute inset-0 w-full h-full opacity-0 cursor-ew-resize z-20"
+              style={{ touchAction: 'none' }}
             />
           </div>
         ) : cardImage ? (

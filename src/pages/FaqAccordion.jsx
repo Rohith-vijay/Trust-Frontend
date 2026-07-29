@@ -68,7 +68,7 @@ function FaqAccordion() {
       animate="animate"
       exit="exit"
       transition={pageTransition}
-      className="bg-gray-50/50 min-h-screen py-24"
+      className="bg-gray-50/50 min-h-screen py-12 md:py-24"
     >
       <SiteContainer>
         {/* Title */}
@@ -76,7 +76,7 @@ function FaqAccordion() {
           variants={sectionVariants}
           initial="hidden"
           animate="visible"
-          className="text-center max-w-4xl mx-auto px-6 mb-12"
+          className="text-center max-w-4xl mx-auto px-4 sm:px-6 mb-6 md:mb-12"
         >
           <Typography
             variant="h2"
@@ -100,7 +100,7 @@ function FaqAccordion() {
         </motion.section>
 
         {/* Search & Categories Box */}
-        <div className="max-w-3xl mx-auto px-4 mb-10 space-y-6">
+        <div className="max-w-3xl mx-auto px-4 mb-6 md:mb-10 space-y-6">
           <TextField
             fullWidth
             placeholder="Search FAQs (e.g. tax, cert, razorpay)..."

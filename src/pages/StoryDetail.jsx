@@ -144,7 +144,7 @@ export default function StoryDetail() {
         </div>
 
         {/* Hero Title Container */}
-        <div className="absolute inset-x-0 bottom-0 max-w-6xl mx-auto px-6 pb-12 z-10 text-white flex flex-col justify-end">
+        <div className="absolute inset-x-0 bottom-0 max-w-6xl mx-auto px-4 sm:px-6 pb-8 md:pb-12 z-10 text-white flex flex-col justify-end">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -188,7 +188,7 @@ export default function StoryDetail() {
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-6 mt-12 grid grid-cols-1 lg:grid-cols-3 gap-12">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 mt-12 grid grid-cols-1 lg:grid-cols-3 gap-12">
         {/* Left 2 Columns: Main Content */}
         <div className="lg:col-span-2 space-y-12">
           {/* Main Story Text */}
@@ -213,7 +213,7 @@ export default function StoryDetail() {
               <h3 className="text-2xl font-bold text-brand-navy-dark font-heading">The Transformation</h3>
               <div 
                 ref={containerRef}
-                className="relative h-[450px] w-full rounded-2xl overflow-hidden shadow-2xl select-none border border-gray-200"
+                className="relative h-[280px] sm:h-[350px] md:h-[450px] w-full rounded-2xl overflow-hidden shadow-2xl select-none border border-gray-200"
               >
                 {/* After Image (Background) */}
                 <img
@@ -235,7 +235,7 @@ export default function StoryDetail() {
                   <img
                     src={resolveMediaUrl(story.beforeImageUrl)}
                     alt="Transformation Before"
-                    className="absolute inset-0 h-[450px] w-full object-cover max-w-none"
+                    className="absolute inset-0 h-[280px] sm:h-[350px] md:h-[450px] w-full object-cover max-w-none"
                     style={{ width: `${containerWidth}px` }}
                     draggable="false"
                     onError={(e) => { e.target.onerror = null; e.target.src = 'https://via.placeholder.com/800x450?text=Image+Unavailable'; }}
@@ -262,6 +262,7 @@ export default function StoryDetail() {
                   max="100"
                   value={sliderPosition}
                   onChange={(e) => setSliderPosition(Number(e.target.value))}
+                  style={{ touchAction: 'none' }}
                   className="absolute inset-0 w-full h-full opacity-0 cursor-ew-resize z-20"
                 />
               </div>

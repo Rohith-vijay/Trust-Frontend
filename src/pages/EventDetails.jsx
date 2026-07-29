@@ -117,7 +117,7 @@ function EventDetails() {
       className="bg-warmBg min-h-screen pb-20 font-body text-gray-800"
     >
       {/* Header Image Cinematic Overlay */}
-      <div className="relative h-[380px] md:h-[480px] overflow-hidden">
+      <div className="relative h-[240px] sm:h-[320px] md:h-[380px] lg:h-[480px] overflow-hidden">
         {headerImage ? (
           <motion.img
             initial={{ scale: 1.1 }}
@@ -132,7 +132,7 @@ function EventDetails() {
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-brand-navy-dark via-brand-navy-dark/45 to-transparent" />
         
-        <div className="absolute bottom-0 left-0 right-0 max-w-7xl mx-auto px-6 pb-12">
+        <div className="absolute bottom-0 left-0 right-0 max-w-7xl mx-auto px-4 sm:px-6 pb-6 sm:pb-12">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -178,7 +178,7 @@ function EventDetails() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 -mt-10 relative z-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 -mt-10 relative z-10">
         <div className="flex flex-col lg:flex-row gap-8 items-start">
           
           {/* ─── LEFT COLUMN: MAIN DESCRIPTION (2/3) ─── */}
@@ -423,7 +423,7 @@ function EventDetails() {
                 <Typography variant="subtitle2" sx={{ fontWeight: 850, color: 'text.secondary', mb: 2.5, textTransform: 'uppercase', letterSpacing: 0.5, fontSize: '0.72rem' }}>
                   External Media Integrations
                 </Typography>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
                   {(event.instagramUrl || event.instagramLink) && (
                     <a href={event.instagramUrl || event.instagramLink} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center p-3 rounded-xl border border-gray-150 hover:bg-gray-50 text-pink-600 transition-colors gap-2 text-xs font-bold shadow-xs bg-white">
                       <InstagramIcon fontSize="small" /> Instagram

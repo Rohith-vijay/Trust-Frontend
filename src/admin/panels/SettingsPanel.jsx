@@ -234,7 +234,7 @@ const SettingsPanel = ({ settingInputs, setSettingInputs, onSaveSetting }) => {
             {/* Lives Impacted */}
             <div className="space-y-1">
               <label className="text-[11px] font-bold text-gray-500">Lives Impacted Count</label>
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <input
                   type="text"
                   value={settingInputs.HOME_HERO_STATS_LIVES}
@@ -254,7 +254,7 @@ const SettingsPanel = ({ settingInputs, setSettingInputs, onSaveSetting }) => {
             {/* Projects Count */}
             <div className="space-y-1">
               <label className="text-[11px] font-bold text-gray-500">Projects Count</label>
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <input
                   type="text"
                   value={settingInputs.HOME_HERO_STATS_PROJECTS}
@@ -274,7 +274,7 @@ const SettingsPanel = ({ settingInputs, setSettingInputs, onSaveSetting }) => {
             {/* Education Sublabel */}
             <div className="space-y-1">
               <label className="text-[11px] font-bold text-gray-500">Education Sublabel</label>
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <input
                   type="text"
                   value={settingInputs.HOME_HERO_STATS_EDUCATION}
@@ -294,7 +294,7 @@ const SettingsPanel = ({ settingInputs, setSettingInputs, onSaveSetting }) => {
             {/* Vision Sublabel */}
             <div className="space-y-1">
               <label className="text-[11px] font-bold text-gray-500">Vision Sublabel</label>
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <input
                   type="text"
                   value={settingInputs.HOME_HERO_STATS_VISION}

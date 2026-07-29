@@ -3,7 +3,7 @@ import { NavLink } from "react-router-dom";
 function Footer() {
   return (
     <footer className="bg-gray-900 text-white mt-16">
-      <div className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
 
         {/* Column 1: Brand & Description */}
         <div>
@@ -77,13 +77,13 @@ function Footer() {
           <ul className="space-y-3 text-sm text-gray-400">
             <li>
               <span className="block font-medium text-white mb-0.5">Email</span>
-              <a href="mailto:support@trust.org" className="hover:text-primary transition-colors">
+              <a href="mailto:support@trust.org" className="hover:text-primary transition-colors break-all">
                 support@trust.org
               </a>
             </li>
             <li>
               <span className="block font-medium text-white mb-0.5">Phone</span>
-              <a href="tel:+919876543210" className="hover:text-primary transition-colors">
+              <a href="tel:+919876543210" className="hover:text-primary transition-colors break-all">
                 +91 98765 43210
               </a>
             </li>

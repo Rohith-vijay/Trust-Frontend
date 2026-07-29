@@ -80,7 +80,7 @@ function Navbar() {
         className={`fixed top-0 w-full z-50 transition-all duration-300 ${navBgClass}`}
       >
         <div className="max-w-7xl mx-auto px-3 sm:px-6 flex justify-between items-center">
-          {/* Logo */}
+          {/* Logo — Desktop-first */}
           <NavLink to="/" className="flex items-center space-x-2 sm:space-x-3 group flex-shrink-0">
             <motion.img
               whileHover={{ rotate: 180 }}
@@ -89,16 +89,16 @@ function Navbar() {
               alt="K.V.G Shanmuka Sai Charitable Trust logo"
               className="w-8 h-8 sm:w-10 sm:h-10 rounded-full shadow-md flex-shrink-0"
             />
-            {/* ≥390px: full brand name */}
-            <span className="hidden min-[390px]:inline text-lg sm:text-2xl font-bold tracking-tight transition-colors text-primary group-hover:text-amber-700 whitespace-nowrap">
+            {/* ≥390px: show full name (covers all desktop/laptop/tablet) */}
+            <span className="hidden min-[390px]:inline text-xl sm:text-2xl font-bold tracking-tight transition-colors text-primary group-hover:text-amber-700 whitespace-nowrap">
               KVG Trust
             </span>
-            {/* 360–389px: smaller text */}
-            <span className="hidden min-[360px]:inline min-[390px]:hidden text-base font-bold tracking-tight transition-colors text-primary group-hover:text-amber-700 whitespace-nowrap">
+            {/* 360–389px: slightly smaller but same text */}
+            <span className="hidden min-[360px]:inline min-[390px]:hidden text-lg font-bold tracking-tight transition-colors text-primary group-hover:text-amber-700 whitespace-nowrap">
               KVG Trust
             </span>
-            {/* <360px: abbreviation only */}
-            <span className="inline min-[360px]:hidden text-sm font-bold tracking-tight transition-colors text-primary group-hover:text-amber-700 whitespace-nowrap">
+            {/* <360px: abbreviation to save space */}
+            <span className="inline min-[360px]:hidden text-base font-bold tracking-tight transition-colors text-primary group-hover:text-amber-700 whitespace-nowrap">
               KVG
             </span>
           </NavLink>

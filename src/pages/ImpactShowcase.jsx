@@ -25,7 +25,7 @@ function ImpactShowcase() {
 
   // Set document title for SEO & fetch settings
   useEffect(() => {
-    document.title = "Impact Showcase | KVG Trust";
+    document.title = "Impact Showcase | KVGS Sai Charitable Trust";
     
     const loadCMSConfig = async () => {
       try {

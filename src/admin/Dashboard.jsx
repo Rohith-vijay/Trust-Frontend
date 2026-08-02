@@ -173,9 +173,7 @@ const Dashboard = () => {
     HISTORY_TITLE: "", HISTORY_SUBTITLE: "", HISTORY_MILESTONES: "",
     VISION_HERO_TITLE: "", VISION_HERO_SUBTITLE: "", VISION_MISSION: "",
     VISION_PILLARS: "", VISION_ROADMAP: "", VISION_IMPACTS: "",
-    IMPACT_SHOWCASE_CONFIG: "",
-    PAYMENT_INFO_HEADING: "",
-    SUPPORTED_METHODS_TEXT: ""
+    IMPACT_SHOWCASE_CONFIG: ""
   });
 
   const [tabLoading, setTabLoading] = useState(false);
@@ -296,8 +294,6 @@ const Dashboard = () => {
         HOME_HERO_STATS_PROJECTS: s.HOME_HERO_STATS_PROJECTS || "",
         HOME_HERO_STATS_EDUCATION: s.HOME_HERO_STATS_EDUCATION || "",
         HOME_HERO_STATS_VISION: s.HOME_HERO_STATS_VISION || "",
-        PAYMENT_INFO_HEADING: s.PAYMENT_INFO_HEADING || "",
-        SUPPORTED_METHODS_TEXT: s.SUPPORTED_METHODS_TEXT || "",
       }));
     } catch (e) { console.error(e); }
   }, []);

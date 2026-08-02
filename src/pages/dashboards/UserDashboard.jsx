@@ -8,6 +8,7 @@ import databaseService from "../../services/databaseService";
 import ErrorBoundary from "../../components/ErrorBoundary";
 import { UserDashboardOverviewSkeleton } from "../../components/SkeletonLoader";
 import { stripHtml } from "../../utils";
+import SecurityPanel from "../../components/SecurityPanel";
 
 import {
   Dialog,
@@ -365,6 +366,7 @@ const UserDashboard = () => {
     { id: "overview", label: "Overview", icon: "🏛️" },
     { id: "history", label: "Donations & Receipts", icon: "📋" },
     { id: "tax", label: "Tax Certificates", icon: "📜" },
+    { id: "security", label: "Security", icon: "🔒" },
   ];
 
   return (
@@ -1155,6 +1157,17 @@ const UserDashboard = () => {
                     </motion.div>
                   );
                 })}
+              </motion.div>
+            )}
+
+            {activeTab === "security" && (
+              <motion.div
+                key="security"
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+              >
+                <SecurityPanel />
               </motion.div>
             )}
 

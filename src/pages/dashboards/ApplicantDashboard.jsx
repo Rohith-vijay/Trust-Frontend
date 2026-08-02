@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { pageVariants, pageTransition } from "../../constants/motionVariants";
 import { useAuth } from "../../hooks/useAuth";
+import SecurityPanel from "../../components/SecurityPanel";
 import databaseService from "../../services/databaseService";
 import notificationService from "../../services/notificationService";
 import MediaUploader from "../../components/MediaUploader";
@@ -457,6 +458,14 @@ const ApplicantDashboard = () => {
             }`}
           >
             👤 Profile
+          </button>
+          <button
+            onClick={() => setActiveTab("security")}
+            className={`px-4 py-2 text-xs font-bold rounded-lg transition-all ${
+              activeTab === "security" ? "bg-white text-slate-900 shadow-sm" : "text-slate-600 hover:text-slate-900"
+            }`}
+          >
+            🔒 Security
           </button>
         </div>
       </div>
@@ -924,6 +933,17 @@ const ApplicantDashboard = () => {
                   </Button>
                 </form>
               </div>
+            </motion.div>
+          )}
+
+          {activeTab === "security" && (
+            <motion.div
+              key="security"
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+            >
+              <SecurityPanel />
             </motion.div>
           )}
 

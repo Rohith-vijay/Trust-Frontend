@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import CountUp from "react-countup";
 import { pageVariants, pageTransition } from "../../constants/motionVariants";
 import { useAuth } from "../../hooks/useAuth";
+import SecurityPanel from "../../components/SecurityPanel";
 import { 
     getMyVolunteerApplications, 
     checkInVolunteer, 
@@ -181,6 +182,16 @@ const VolunteerDashboard = () => {
                             }`}
                         >
                             Leaderboard
+                        </button>
+                        <button
+                            onClick={() => setActiveTab("security")}
+                            className={`px-4 py-2 text-xs font-bold rounded-lg transition-all ${
+                                activeTab === "security" 
+                                ? "bg-white text-emerald-700 shadow-sm" 
+                                : "text-slate-600 hover:text-slate-900"
+                            }`}
+                        >
+                            Security
                         </button>
                     </div>
                 </div>
@@ -667,7 +678,7 @@ const VolunteerDashboard = () => {
                                     )}
                                 </div>
                             </motion.div>
-                        ) : (
+                        ) : activeTab === "leaderboard" ? (
                             /* Leaderboard Table */
                             <motion.div
                                 key="leaderboard"
@@ -749,7 +760,16 @@ const VolunteerDashboard = () => {
                                     )}
                                 </div>
                             </motion.div>
-                        )}
+                        ) : activeTab === "security" ? (
+                            <motion.div
+                                key="security"
+                                initial={{ opacity: 0, y: 15 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: 15 }}
+                            >
+                                <SecurityPanel />
+                            </motion.div>
+                        ) : null}
                     </AnimatePresence>
                 )}
             </div>

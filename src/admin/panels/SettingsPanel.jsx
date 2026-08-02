@@ -314,6 +314,55 @@ const SettingsPanel = ({ settingInputs, setSettingInputs, onSaveSetting }) => {
           </div>
         </div>
 
+        {/* 9. Payment Layout Settings */}
+        <div className="border-t border-gray-100 pt-4 space-y-4">
+          <label className="block text-sm font-bold text-gray-700">Payment Layout Settings (Donation Page)</label>
+          <div className="grid sm:grid-cols-2 gap-4">
+            {/* Payment Information Heading */}
+            <div className="space-y-1">
+              <label className="text-[11px] font-bold text-gray-500">Payment Information Heading</label>
+              <div className="flex flex-col sm:flex-row gap-2">
+                <input
+                  type="text"
+                  value={settingInputs.PAYMENT_INFO_HEADING || ""}
+                  onChange={(e) =>
+                    setSettingInputs((p) => ({ ...p, PAYMENT_INFO_HEADING: e.target.value }))
+                  }
+                  placeholder="e.g. Secure Payments Powered by Razorpay"
+                  className="flex-grow border border-gray-200 rounded-lg px-3 py-1.5 text-xs bg-white"
+                />
+                <button
+                  onClick={() => onSaveSetting("PAYMENT_INFO_HEADING")}
+                  className="bg-primary text-white px-3 py-1.5 rounded-lg text-xs font-bold"
+                >
+                  Save
+                </button>
+              </div>
+            </div>
+            {/* Supported Payment Methods text */}
+            <div className="space-y-1">
+              <label className="text-[11px] font-bold text-gray-500">Supported Payment Methods text</label>
+              <div className="flex flex-col sm:flex-row gap-2">
+                <input
+                  type="text"
+                  value={settingInputs.SUPPORTED_METHODS_TEXT || ""}
+                  onChange={(e) =>
+                    setSettingInputs((p) => ({ ...p, SUPPORTED_METHODS_TEXT: e.target.value }))
+                  }
+                  placeholder="e.g. Supports Google Pay, PhonePe, Paytm, BHIM, UPI, Cards, Net Banking, and Wallets"
+                  className="flex-grow border border-gray-200 rounded-lg px-3 py-1.5 text-xs bg-white"
+                />
+                <button
+                  onClick={() => onSaveSetting("SUPPORTED_METHODS_TEXT")}
+                  className="bg-primary text-white px-3 py-1.5 rounded-lg text-xs font-bold"
+                >
+                  Save
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <p className="text-xs text-gray-400 pt-3 border-t border-gray-100 font-medium">
           Note: Changes take effect on the public landing page immediately after saving keys. Refresh the home page to audit live changes.
         </p>

@@ -60,8 +60,22 @@ function Donation() {
   const [paymentFailed, setPaymentFailed] = useState(false);
   const [failureReason, setFailureReason] = useState("");
 
-  // Fetch events list on mount
+  const [settings, setSettings] = useState({});
+
+  // Fetch events and public settings list on mount
   useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const res = await databaseService.getAllPublicSettings();
+        if (res) {
+          setSettings(res);
+        }
+      } catch (err) {
+        console.error("[DonationPage] Failed to fetch settings:", err);
+      }
+    };
+    fetchSettings();
+
     const fetchEvents = async () => {
       try {
         const res = await databaseService.getEvents(0, 100);
@@ -737,6 +751,41 @@ function Donation() {
                     "Proceed to Secure Payment"
                   )}
                 </Button>
+
+                {/* 💳 SECURE PAYMENT BADGES SECTION */}
+                <div className="mt-8 pt-6 border-t border-gray-100 text-center space-y-4">
+                  <div className="flex items-center justify-center gap-1.5 text-xs font-bold text-gray-400 uppercase tracking-widest">
+                    <span>🔒</span>
+                    <span>{settings.PAYMENT_INFO_HEADING || "Secure Payments Powered by Razorpay"}</span>
+                  </div>
+                  
+                  {/* Supported payment badges grid */}
+                  <div className="grid grid-cols-3 sm:grid-cols-5 gap-2.5 pt-1.5">
+                    {[
+                      { label: "UPI", badge: "✓ UPI" },
+                      { label: "Google Pay", badge: "✓ GPay" },
+                      { label: "PhonePe", badge: "✓ PhonePe" },
+                      { label: "Paytm", badge: "✓ Paytm" },
+                      { label: "BHIM", badge: "✓ BHIM" },
+                      { label: "Apple Pay", badge: "✓ Apple Pay" },
+                      { label: "Cards", badge: "✓ Cards" },
+                      { label: "Net Banking", badge: "✓ Net Banking" },
+                      { label: "Wallets", badge: "✓ Wallets" }
+                    ].map((method) => (
+                      <div
+                        key={method.label}
+                        className="bg-gray-50/80 border border-gray-100 rounded-xl py-2 px-1 text-[10px] font-black text-brand-navy-dark tracking-wide hover:bg-white hover:border-primary/20 transition-all select-none shadow-sm flex items-center justify-center gap-1"
+                      >
+                        <span className="text-emerald-500 font-extrabold text-[11px]">✓</span>
+                        <span className="opacity-80">{method.label}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <p className="text-[10px] font-semibold text-gray-400/80 leading-normal max-w-sm mx-auto">
+                    {settings.SUPPORTED_METHODS_TEXT || "Supports Google Pay, PhonePe, Paytm, BHIM, UPI, Cards, Net Banking, and Wallets"}
+                  </p>
+                </div>
 
               </form>
             </Card>

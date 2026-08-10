@@ -19,7 +19,7 @@ export const getBackendUrl = () => {
     if (hostname === "localhost" || hostname === "127.0.0.1") {
       url = "/api";
     } else {
-      url = "https://trust-backend-production-b792.up.railway.app/api";
+      url = "/api";
     }
   }
 

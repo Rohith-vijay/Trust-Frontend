@@ -139,6 +139,30 @@ const databaseService = {
     return response.data;
   },
 
+  // ─── Impact Showcase Cards (Public GET, Admin mutations) ───
+  getImpactShowcaseCards: async () => {
+    const response = await api.get("/public/impact-showcase/all");
+    return response.data;
+  },
+
+  createImpactShowcaseCard: async (card) => {
+    const response = await api.post("/admin/impact-showcase", card);
+    return response.data;
+  },
+
+  updateImpactShowcaseCard: async (id, card) => {
+    const response = await api.put(`/admin/impact-showcase/${id}`, card);
+    return response.data;
+  },
+
+  deleteImpactShowcaseCard: async (id) => {
+    await api.delete(`/admin/impact-showcase/${id}`);
+  },
+
+  reorderImpactShowcaseCards: async (cardIds) => {
+    await api.put("/admin/impact-showcase/reorder", cardIds);
+  },
+
   // ─── System Settings ────────────────────────────────────────
   getHeroImage: async () => {
     const response = await api.get("/public/settings/hero-image");
@@ -270,6 +294,14 @@ const databaseService = {
   // ─── PDF Receipt Download ────────────────────────────────────
   downloadDonationReceipt: async (donationId) => {
     const response = await api.get(`/donations/${donationId}/receipt`, {
+      responseType: 'blob',
+      skipGlobalToast: true,
+    });
+    return response.data;
+  },
+
+  downloadDonationReceiptByUuid: async (receiptUuid) => {
+    const response = await api.get(`/donations/receipt/uuid/${receiptUuid}`, {
       responseType: 'blob',
       skipGlobalToast: true,
     });

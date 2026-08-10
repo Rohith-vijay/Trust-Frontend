@@ -98,22 +98,14 @@ api.interceptors.response.use(
             isRefreshing = true;
 
             try {
-                // Read refresh token from localStorage
-                const refreshToken = localStorage.getItem('trustcore_refresh_token');
-
-                if (!refreshToken) {
-                    throw new Error('No refresh token available');
-                }
-
-                const refreshResponse = await api.post('/auth/refresh', { refreshToken });
+                // Post to /auth/refresh — cookie will be sent automatically
+                const refreshResponse = await api.post('/auth/refresh');
                 const refreshData = refreshResponse.data;
                 const newToken = refreshData?.token;
 
-                if (refreshData && refreshData.token) {
+                const hasLocalToken = localStorage.getItem('trustcore_access_token') !== null;
+                if (refreshData && refreshData.token && hasLocalToken) {
                     localStorage.setItem('trustcore_access_token', refreshData.token);
-                }
-                if (refreshData && refreshData.refreshToken) {
-                    localStorage.setItem('trustcore_refresh_token', refreshData.refreshToken);
                 }
 
                 if (newToken && originalRequest.headers) {
@@ -126,7 +118,6 @@ api.interceptors.response.use(
             } catch (refreshError) {
                 processQueue(refreshError, null);
                 localStorage.removeItem('trustcore_access_token');
-                localStorage.removeItem('trustcore_refresh_token');
                 localStorage.removeItem('trustcore_user');
                 window.dispatchEvent(new CustomEvent("app-toast", {
                     detail: { message: "Session expired. Please log in again.", severity: "warning" }

@@ -1,15 +1,18 @@
 import api from "./api";
 
 const authService = {
+  // Fetch current user details from secure session cookies
+  getMe: async () => {
+    const response = await api.get("/auth/me");
+    return response.data;
+  },
+
   // 1. Register a new user on the server
   register: async (name, email, password, role = "USER") => {
     const response = await api.post("/auth/register", { fullName: name, email, password, role });
     const data = response.data;
     if (data.token) {
       localStorage.setItem('trustcore_access_token', data.token);
-    }
-    if (data.refreshToken) {
-      localStorage.setItem('trustcore_refresh_token', data.refreshToken);
     }
     if (data.user) {
       localStorage.setItem('trustcore_user', JSON.stringify(data.user));
@@ -24,9 +27,6 @@ const authService = {
     if (data.token) {
       localStorage.setItem('trustcore_access_token', data.token);
     }
-    if (data.refreshToken) {
-      localStorage.setItem('trustcore_refresh_token', data.refreshToken);
-    }
     if (data.user) {
       localStorage.setItem('trustcore_user', JSON.stringify(data.user));
     }
@@ -34,16 +34,12 @@ const authService = {
   },
 
   logout: async () => {
-    const refreshToken = localStorage.getItem('trustcore_refresh_token');
     try {
-      if (refreshToken) {
-        await api.post("/auth/logout", { refreshToken });
-      }
+      await api.post("/auth/logout");
     } catch (e) {
       // Ignore network errors on logout to ensure local cleanup
     }
     localStorage.removeItem('trustcore_access_token');
-    localStorage.removeItem('trustcore_refresh_token');
     localStorage.removeItem('trustcore_user');
   },
 
@@ -66,9 +62,6 @@ const authService = {
   oauthLogin: (token, refreshToken, user) => {
     if (token) {
       localStorage.setItem('trustcore_access_token', token);
-    }
-    if (refreshToken) {
-      localStorage.setItem('trustcore_refresh_token', refreshToken);
     }
     if (user) {
       localStorage.setItem('trustcore_user', JSON.stringify(user));

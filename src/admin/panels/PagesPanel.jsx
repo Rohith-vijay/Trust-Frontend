@@ -54,54 +54,93 @@ const PagesPanel = ({ settingInputs, setSettingInputs }) => {
     }
   };
 
-  const updateCardItem = (index, key, value) => {
-    try {
-      const configObj = JSON.parse(settingInputs.IMPACT_SHOWCASE_CONFIG || "{}");
-      if (!configObj.cards) configObj.cards = [];
-      if (!configObj.cards[index]) configObj.cards[index] = {};
-      configObj.cards[index][key] = value;
-      setSettingInputs(p => ({
-        ...p,
-        IMPACT_SHOWCASE_CONFIG: JSON.stringify(configObj, null, 2)
-      }));
-    } catch (e) {
-      console.error(e);
+  // ─── Database-driven Impact Showcase Cards CMS ───
+  const [dbCards, setDbCards] = useState([]);
+  const [deletedCardIds, setDeletedCardIds] = useState([]);
+
+  // Fetch showcase cards on component mount
+  React.useEffect(() => {
+    const fetchCards = async () => {
+      try {
+        const data = await databaseService.getImpactShowcaseCards();
+        setDbCards(data || []);
+      } catch (err) {
+        console.error("[PagesPanel] Failed to load database-backed showcase cards:", err);
+      }
+    };
+    fetchCards();
+  }, []);
+
+  // Synchronize JSON card changes to visual dbCards state when switching back to visual mode or after template resets
+  React.useEffect(() => {
+    if (showcaseEditorTab === "visual") {
+      try {
+        const configObj = JSON.parse(settingInputs.IMPACT_SHOWCASE_CONFIG || "{}");
+        if (configObj.cards && Array.isArray(configObj.cards)) {
+          const mapped = configObj.cards.map((card, i) => {
+            const matchedDbCard = dbCards.find(c => c.id?.toString() === card.id?.toString());
+            return {
+              id: matchedDbCard ? matchedDbCard.id : (card.id || "card_" + i),
+              title: card.title || "",
+              subtitle: card.subtitle || "Impact Initiative",
+              description: card.description || "",
+              baseImage: card.baseImage || "",
+              revealImage: card.revealImage || "",
+              metricCount: card.stat || card.metricCount || "",
+              statLabel: card.statLabel || "",
+              tags: Array.isArray(card.tags) ? card.tags.join(", ") : (card.tags || ""),
+              accentColor: card.accentColor || "rgba(245, 158, 11, 0.18)",
+              displayOrder: card.displayOrder !== undefined ? card.displayOrder : i,
+              enabled: card.enabled !== false
+            };
+          });
+          
+          const serialize = (arr) => JSON.stringify(arr.map(c => ({ id: c.id?.toString(), title: c.title, subtitle: c.subtitle, description: c.description, baseImage: c.baseImage, revealImage: c.revealImage, metricCount: c.metricCount, statLabel: c.statLabel, tags: c.tags, accentColor: c.accentColor })));
+          if (serialize(mapped) !== serialize(dbCards)) {
+            setDbCards(mapped);
+          }
+        }
+      } catch (e) {
+        // Suppress parsing error since validateShowcaseConfig handles details
+      }
     }
+  }, [showcaseEditorTab, settingInputs.IMPACT_SHOWCASE_CONFIG]);
+
+  const updateDbCardItem = (index, key, value) => {
+    const copy = [...dbCards];
+    if (!copy[index]) copy[index] = {};
+    copy[index][key] = value;
+    setDbCards(copy);
   };
 
-  const addCardItem = () => {
-    try {
-      const configObj = JSON.parse(settingInputs.IMPACT_SHOWCASE_CONFIG || "{}");
-      if (!configObj.cards) configObj.cards = [];
-      configObj.cards.push({
-        id: "card_" + Date.now().toString().substring(8),
+  const addDbCardItem = () => {
+    setDbCards([
+      ...dbCards,
+      {
+        id: "card_temp_" + Date.now().toString(),
         title: "New Transformative Story",
+        subtitle: "Impact Initiative",
         description: "How your support enabled lasting outcomes...",
-        baseImage: "/impact-gallery/water_before.png",
-        revealImage: "/impact-gallery/water_after.png",
+        baseImage: "/impact-gallery/gallery_education_base_1779805934541.png",
+        revealImage: "/impact-gallery/gallery_education_reveal_1779805956148.png",
+        metricCount: "100+",
+        statLabel: "Impact Reached",
+        tags: "Education, Rural",
+        accentColor: "rgba(245, 158, 11, 0.18)",
+        displayOrder: dbCards.length,
         enabled: true
-      });
-      setSettingInputs(p => ({
-        ...p,
-        IMPACT_SHOWCASE_CONFIG: JSON.stringify(configObj, null, 2)
-      }));
-    } catch (e) {
-      console.error(e);
-    }
+      }
+    ]);
   };
 
-  const deleteCardItem = (index) => {
-    try {
-      const configObj = JSON.parse(settingInputs.IMPACT_SHOWCASE_CONFIG || "{}");
-      if (!configObj.cards) configObj.cards = [];
-      configObj.cards.splice(index, 1);
-      setSettingInputs(p => ({
-        ...p,
-        IMPACT_SHOWCASE_CONFIG: JSON.stringify(configObj, null, 2)
-      }));
-    } catch (e) {
-      console.error(e);
+  const deleteDbCardItem = (index) => {
+    const cardToDelete = dbCards[index];
+    if (cardToDelete && typeof cardToDelete.id === "number") {
+      setDeletedCardIds([...deletedCardIds, cardToDelete.id]);
     }
+    const copy = [...dbCards];
+    copy.splice(index, 1);
+    setDbCards(copy);
   };
 
   const handleSaveHistory = async () => {
@@ -227,7 +266,35 @@ const PagesPanel = ({ settingInputs, setSettingInputs }) => {
 
   const handleSaveShowcase = async () => {
     setShowcaseSaveStatus("Validating schema...");
-    const configStr = settingInputs.IMPACT_SHOWCASE_CONFIG || "";
+    let configStr = settingInputs.IMPACT_SHOWCASE_CONFIG || "";
+    
+    // In visual mode, we must first sync our local state cards back to the JSON payload before validation
+    if (showcaseEditorTab === "visual") {
+      try {
+        const configObj = JSON.parse(configStr || "{}");
+        configObj.cards = dbCards.map(card => ({
+          id: card.id.toString(),
+          title: card.title || "",
+          subtitle: card.subtitle || "Impact Initiative",
+          description: card.description || "",
+          baseImage: card.baseImage || "",
+          revealImage: card.revealImage || "",
+          stat: card.metricCount || "",
+          statLabel: card.statLabel || "",
+          tags: typeof card.tags === "string" ? card.tags.split(",").map(t => t.trim()).filter(Boolean) : (Array.isArray(card.tags) ? card.tags : []),
+          accentColor: card.accentColor || "rgba(245, 158, 11, 0.18)",
+          enabled: card.enabled !== false && !card.deleted
+        }));
+        configStr = JSON.stringify(configObj, null, 2);
+        setSettingInputs(p => ({
+          ...p,
+          IMPACT_SHOWCASE_CONFIG: configStr
+        }));
+      } catch (jsonErr) {
+        console.error("[PagesPanel] Failed to serialize cards to JSON:", jsonErr);
+      }
+    }
+
     const errors = validateShowcaseConfig(configStr);
 
     if (errors.length > 0) {
@@ -237,15 +304,88 @@ const PagesPanel = ({ settingInputs, setSettingInputs }) => {
     }
 
     setJsonErrors([]);
-    setShowcaseSaveStatus("Saving config to database...");
+    setShowcaseSaveStatus("Saving showcase configuration and cards...");
     try {
-      // Upsert into public settings table so public page can access it
+      // 1. Determine final target cards list based on editing mode
+      let finalCards = [];
+      if (showcaseEditorTab === "visual") {
+        finalCards = dbCards;
+      } else {
+        const configObj = JSON.parse(configStr);
+        finalCards = (configObj.cards || []).map((card, i) => ({
+          id: card.id,
+          title: card.title,
+          description: card.description,
+          icon: card.icon || "",
+          metricCount: card.stat || "",
+          displayOrder: i,
+          subtitle: card.subtitle || "Impact Initiative",
+          baseImage: card.baseImage || "",
+          revealImage: card.revealImage || "",
+          statLabel: card.statLabel || "",
+          tags: Array.isArray(card.tags) ? card.tags.join(", ") : (card.tags || ""),
+          accentColor: card.accentColor || "rgba(245, 158, 11, 0.18)",
+          enabled: card.enabled !== false && !card.deleted
+        }));
+      }
+
+      // 2. Save general layout configuration settings to the settings table
       await databaseService.upsertSetting("IMPACT_SHOWCASE_CONFIG", configStr);
-      setShowcaseSaveStatus("Showcase configuration saved and published!");
+
+      // 3. Delete deleted cards from database
+      for (const id of deletedCardIds) {
+        try {
+          await databaseService.deleteImpactShowcaseCard(id);
+        } catch (delErr) {
+          console.error(`Failed to delete card #${id}:`, delErr);
+        }
+      }
+
+      // 4. Create or update cards in the database
+      const freshCardsList = [];
+      for (let i = 0; i < finalCards.length; i++) {
+        const card = finalCards[i];
+        const cardData = {
+          title: card.title || "",
+          description: card.description || "",
+          icon: card.icon || "",
+          metricCount: card.metricCount || card.stat || "",
+          displayOrder: i,
+          subtitle: card.subtitle || "Impact Initiative",
+          baseImage: card.baseImage || "",
+          revealImage: card.revealImage || "",
+          statLabel: card.statLabel || "",
+          tags: Array.isArray(card.tags) ? card.tags.join(", ") : (card.tags || ""),
+          accentColor: card.accentColor || "rgba(245, 158, 11, 0.18)",
+          deleted: card.enabled === false || card.deleted === true
+        };
+
+        if (typeof card.id === "string" && (card.id.startsWith("card_temp_") || card.id.startsWith("card_"))) {
+          // Create new card row
+          const created = await databaseService.createImpactShowcaseCard(cardData);
+          freshCardsList.push(created);
+        } else {
+          // Update existing card row
+          const idVal = typeof card.id === "string" ? Number(card.id) : card.id;
+          if (idVal && !isNaN(idVal)) {
+            const updated = await databaseService.updateImpactShowcaseCard(idVal, cardData);
+            freshCardsList.push(updated);
+          } else {
+            const created = await databaseService.createImpactShowcaseCard(cardData);
+            freshCardsList.push(created);
+          }
+        }
+      }
+
+      // Sync state and empty delete cache
+      setDbCards(freshCardsList);
+      setDeletedCardIds([]);
+
+      setShowcaseSaveStatus("Showcase configuration and database cards published successfully!");
       setTimeout(() => setShowcaseSaveStatus(""), 4000);
     } catch (err) {
       console.error(err);
-      setShowcaseSaveStatus("Failed to save showcase config.");
+      setShowcaseSaveStatus("Failed to save showcase settings or database cards.");
     }
   };
 
@@ -555,10 +695,10 @@ const PagesPanel = ({ settingInputs, setSettingInputs }) => {
                         </div>
 
                         <div className="flex justify-between items-center mt-2 border-b border-gray-150 pb-2">
-                          <label className="block text-xs font-extrabold uppercase tracking-widest text-slate-400">Interactive Overlay Cards list ({parsedShowcaseConfig.cards?.length || 0})</label>
+                          <label className="block text-xs font-extrabold uppercase tracking-widest text-slate-400">Interactive Overlay Cards list ({dbCards?.length || 0})</label>
                           <button
                             type="button"
-                            onClick={addCardItem}
+                            onClick={addDbCardItem}
                             className="bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200/50 px-3.5 py-1.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider transition-all"
                           >
                             ➕ Add Roster Card
@@ -566,14 +706,14 @@ const PagesPanel = ({ settingInputs, setSettingInputs }) => {
                         </div>
 
                         <div className="space-y-4 max-h-[400px] overflow-y-auto pr-1">
-                          {(parsedShowcaseConfig.cards || []).map((card, idx) => (
+                          {(dbCards || []).map((card, idx) => (
                             <div key={card.id || idx} className="relative p-5 border border-gray-200 rounded-2xl bg-white space-y-4 shadow-sm group">
                               <div className="absolute top-4 right-4 flex items-center gap-3">
                                 <label className="relative inline-flex items-center cursor-pointer select-none">
                                   <input 
                                     type="checkbox" 
-                                    checked={card.enabled !== false} 
-                                    onChange={(e) => updateCardItem(idx, "enabled", e.target.checked)}
+                                    checked={card.enabled !== false && !card.deleted} 
+                                    onChange={(e) => updateDbCardItem(idx, "enabled", e.target.checked)}
                                     className="sr-only peer"
                                   />
                                   <div className="w-7 h-4 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-emerald-500"></div>
@@ -583,7 +723,7 @@ const PagesPanel = ({ settingInputs, setSettingInputs }) => {
                                   type="button"
                                   onClick={() => {
                                     if (window.confirm("Remove this showcase card permanently?")) {
-                                      deleteCardItem(idx);
+                                      deleteDbCardItem(idx);
                                     }
                                   }}
                                   className="text-red-500 text-[10px] font-black hover:underline"
@@ -597,9 +737,9 @@ const PagesPanel = ({ settingInputs, setSettingInputs }) => {
                                   <label className="block text-[10px] font-bold text-gray-400 uppercase">Card Identifier (id)</label>
                                   <input
                                     type="text"
-                                    value={card.id || ""}
-                                    onChange={(e) => updateCardItem(idx, "id", e.target.value)}
-                                    className="w-full border rounded px-3 py-1.5 text-xs outline-none bg-gray-50 focus:ring-1 focus:ring-primary/50"
+                                    value={typeof card.id === "string" && card.id.startsWith("card_temp_") ? "New Card (Pending Save)" : card.id}
+                                    disabled
+                                    className="w-full border rounded px-3 py-1.5 text-xs outline-none bg-gray-100 text-gray-400 cursor-not-allowed focus:ring-1 focus:ring-primary/50"
                                   />
                                 </div>
                                 <div className="space-y-1">
@@ -607,7 +747,29 @@ const PagesPanel = ({ settingInputs, setSettingInputs }) => {
                                   <input
                                     type="text"
                                     value={card.title || ""}
-                                    onChange={(e) => updateCardItem(idx, "title", e.target.value)}
+                                    onChange={(e) => updateDbCardItem(idx, "title", e.target.value)}
+                                    className="w-full border rounded px-3 py-1.5 text-xs outline-none bg-gray-50 focus:ring-1 focus:ring-primary/50"
+                                  />
+                                </div>
+                              </div>
+
+                              <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-1">
+                                  <label className="block text-[10px] font-bold text-gray-400 uppercase">Subtitle / Initiative Category</label>
+                                  <input
+                                    type="text"
+                                    value={card.subtitle || ""}
+                                    onChange={(e) => updateDbCardItem(idx, "subtitle", e.target.value)}
+                                    className="w-full border rounded px-3 py-1.5 text-xs outline-none bg-gray-50 focus:ring-1 focus:ring-primary/50"
+                                  />
+                                </div>
+                                <div className="space-y-1">
+                                  <label className="block text-[10px] font-bold text-gray-400 uppercase">Accent Color (Shading/Borders)</label>
+                                  <input
+                                    type="text"
+                                    value={card.accentColor || ""}
+                                    onChange={(e) => updateDbCardItem(idx, "accentColor", e.target.value)}
+                                    placeholder="e.g. rgba(245, 158, 11, 0.18)"
                                     className="w-full border rounded px-3 py-1.5 text-xs outline-none bg-gray-50 focus:ring-1 focus:ring-primary/50"
                                   />
                                 </div>
@@ -617,10 +779,55 @@ const PagesPanel = ({ settingInputs, setSettingInputs }) => {
                                 <label className="block text-[10px] font-bold text-gray-400 uppercase">Story Description</label>
                                 <textarea
                                   value={card.description || ""}
-                                  onChange={(e) => updateCardItem(idx, "description", e.target.value)}
+                                  onChange={(e) => updateDbCardItem(idx, "description", e.target.value)}
                                   rows={2}
                                   className="w-full border rounded px-3 py-1.5 text-xs outline-none bg-gray-50 focus:ring-1 focus:ring-primary/50"
                                 />
+                              </div>
+
+                              <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-1">
+                                  <label className="block text-[10px] font-bold text-gray-400 uppercase">Badge Numeric Metric</label>
+                                  <input
+                                    type="text"
+                                    value={card.metricCount || ""}
+                                    onChange={(e) => updateDbCardItem(idx, "metricCount", e.target.value)}
+                                    placeholder="e.g. 12,400+"
+                                    className="w-full border rounded px-3 py-1.5 text-xs outline-none bg-gray-50 focus:ring-1 focus:ring-primary/50"
+                                  />
+                                </div>
+                                <div className="space-y-1">
+                                  <label className="block text-[10px] font-bold text-gray-400 uppercase">Badge Metric Label</label>
+                                  <input
+                                    type="text"
+                                    value={card.statLabel || ""}
+                                    onChange={(e) => updateDbCardItem(idx, "statLabel", e.target.value)}
+                                    placeholder="e.g. Children Educated"
+                                    className="w-full border rounded px-3 py-1.5 text-xs outline-none bg-gray-50 focus:ring-1 focus:ring-primary/50"
+                                  />
+                                </div>
+                              </div>
+
+                              <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-1">
+                                  <label className="block text-[10px] font-bold text-gray-400 uppercase">Tags (Comma-separated)</label>
+                                  <input
+                                    type="text"
+                                    value={card.tags || ""}
+                                    onChange={(e) => updateDbCardItem(idx, "tags", e.target.value)}
+                                    placeholder="e.g. Education, Rural, Youth"
+                                    className="w-full border rounded px-3 py-1.5 text-xs outline-none bg-gray-50 focus:ring-1 focus:ring-primary/50"
+                                  />
+                                </div>
+                                <div className="space-y-1">
+                                  <label className="block text-[10px] font-bold text-gray-400 uppercase">Display Order Index</label>
+                                  <input
+                                    type="number"
+                                    value={card.displayOrder !== undefined ? card.displayOrder : idx}
+                                    onChange={(e) => updateDbCardItem(idx, "displayOrder", Number(e.target.value))}
+                                    className="w-full border rounded px-3 py-1.5 text-xs outline-none bg-gray-50 focus:ring-1 focus:ring-primary/50"
+                                  />
+                                </div>
                               </div>
 
                               <div className="grid grid-cols-2 gap-4">
@@ -629,7 +836,7 @@ const PagesPanel = ({ settingInputs, setSettingInputs }) => {
                                   <input
                                     type="text"
                                     value={card.baseImage || ""}
-                                    onChange={(e) => updateCardItem(idx, "baseImage", e.target.value)}
+                                    onChange={(e) => updateDbCardItem(idx, "baseImage", e.target.value)}
                                     className="w-full border rounded px-3 py-1.5 text-xs outline-none bg-gray-50 focus:ring-1 focus:ring-primary/50"
                                   />
                                 </div>
@@ -638,7 +845,7 @@ const PagesPanel = ({ settingInputs, setSettingInputs }) => {
                                   <input
                                     type="text"
                                     value={card.revealImage || ""}
-                                    onChange={(e) => updateCardItem(idx, "revealImage", e.target.value)}
+                                    onChange={(e) => updateDbCardItem(idx, "revealImage", e.target.value)}
                                     className="w-full border rounded px-3 py-1.5 text-xs outline-none bg-gray-50 focus:ring-1 focus:ring-primary/50"
                                   />
                                 </div>

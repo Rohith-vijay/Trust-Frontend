@@ -45,6 +45,7 @@ function Donation() {
   const [donorPan, setDonorPan] = useState("");
   const [donorAddress, setDonorAddress] = useState("");
   const [panError, setPanError] = useState("");
+  const [turnstileToken, setTurnstileToken] = useState("");
   
   // UI Flow states
   const [loading, setLoading] = useState(false);
@@ -59,6 +60,53 @@ function Donation() {
   const [successReceipt, setSuccessReceipt] = useState(null); // { receiptNumber, amount, transactionId, donorName, donorEmail, message }
   const [paymentFailed, setPaymentFailed] = useState(false);
   const [failureReason, setFailureReason] = useState("");
+
+  // Dynamically load Cloudflare Turnstile script
+  useEffect(() => {
+    if (!document.getElementById("turnstile-script")) {
+      const script = document.createElement("script");
+      script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+      script.id = "turnstile-script";
+      script.async = true;
+      script.defer = true;
+      document.body.appendChild(script);
+    }
+  }, []);
+
+  // Initialize/Render Turnstile widget
+  useEffect(() => {
+    const initTurnstile = () => {
+      if (window.turnstile && document.getElementById("turnstile-container")) {
+        try {
+          window.turnstile.render("#turnstile-container", {
+            sitekey: import.meta.env.VITE_TURNSTILE_SITE_KEY || "1x00000000000000000000AA",
+            callback: (token) => {
+              setTurnstileToken(token);
+            },
+          });
+        } catch (e) {
+          console.warn("Turnstile render warning:", e);
+        }
+      }
+    };
+
+    if (window.turnstile) {
+      initTurnstile();
+    } else {
+      window.onloadTurnstileCallback = initTurnstile;
+    }
+  }, [successReceipt]);
+
+  const resetTurnstile = () => {
+    if (window.turnstile && document.getElementById("turnstile-container")) {
+      try {
+        window.turnstile.reset("#turnstile-container");
+        setTurnstileToken("");
+      } catch (e) {
+        console.warn("Turnstile reset warning:", e);
+      }
+    }
+  };
 
   // Fetch events list on mount
   useEffect(() => {
@@ -108,18 +156,23 @@ function Donation() {
   };
 
   // Download PDF Receipt handler
-  const handleDownloadReceipt = async (donationId) => {
-    if (!donationId) {
+  const handleDownloadReceipt = async (donationId, receiptUuid) => {
+    if (!donationId && !receiptUuid) {
       window.print();
       return;
     }
     try {
-      const blob = await databaseService.downloadDonationReceipt(donationId);
+      let blob;
+      if (receiptUuid) {
+        blob = await databaseService.downloadDonationReceiptByUuid(receiptUuid);
+      } else {
+        blob = await databaseService.downloadDonationReceipt(donationId);
+      }
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.style.display = 'none';
       a.href = url;
-      a.download = `receipt-${donationId}.pdf`;
+      a.download = `receipt-${donationId || 'guest'}.pdf`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -136,8 +189,8 @@ function Donation() {
     setPaymentFailed(false);
     
     const parsedAmount = parseFloat(amount);
-    if (isNaN(parsedAmount) || parsedAmount <= 0) {
-      setError("Please enter a valid donation amount greater than 0.");
+    if (isNaN(parsedAmount) || parsedAmount < 100) {
+      setError("Please enter a valid donation amount of at least ₹100.");
       return;
     }
     if (!donorName.trim()) {
@@ -160,6 +213,7 @@ function Donation() {
         eventId: eventId ? parseInt(eventId) : null,
         donorPan: donorPan.trim() || null,
         donorAddress: donorAddress.trim() || null,
+        turnstileToken: turnstileToken || null,
       };
       
       const donationResponse = await databaseService.createDonation(donationPayload);
@@ -181,6 +235,7 @@ function Donation() {
         amount: orderResponse.amount,
         currency: orderResponse.currency || "INR",
         key: orderResponse.key,
+        receiptUuid: donationResponse.receiptUuid,
       };
 
       setCheckoutData(session);
@@ -196,6 +251,7 @@ function Donation() {
     } catch (err) {
       console.error("[DonationPage] Initiation failed:", err);
       setError(err.response?.data?.message || err.message || "Checkout initiation failed. Please try again.");
+      resetTurnstile();
     } finally {
       setLoading(false);
     }
@@ -248,6 +304,7 @@ function Donation() {
           // Success Outcome
           setSuccessReceipt({
             donationId: session.donationId,
+            receiptUuid: session.receiptUuid,
             receiptNumber: "REC-" + Date.now().toString().substring(5),
             amount: parseFloat(amount),
             transactionId: response.razorpay_payment_id,
@@ -333,6 +390,7 @@ function Donation() {
 
       setSuccessReceipt({
         donationId: checkoutData.donationId,
+        receiptUuid: checkoutData.receiptUuid,
         receiptNumber: "REC-MOCK-" + Math.random().toString(36).substring(2, 8).toUpperCase(),
         amount: parseFloat(amount),
         transactionId: mockPaymentId,
@@ -494,7 +552,7 @@ function Donation() {
                     variant="contained"
                     color="primary"
                     startIcon={<DownloadIcon />}
-                    onClick={() => handleDownloadReceipt(successReceipt?.donationId || checkoutData?.donationId)}
+                    onClick={() => handleDownloadReceipt(successReceipt?.donationId || checkoutData?.donationId, successReceipt?.receiptUuid || checkoutData?.receiptUuid)}
                     sx={{ py: 1.5, borderRadius: 4, fontWeight: 700, textTransform: "none" }}
                   >
                     Download PDF Receipt
@@ -710,6 +768,9 @@ function Donation() {
                   disabled={loading}
                   InputProps={{ sx: { borderRadius: 3 } }}
                 />
+
+                {/* Turnstile verification check */}
+                <div id="turnstile-container" className="flex justify-center my-4"></div>
 
                 {/* Submit button */}
                 <Button

@@ -119,15 +119,13 @@ function AnimatedRoutes() {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/unauthorized" element={<Unauthorized />} />
 
-          {/* Protected: donation (any authenticated user) */}
+          {/* Public donation page (Allows both authenticated users and guest checkouts) */}
           <Route
             path="/donation"
             element={
-              <ProtectedRoute allowedRoles={[ROLES.USER, ROLES.VOLUNTEER, ROLES.ADMIN, ROLES.APPLICANT]}>
-                <ErrorBoundary title="Donation Portal Shield" name="DonationPortalRoot">
-                  <Donation />
-                </ErrorBoundary>
-              </ProtectedRoute>
+              <ErrorBoundary title="Donation Portal Shield" name="DonationPortalRoot">
+                <Donation />
+              </ErrorBoundary>
             }
           />
 

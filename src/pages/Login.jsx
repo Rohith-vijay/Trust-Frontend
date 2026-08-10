@@ -9,6 +9,7 @@ import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import AlternateEmailIcon from "@mui/icons-material/AlternateEmail";
 import { getBackendUrl } from "../utils";
+import authService from "../services/authService";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -25,40 +26,32 @@ function Login() {
   useEffect(() => {
     const verified = searchParams.get("verified");
     const errType = searchParams.get("error");
-    const token = searchParams.get("token");
-    const refreshToken = searchParams.get("refreshToken");
-    const name = searchParams.get("name");
-    const emailParam = searchParams.get("email");
-    const role = searchParams.get("role");
-    const avatar = searchParams.get("avatar");
+    const oauthSuccess = searchParams.get("oauth_success");
 
     // Hydrate session if redirected from successful Google OAuth
-    if (token && name && emailParam && role) {
+    if (oauthSuccess === "true") {
       setOauthHydrating(true);
-      try {
-        const userObj = {
-          name: decodeURIComponent(name),
-          email: emailParam,
-          role: role,
-          avatar: avatar ? decodeURIComponent(avatar) : null
-        };
-        oauthLogin(token, refreshToken, userObj);
-        
-        // Dynamic dashboard routing depending on roles
-        if (role === "ADMIN") {
-          navigate("/admin");
-        } else if (role === "VOLUNTEER") {
-          navigate("/dashboard/volunteer");
-        } else if (role === "APPLICANT") {
-          navigate("/dashboard/applicant");
-        } else {
-          navigate("/dashboard");
-        }
-      } catch (err) {
-        console.error("Failed to parse Google OAuth user parameters:", err);
-        setError("Failed to complete Google sign-in. Please try again.");
-        setOauthHydrating(false);
-      }
+      authService.getMe()
+        .then((res) => {
+          const userObj = res.data;
+          oauthLogin(null, null, userObj);
+          
+          // Dynamic dashboard routing depending on roles
+          if (userObj.role === "ADMIN") {
+            navigate("/admin");
+          } else if (userObj.role === "VOLUNTEER") {
+            navigate("/dashboard/volunteer");
+          } else if (userObj.role === "APPLICANT") {
+            navigate("/dashboard/applicant");
+          } else {
+            navigate("/dashboard");
+          }
+        })
+        .catch((err) => {
+          console.error("Failed to complete Google sign-in session hydration:", err);
+          setError("Failed to complete Google sign-in. Please try again.");
+          setOauthHydrating(false);
+        });
       return;
     }
 

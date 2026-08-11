@@ -27,6 +27,9 @@ const MediaGallery = lazy(() => import("./pages/MediaGallery"));
 const FaqAccordion = lazy(() => import("./pages/FaqAccordion"));
 const FinancialTransparency = lazy(() => import("./pages/FinancialTransparency"));
 const ImpactShowcase = lazy(() => import("./pages/ImpactShowcase"));
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
+const TermsConditions = lazy(() => import("./pages/TermsConditions"));
+const RefundPolicy = lazy(() => import("./pages/RefundPolicy"));
 
 // Dashboards (Lazy)
 const AdminDashboard = lazy(() => import("./admin/Dashboard"));
@@ -112,6 +115,9 @@ function AnimatedRoutes() {
           <Route path="/faq" element={<FaqAccordion />} />
           <Route path="/transparency" element={<FinancialTransparency />} />
           <Route path="/impact-showcase" element={<ImpactShowcase />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/terms-and-conditions" element={<TermsConditions />} />
+          <Route path="/refund-policy" element={<RefundPolicy />} />
 
           {/* Auth routes */}
           <Route path="/login" element={<Login />} />

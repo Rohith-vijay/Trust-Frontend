@@ -772,6 +772,16 @@ function Donation() {
                 {/* Turnstile verification check */}
                 <div id="turnstile-container" className="flex justify-center my-4"></div>
 
+                {/* Tax Deduction Notice Box */}
+                <Box className="bg-amber-500/5 border border-amber-500/10 rounded-2xl p-5 mb-6 text-left">
+                  <Typography variant="subtitle2" sx={{ fontWeight: 800, color: "primary.main", mb: 0.5 }}>
+                    Tax Deduction Notice
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary" className="leading-relaxed block font-medium">
+                    K.V.G. Shanmukha Sai Charitable Trust has applied for the applicable charitable tax registrations/approvals, including the approval relevant to donor tax deductions. The application is currently pending. At present, the Trust does not represent that donations made through this website qualify for deduction under Section 80G or any other tax benefit. No tax benefit is being promised to donors at this stage. Any future tax-benefit eligibility will be communicated only after the applicable approval/registration has been granted and confirmed by the Trust.
+                  </Typography>
+                </Box>
+
                 {/* Submit button */}
                 <Button
                   fullWidth

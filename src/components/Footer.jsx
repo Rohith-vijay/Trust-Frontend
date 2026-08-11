@@ -99,21 +99,36 @@ function Footer() {
 
       </div>
 
-      <div className="border-t border-gray-800 text-center py-6 text-xs text-gray-500 max-w-7xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row justify-between items-center gap-4">
-        <div>
-          © {new Date().getFullYear()} K.V.G Shanmuka Sai Charitable Trust. All rights reserved.
+      <div className="border-t border-gray-800 py-6 text-xs text-gray-500 max-w-7xl mx-auto px-4 sm:px-6 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div className="flex flex-wrap justify-center gap-x-4 gap-y-2">
+          <NavLink to="/privacy-policy" className="hover:text-white transition-colors duration-200">
+            Privacy Policy
+          </NavLink>
+          <span className="text-gray-700">•</span>
+          <NavLink to="/terms-and-conditions" className="hover:text-white transition-colors duration-200">
+            Terms & Conditions
+          </NavLink>
+          <span className="text-gray-700">•</span>
+          <NavLink to="/refund-policy" className="hover:text-white transition-colors duration-200">
+            Donation & Refund Policy
+          </NavLink>
         </div>
-        <div className="flex items-center space-x-2">
-          <span>Developed by <span className="font-semibold text-gray-400">Komma Rohith Vijay</span> (9390564417)</span>
-          <a
-            href="https://www.linkedin.com/in/rohithvijayk/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:text-primary text-gray-500 transition-colors inline-flex items-center"
-            title="LinkedIn Profile"
-          >
-            <LinkedInIcon sx={{ fontSize: 18 }} />
-          </a>
+        <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4">
+          <div>
+            © {new Date().getFullYear()} K.V.G Shanmuka Sai Charitable Trust. All rights reserved.
+          </div>
+          <div className="flex items-center space-x-2">
+            <span>Developed by <span className="font-semibold text-gray-400">Komma Rohith Vijay</span> (9390564417)</span>
+            <a
+              href="https://www.linkedin.com/in/rohithvijayk/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-primary text-gray-500 transition-colors inline-flex items-center"
+              title="LinkedIn Profile"
+            >
+              <LinkedInIcon sx={{ fontSize: 18 }} />
+            </a>
+          </div>
         </div>
       </div>
     </footer>

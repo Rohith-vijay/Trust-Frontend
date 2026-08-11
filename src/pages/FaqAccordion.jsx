@@ -25,7 +25,7 @@ const faqs = [
   {
     category: "Donations",
     q: "Can I receive tax benefits for my donations?",
-    a: "Yes! Every successful transaction issues an automated transaction receipt and an 80G Tax Exemption Certificate, downloadable directly from your Member Dashboard.",
+    a: "Every transaction issues a secure donation receipt. Please note: The trust has filed applications for the 12A and 80G tax exemption certificates, which are currently under review by the Income Tax Department. 80G tax certificates will be downloadable directly from your Dashboard retrospectively once approval is received.",
   },
   {
     category: "Volunteering",

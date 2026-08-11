@@ -56,7 +56,7 @@ function FinancialTransparency() {
         {/* Audit Compliance Seals Ribbon */}
         <Grid container spacing={3} sx={{ maxWidth: "lg", mx: "auto", px: 3, mb: 12 }}>
           {[
-            { icon: <VerifiedUserIcon sx={{ fontSize: 32, color: "#B07A3F" }} />, title: "80G Compliant Receipts", desc: "All local donations receive instant 80G tax deductions receipts under Section 80G of IT guidelines." },
+            { icon: <VerifiedUserIcon sx={{ fontSize: 32, color: "#B07A3F" }} />, title: "12A/80G Registration Pending", desc: "Exemption applications have been filed. 80G tax-exemption receipts will be active retrospectively once certificates are received." },
             { icon: <AccountBalanceWalletIcon sx={{ fontSize: 32, color: "#F59E0B" }} />, title: "Annual Independent Audits", desc: "Our financial books are audited annually by certified Chartered Accountants, published publically." },
             { icon: <SecurityIcon sx={{ fontSize: 32, color: "#1E293B" }} />, title: "Razorpay Secure Processing", desc: "Zero financial card credentials are saved on our servers. Transactions are gated by Razorpay secure checkout." },
           ].map((seal, i) => (

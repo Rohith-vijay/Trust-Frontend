@@ -477,7 +477,7 @@ const UserDashboard = () => {
                           </div>
                           <div>
                             <h4 className="text-xs font-bold text-slate-300">Profile Verified</h4>
-                            <p className="text-[11px] text-blue-200/70">80G Tax Deductible Active</p>
+                             <p className="text-[11px] text-blue-200/70">12A/80G Registration Pending</p>
                           </div>
                         </div>
 
@@ -963,7 +963,7 @@ const UserDashboard = () => {
                       </div>
                       <h2 className="text-2xl font-black leading-tight">Tax Certificate Center</h2>
                       <p className="text-amber-100/80 text-sm mt-1 max-w-md">
-                        50% of your cumulative donations qualify for tax deduction. Certificates are auto-generated on confirmed payments.
+                        Applications for 12A/80G registrations are filed and pending. Tax-exempt certificates will be auto-generated retrospectively on confirmed payments once received.
                       </p>
                     </div>
                     <div className="bg-white/15 backdrop-blur rounded-2xl p-5 text-center min-w-[140px]">
@@ -1108,7 +1108,7 @@ const UserDashboard = () => {
                                 {don.status === "SUCCESS" ? (
                                   <>
                                     <VerifiedIcon sx={{ fontSize: 16, color: "#059669" }} />
-                                    80G Eligible — Certificate Ready
+                                    Receipt Ready — 80G Approval Pending
                                   </>
                                 ) : (
                                   <>
@@ -1254,10 +1254,10 @@ const UserDashboard = () => {
             {/* 80G Exemption Box */}
             <Box className="bg-amber-500/5 border border-amber-500/10 rounded-2xl p-4 mb-6 print:border print:border-black">
               <Typography variant="subtitle2" className="font-extrabold text-amber-800 leading-tight mb-1">
-                Tax Exemption Certificate Status: VALID
+                Tax Exemption Status: APPLICATION FILED
               </Typography>
               <Typography variant="caption" className="leading-relaxed block text-slate-500 font-semibold">
-                This receipt serves as legal proof of transaction toward K.V.G Shanmuka Sai Charitable Trust. Under Section 80G of the Income Tax Act, 1961, 50% of this contribution is eligible for a tax deduction. Registered automatically under tax code PAN.
+                This receipt serves as official proof of donation towards K.V.G Shanmuka Sai Charitable Trust. Please note: The trust has filed applications for the 12A and 80G tax exemption certificates, which are currently pending. Exemption benefits will be active retrospectively for eligible contributions once the certificates are officially received.
               </Typography>
             </Box>
 

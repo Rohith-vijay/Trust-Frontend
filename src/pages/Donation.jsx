@@ -521,10 +521,10 @@ function Donation() {
                 {/* Exemption Notice box */}
                 <Box className="bg-amber-500/5 border border-amber-500/10 rounded-2xl p-5 mb-8 print:border print:border-black">
                   <Typography variant="subtitle2" sx={{ fontWeight: 800, color: "primary.main", mb: 0.5 }}>
-                    80G Tax Exemption Certificate Exemption Acknowledgement
+                    80G Tax Exemption Status (Application Filed)
                   </Typography>
                   <Typography variant="caption" color="text.secondary" className="leading-relaxed block font-medium">
-                    This receipt serves as official proof of donation towards K.V.G Shanmuka Sai Charitable Trust. Under Section 80G of the Income Tax Act, 1961, 50% of this contribution is eligible for a tax deduction. PAN registration will be automatically reconciled.
+                    This receipt serves as official proof of donation towards K.V.G Shanmuka Sai Charitable Trust. Please note: The trust has filed applications for the 12A and 80G certificates, which are currently pending approval. Tax exemption benefits will be activated retrospectively for eligible contributions once the certificates are officially received.
                   </Typography>
                 </Box>
 
@@ -733,7 +733,7 @@ function Donation() {
                         onChange={handlePanChange}
                         disabled={loading}
                         error={!!panError}
-                        helperText={panError || "Optional. Providing PAN enables 50% income tax deduction under Sec. 80G."}
+                        helperText={panError || "Optional. PAN will be utilized for 80G filing once 12A/80G registrations are approved (application filed)."}
                         InputProps={{ sx: { borderRadius: 3, fontFamily: 'monospace', letterSpacing: 2 } }}
                         inputProps={{ maxLength: 10, style: { textTransform: 'uppercase' } }}
                         placeholder="ABCDE1234F"

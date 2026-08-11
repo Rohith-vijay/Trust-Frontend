@@ -1,4 +1,5 @@
 import { NavLink } from "react-router-dom";
+import LinkedInIcon from "@mui/icons-material/LinkedIn";
 
 function Footer() {
   return (
@@ -98,8 +99,22 @@ function Footer() {
 
       </div>
 
-      <div className="border-t border-gray-800 text-center py-6 text-xs text-gray-500">
-        © {new Date().getFullYear()} K.V.G Shanmuka Sai Charitable Trust. All rights reserved.
+      <div className="border-t border-gray-800 text-center py-6 text-xs text-gray-500 max-w-7xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+        <div>
+          © {new Date().getFullYear()} K.V.G Shanmuka Sai Charitable Trust. All rights reserved.
+        </div>
+        <div className="flex items-center space-x-2">
+          <span>Developed by <span className="font-semibold text-gray-400">Komma Rohith Vijay</span> (9390564417)</span>
+          <a
+            href="https://www.linkedin.com/in/rohithvijayk/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-primary text-gray-500 transition-colors inline-flex items-center"
+            title="LinkedIn Profile"
+          >
+            <LinkedInIcon sx={{ fontSize: 18 }} />
+          </a>
+        </div>
       </div>
     </footer>
   );

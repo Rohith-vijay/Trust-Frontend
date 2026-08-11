@@ -81,15 +81,15 @@ function Contact() {
                   </div>
                 </a>
                 
-                <a href="tel:+919390564417" className="flex items-center space-x-4 group hover:opacity-80 transition-opacity">
+                <div className="flex items-center space-x-4">
                   <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center shrink-0">
                     <PhoneOutlinedIcon />
                   </div>
                   <div>
                     <Typography variant="caption" sx={{ color: 'white', opacity: 0.8 }}>Call Us</Typography>
-                    <Typography variant="body1" sx={{ fontWeight: 600, color: 'white' }}>+91 93905 64417</Typography>
+                    <Typography variant="body1" sx={{ fontWeight: 600, color: 'white' }}>8919493436, 9121603777, 9390564417</Typography>
                   </div>
-                </a>
+                </div>
               </div>
 
               <div>

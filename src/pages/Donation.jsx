@@ -487,7 +487,7 @@ function Donation() {
                       K.V.G SHANMUKA SAI CHARITABLE TRUST
                     </Typography>
                     <Typography variant="caption" color="text.secondary" className="block font-bold">
-                      Nagpur, Maharashtra, India • Govt Registration Code: NGO-TRUST-4122
+                      49a, Harischandrapuram, Thullur mandal, Guntur district, Andhra pradesh, India • Govt Registration Code: NGO-TRUST-4122
                     </Typography>
                   </div>
                   <div className="text-right">

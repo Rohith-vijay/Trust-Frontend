@@ -311,7 +311,7 @@ const UserDashboard = () => {
     const educationAllocation = Math.round(totalDonated * 0.4);
     const foodAllocation = Math.round(totalDonated * 0.25);
     const medicalAllocation = Math.round(totalDonated * 0.2);
-    return `Director's AI Impact Synthesis: Based on your cumulative lifetime contribution of ${formatRupee(totalDonated)}, you have funded approximately ${formatRupee(educationAllocation)} for Education Expansion (delivering evening coaching and study kits to ~${livesImpacted || 1} village kids) and ${formatRupee(foodAllocation)} for Food & Nutrition programs (furnishing ~${mealsEnabled || 5} meals). Another ${formatRupee(medicalAllocation)} has been allocated directly towards primary village medical diagnostics. Your funds operate with 100% verified integrity inside Nagpur's regional hubs.`;
+    return `Director's AI Impact Synthesis: Based on your cumulative lifetime contribution of ${formatRupee(totalDonated)}, you have funded approximately ${formatRupee(educationAllocation)} for Education Expansion (delivering evening coaching and study kits to ~${livesImpacted || 1} village kids) and ${formatRupee(foodAllocation)} for Food & Nutrition programs (furnishing ~${mealsEnabled || 5} meals). Another ${formatRupee(medicalAllocation)} has been allocated directly towards primary village medical diagnostics. Your funds operate with 100% verified integrity inside Guntur's regional hubs.`;
   };
 
   // PDF Download handler
@@ -1204,7 +1204,7 @@ const UserDashboard = () => {
                   K.V.G SHANMUKA SAI CHARITABLE TRUST
                 </Typography>
                 <Typography variant="caption" className="block text-slate-400 font-bold leading-normal">
-                  Nagpur, MH, India • Govt Exemption Code: NGO-TRUST-4122
+                  49a, Harischandrapuram, Thullur mandal, Guntur district, Andhra pradesh, India • Govt Exemption Code: NGO-TRUST-4122
                 </Typography>
               </div>
               <div className="text-left sm:text-right">

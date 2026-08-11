@@ -77,20 +77,20 @@ function Footer() {
           <ul className="space-y-3 text-sm text-gray-400">
             <li>
               <span className="block font-medium text-white mb-0.5">Email</span>
-              <a href="mailto:support@trust.org" className="hover:text-primary transition-colors break-all">
-                support@trust.org
+              <a href="mailto:kvgshanmukhsaitrust@gmail.com" className="hover:text-primary transition-colors break-all">
+                kvgshanmukhsaitrust@gmail.com
               </a>
             </li>
             <li>
               <span className="block font-medium text-white mb-0.5">Phone</span>
-              <a href="tel:+919876543210" className="hover:text-primary transition-colors break-all">
-                +91 98765 43210
-              </a>
+              <span className="leading-relaxed block">
+                8919493436, 9121603777, 9390564417
+              </span>
             </li>
             <li>
               <span className="block font-medium text-white mb-0.5">Office</span>
               <span className="leading-relaxed">
-                KVG Trust Chambers, Main Road, Vijayawada, AP, India
+                49a, Harischandrapuram, Thullur mandal, Guntur district, Andhra pradesh, India
               </span>
             </li>
           </ul>

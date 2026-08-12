@@ -9,7 +9,7 @@ function Footer() {
         {/* Column 1: Brand & Description */}
         <div>
           <h2 className="text-xl font-bold mb-4 text-primary tracking-tight">
-            K.V.G Shanmuka Sai Charitable Trust
+            K.V.G. Shanmuka Sai Charitable Trust
           </h2>
           <p className="text-gray-400 leading-relaxed text-sm">
             Empowering underprivileged communities through education, healthcare, 
@@ -115,7 +115,7 @@ function Footer() {
         </div>
         <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4">
           <div>
-            © {new Date().getFullYear()} K.V.G Shanmuka Sai Charitable Trust. All rights reserved.
+            © {new Date().getFullYear()} K.V.G. Shanmuka Sai Charitable Trust. All rights reserved.
           </div>
           <div className="flex items-center space-x-2">
             <span>Developed by <span className="font-semibold text-gray-400">Komma Rohith Vijay</span> (9390564417)</span>

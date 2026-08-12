@@ -5,7 +5,7 @@ import databaseService from "../services/databaseService";
 import { Typography, Paper, CircularProgress } from "@mui/material";
 
 const DEFAULT_MILESTONES = [
-  { date: "24 October 2025", event: "Trust Founded", description: "K.V.G Shanmuka Sai Charitable Trust was officially founded with a mission to bring hope, education, clean water, and essential resources to communities in need." },
+  { date: "24 October 2025", event: "Trust Founded", description: "K.V.G. Shanmuka Sai Charitable Trust was officially founded with a mission to bring hope, education, clean water, and essential resources to communities in need." },
   { date: "30 October 2025", event: "First Major Event", description: "Free tuition classes for underprivileged children were inaugurated on this day, marking the beginning of the trust's education mission." },
   { date: "12 December 2025", event: "Water Plant Inaugurated", description: "The trust inaugurated a community water purification plant, providing free clean drinking water to thousands of villagers." },
   { date: "2026", event: "Expanding Impact", description: "The trust continues its tree plantation drives, educational programs, and water distribution initiatives, expanding services to reach more communities." },
@@ -13,7 +13,7 @@ const DEFAULT_MILESTONES = [
 
 function History() {
   const [pageTitle, setPageTitle] = useState("Our History");
-  const [pageSubtitle, setPageSubtitle] = useState("The journey of K.V.G Shanmuka Sai Charitable Trust from its founding to today.");
+  const [pageSubtitle, setPageSubtitle] = useState("The journey of K.V.G. Shanmuka Sai Charitable Trust from its founding to today.");
   const [milestones, setMilestones] = useState(DEFAULT_MILESTONES);
   const [loading, setLoading] = useState(true);
 

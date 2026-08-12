@@ -7,7 +7,7 @@ export const teamMembers = [
     photo: null,
     initials: "KP",
     tagline: "Visionary leader & founding pillar",
-    bio: "K. Prakasa Rao laid the foundation of K.V.G Shanmuka Sai Charitable Trust with a vision to serve the underprivileged. His lifelong commitment to social welfare and community development has shaped every initiative the trust has undertaken.",
+    bio: "K. Prakasa Rao laid the foundation of K.V.G. Shanmuka Sai Charitable Trust with a vision to serve the underprivileged. His lifelong commitment to social welfare and community development has shaped every initiative the trust has undertaken.",
     achievements: [
       "Founded the trust and established its core mission",
       "Organized 100+ community welfare drives",

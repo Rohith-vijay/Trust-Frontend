@@ -49,7 +49,7 @@ function TermsConditions() {
                 1. Acceptance of Terms
               </Typography>
               <Typography variant="body2" color="text.secondary" className="mb-2">
-                By accessing or using the website of K.V.G. Shanmukha Sai Charitable Trust ("we", "us", "our"), you agree to be bound by these Terms & Conditions. If you do not agree to these terms, please do not access or use the platform.
+                By accessing or using the website of K.V.G. Shanmuka Sai Charitable Trust ("we", "us", "our"), you agree to be bound by these Terms & Conditions. If you do not agree to these terms, please do not access or use the platform.
               </Typography>
             </div>
 
@@ -126,7 +126,7 @@ function TermsConditions() {
                 6. IMPORTANT TAX STATUS NOTICE
               </Typography>
               <Typography variant="body2" className="text-slate-600 font-medium leading-relaxed">
-                K.V.G. Shanmukha Sai Charitable Trust has filed the necessary applications for charitable tax registrations and approvals (including the registrations relevant to donor tax deduction benefits). These applications are currently pending review with the Income Tax Department. At this stage, the Trust does not represent, warrant, or promise that any contributions made through this website qualify for deduction under Section 80G or any other tax-exempt status. No tax benefit is guaranteed to donors at this stage. Any future eligibility will be communicated only after official registration is granted by the authorities.
+                K.V.G. Shanmuka Sai Charitable Trust has filed the necessary applications for charitable tax registrations and approvals (including the registrations relevant to donor tax deduction benefits). These applications are currently pending review with the Income Tax Department. At this stage, the Trust does not represent, warrant, or promise that any contributions made through this website qualify for deduction under Section 80G or any other tax-exempt status. No tax benefit is guaranteed to donors at this stage. Any future eligibility will be communicated only after official registration is granted by the authorities.
               </Typography>
             </div>
 
@@ -170,7 +170,7 @@ function TermsConditions() {
                 9. Intellectual Property
               </Typography>
               <Typography variant="body2" color="text.secondary" className="mb-2">
-                All software, platform code, text, logos, layout structures, and graphics are the intellectual property of K.V.G. Shanmukha Sai Charitable Trust. You may not copy, modify, distribute, or reuse any design elements or content without our prior written consent.
+                All software, platform code, text, logos, layout structures, and graphics are the intellectual property of K.V.G. Shanmuka Sai Charitable Trust. You may not copy, modify, distribute, or reuse any design elements or content without our prior written consent.
               </Typography>
             </div>
 
@@ -182,7 +182,7 @@ function TermsConditions() {
                 10. Website Availability & Limitation of Liability
               </Typography>
               <Typography variant="body2" color="text.secondary" className="mb-2">
-                The website is provided on an "as is" and "as available" basis. We do not warrant that the website will run uninterrupted or error-free. To the maximum extent permitted by law, K.V.G. Shanmukha Sai Charitable Trust will not be liable for any direct, indirect, incidental, or consequential damages resulting from your use or inability to use this platform.
+                The website is provided on an "as is" and "as available" basis. We do not warrant that the website will run uninterrupted or error-free. To the maximum extent permitted by law, K.V.G. Shanmuka Sai Charitable Trust will not be liable for any direct, indirect, incidental, or consequential damages resulting from your use or inability to use this platform.
               </Typography>
             </div>
 
@@ -209,7 +209,7 @@ function TermsConditions() {
                 For queries or clarifications regarding these terms, please contact us at:
               </Typography>
               <div className="bg-slate-50 mt-4 p-5 rounded-2xl border border-slate-100 text-xs md:text-sm text-slate-600 space-y-1 font-medium">
-                <p className="text-slate-800 font-bold">K.V.G. Shanmukha Sai Charitable Trust</p>
+                <p className="text-slate-800 font-bold">K.V.G. Shanmuka Sai Charitable Trust</p>
                 <p><strong>Address:</strong> 49a, Harischandrapuram, Thullur mandal, Guntur district, Andhra pradesh, India</p>
                 <p><strong>Email:</strong> kvgshanmukhsaitrust@gmail.com</p>
                 <p><strong>Phone:</strong> 8919493436, 9121603777, 9390564417</p>

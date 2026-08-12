@@ -86,7 +86,7 @@ function Navbar() {
               whileHover={{ rotate: 180 }}
               transition={{ duration: 0.6 }}
               src="/logo.png"
-              alt="K.V.G Shanmuka Sai Charitable Trust logo"
+              alt="K.V.G. Shanmuka Sai Charitable Trust logo"
               className="w-8 h-8 sm:w-10 sm:h-10 rounded-full shadow-md flex-shrink-0"
             />
             {/* ≥640px (sm): full brand name — fits on all tablets and desktops */}

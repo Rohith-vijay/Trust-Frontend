@@ -88,7 +88,7 @@ function ImpactShowcase() {
     loadCMSConfig();
 
     return () => {
-      document.title = "KVG Shanmuka Sai Charitable Trust";
+      document.title = "K.V.G. Shanmuka Sai Charitable Trust";
     };
   }, []);
 
@@ -122,13 +122,7 @@ function ImpactShowcase() {
           color: "#ffffff"
         }}
       >
-        {/* Test Page Warning Heading */}
-        <div className="text-center pt-8 px-4">
-          <h2 className="text-xl sm:text-2xl md:text-3xl font-black tracking-widest text-amber-500 uppercase border border-amber-500/20 rounded-xl py-4 px-8 max-w-2xl mx-auto bg-amber-500/5 backdrop-blur-sm">
-            This is just a test page
-          </h2>
-          <p className="text-[10px] sm:text-xs tracking-widest text-gray-400 mt-2 uppercase">The content on this page is for demonstration purposes only.</p>
-        </div>
+
 
         {/* ── 1. HERO ── */}
         {config.hero?.enabled !== false && (

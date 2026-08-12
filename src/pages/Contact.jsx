@@ -5,6 +5,7 @@ import { submitMessage } from "../services/messageService";
 import { Typography, TextField, Button, Card, IconButton, CircularProgress } from "@mui/material";
 import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
 import PhoneOutlinedIcon from '@mui/icons-material/PhoneOutlined';
+import PlaceOutlinedIcon from '@mui/icons-material/PlaceOutlined';
 import InstagramIcon from '@mui/icons-material/Instagram';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import TwitterIcon from '@mui/icons-material/Twitter';
@@ -88,6 +89,18 @@ function Contact() {
                   <div>
                     <Typography variant="caption" sx={{ color: 'white', opacity: 0.8 }}>Call Us</Typography>
                     <Typography variant="body1" sx={{ fontWeight: 600, color: 'white' }}>8919493436, 9121603777, 9390564417</Typography>
+                  </div>
+                </div>
+
+                <div className="flex items-center space-x-4">
+                  <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center shrink-0">
+                    <PlaceOutlinedIcon />
+                  </div>
+                  <div>
+                    <Typography variant="caption" sx={{ color: 'white', opacity: 0.8 }}>Registered Office</Typography>
+                    <Typography variant="body1" sx={{ fontWeight: 600, color: 'white', lineHeight: 1.4 }}>
+                      49a, Harischandrapuram, Thullur mandal, Guntur district, Andhra pradesh, India
+                    </Typography>
                   </div>
                 </div>
               </div>

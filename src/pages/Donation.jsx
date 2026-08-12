@@ -281,7 +281,7 @@ function Donation() {
       key: session.key,
       amount: session.amount,
       currency: session.currency,
-      name: "K.V.G Shanmuka Sai Trust",
+      name: "K.V.G. Shanmuka Sai Charitable Trust",
       description: "Support Our Community Mission",
       order_id: session.orderId,
       prefill: {
@@ -475,7 +475,7 @@ function Donation() {
                 <CheckCircleIcon color="success" sx={{ fontSize: 56, mb: 1.5 }} />
                 <Typography variant="h5" sx={{ fontWeight: 800 }}>Donation Completed Successfully</Typography>
                 <Typography variant="caption" className="opacity-85 font-semibold mt-1">
-                  Thank you for your generosity! An 80G tax receipt has been generated below.
+                  Thank you for your generosity! A donation receipt has been generated below.
                 </Typography>
               </Box>
 
@@ -484,10 +484,10 @@ function Donation() {
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 border-b border-gray-100 pb-6 mb-8 print:border-b-2 print:border-black">
                   <div>
                     <Typography variant="h6" sx={{ fontWeight: 900, color: "primary.main" }}>
-                      K.V.G SHANMUKA SAI CHARITABLE TRUST
+                      K.V.G. SHANMUKA SAI CHARITABLE TRUST
                     </Typography>
                     <Typography variant="caption" color="text.secondary" className="block font-bold">
-                      49a, Harischandrapuram, Thullur mandal, Guntur district, Andhra pradesh, India • Govt Registration Code: NGO-TRUST-4122
+                      49a, Harischandrapuram, Thullur mandal, Guntur district, Andhra pradesh, India
                     </Typography>
                   </div>
                   <div className="text-right">
@@ -521,10 +521,10 @@ function Donation() {
                 {/* Exemption Notice box */}
                 <Box className="bg-amber-500/5 border border-amber-500/10 rounded-2xl p-5 mb-8 print:border print:border-black">
                   <Typography variant="subtitle2" sx={{ fontWeight: 800, color: "primary.main", mb: 0.5 }}>
-                    80G Tax Exemption Status (Application Filed)
+                    Donation Receipt Status: ACKNOWLEDGEMENT ONLY
                   </Typography>
                   <Typography variant="caption" color="text.secondary" className="leading-relaxed block font-medium">
-                    This receipt serves as official proof of donation towards K.V.G Shanmuka Sai Charitable Trust. Please note: The trust has filed applications for the 12A and 80G certificates, which are currently pending approval. Tax exemption benefits will be activated retrospectively for eligible contributions once the certificates are officially received.
+                    This receipt serves as a transaction acknowledgement of your donation to K.V.G. Shanmuka Sai Charitable Trust. Please note: The trust's applicable tax registration/approval is currently under process. No tax benefit or deduction is being promised at this time.
                   </Typography>
                 </Box>
 
@@ -723,27 +723,27 @@ function Donation() {
                       InputProps={{ sx: { borderRadius: 3 } }}
                     />
 
-                    {/* PAN Card (80G Compliance) */}
+                    {/* PAN Card (Record Keeping) */}
                     <div className="space-y-1">
                       <TextField
                         fullWidth
-                        label="PAN Card Number (For 80G Tax Exemption)"
+                        label="PAN Card Number"
                         variant="outlined"
                         value={donorPan}
                         onChange={handlePanChange}
                         disabled={loading}
                         error={!!panError}
-                        helperText={panError || "Optional. PAN will be utilized for 80G filing once 12A/80G registrations are approved (application filed)."}
+                        helperText={panError || "Optional. Used for official donation record-keeping."}
                         InputProps={{ sx: { borderRadius: 3, fontFamily: 'monospace', letterSpacing: 2 } }}
                         inputProps={{ maxLength: 10, style: { textTransform: 'uppercase' } }}
                         placeholder="ABCDE1234F"
                       />
                     </div>
 
-                    {/* Address (80G Compliance) */}
+                    {/* Address (Record Keeping) */}
                     <TextField
                       fullWidth
-                      label="Full Postal Address (For 80G Filing)"
+                      label="Full Postal Address"
                       variant="outlined"
                       multiline
                       rows={2}
@@ -751,7 +751,7 @@ function Donation() {
                       onChange={(e) => setDonorAddress(e.target.value)}
                       disabled={loading}
                       InputProps={{ sx: { borderRadius: 3 } }}
-                      helperText="Optional. Required if PAN is provided for Form 10BD filing."
+                      helperText="Optional. Used for official donation record-keeping."
                     />
                   </div>
                 </div>
@@ -775,10 +775,10 @@ function Donation() {
                 {/* Tax Deduction Notice Box */}
                 <Box className="bg-amber-500/5 border border-amber-500/10 rounded-2xl p-5 mb-6 text-left">
                   <Typography variant="subtitle2" sx={{ fontWeight: 800, color: "primary.main", mb: 0.5 }}>
-                    Tax Deduction Notice
+                    Tax Status Notice
                   </Typography>
                   <Typography variant="caption" color="text.secondary" className="leading-relaxed block font-medium">
-                    K.V.G. Shanmukha Sai Charitable Trust has applied for the applicable charitable tax registrations/approvals, including the approval relevant to donor tax deductions. The application is currently pending. At present, the Trust does not represent that donations made through this website qualify for deduction under Section 80G or any other tax benefit. No tax benefit is being promised to donors at this stage. Any future tax-benefit eligibility will be communicated only after the applicable approval/registration has been granted and confirmed by the Trust.
+                    The Trust's applicable tax registration/approval is currently under process. No tax benefit or deduction is being promised at this time.
                   </Typography>
                 </Box>
 
@@ -834,7 +834,7 @@ function Donation() {
               Razorpay Sandbox QA Mode
             </Typography>
             <Typography variant="subtitle1" className="font-extrabold flex items-center gap-1">
-              <span>💳</span> K.V.G Shanmuka Sai Trust
+              <span>💳</span> K.V.G. Shanmuka Sai Charitable Trust
             </Typography>
           </div>
           <div className="text-right">

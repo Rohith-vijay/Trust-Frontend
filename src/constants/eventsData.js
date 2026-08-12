@@ -1,5 +1,5 @@
 // eventsData.js
-// Real event data for K.V.G Shanmuka Sai Charitable Trust
+// Real event data for K.V.G. Shanmuka Sai Charitable Trust
 
 const eventsData = [
   {
@@ -10,7 +10,7 @@ const eventsData = [
     summary:
       "A green initiative to plant trees and promote environmental sustainability across the community.",
     description:
-      "K.V.G Shanmuka Sai Charitable Trust organized a large-scale tree plantation drive, planting hundreds of saplings across multiple locations. Community leaders, volunteers, and local residents came together in this effort to create green corridors and raise awareness about environmental conservation. The initiative promotes a cleaner, greener future for generations to come.",
+      "K.V.G. Shanmuka Sai Charitable Trust organized a large-scale tree plantation drive, planting hundreds of saplings across multiple locations. Community leaders, volunteers, and local residents came together in this effort to create green corridors and raise awareness about environmental conservation. The initiative promotes a cleaner, greener future for generations to come.",
     image: "/events/planting-3.jpg",
     instagramLink: "https://www.instagram.com/kvgshanmukhsai_trust/",
     metrics: {

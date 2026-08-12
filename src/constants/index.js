@@ -22,6 +22,6 @@ export const ROLES = {
   VOLUNTEER: "VOLUNTEER",
 };
 
-export const APP_NAME = "K.V.G Shanmuka Sai Charitable Trust";
+export const APP_NAME = "K.V.G. Shanmuka Sai Charitable Trust";
 
 export const API_BASE_URL = getBackendUrl();

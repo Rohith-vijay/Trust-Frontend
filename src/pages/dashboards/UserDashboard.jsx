@@ -306,7 +306,7 @@ const UserDashboard = () => {
   // AI Impact Summary
   const getAiGeneratedSummary = () => {
     if (totalDonated === 0) {
-      return "Welcome to the K.V.G Shanmuka Sai family! Make your first secure tax-deductible contribution to unlock a metric-grounded impact synthesis. Our Director's AI Agent automatically computes resource allocation maps representing how your donation funds clean water filters and village schools.";
+      return "Welcome to the K.V.G. Shanmuka Sai family! Make your first secure contribution to unlock a metric-grounded impact synthesis. Our Director's AI Agent automatically computes resource allocation maps representing how your donation funds clean water filters and village schools.";
     }
     const educationAllocation = Math.round(totalDonated * 0.4);
     const foodAllocation = Math.round(totalDonated * 0.25);
@@ -365,7 +365,7 @@ const UserDashboard = () => {
   const TABS = [
     { id: "overview", label: "Overview", icon: "🏛️" },
     { id: "history", label: "Donations & Receipts", icon: "📋" },
-    { id: "tax", label: "Tax Certificates", icon: "📜" },
+    { id: "tax", label: "Donation Receipts", icon: "📜" },
     { id: "security", label: "Security", icon: "🔒" },
   ];
 
@@ -390,7 +390,7 @@ const UserDashboard = () => {
               My Impact Portal
             </h1>
             <p className="text-slate-500 text-sm mt-1">
-              Monitor donations, initiatives, tax certificates, and community updates.
+              Monitor donations, initiatives, receipts, and community updates.
             </p>
           </div>
 
@@ -492,7 +492,7 @@ const UserDashboard = () => {
                             onClick={() => setActiveTab("tax")}
                             className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white text-xs font-bold rounded-xl border border-white/15 transition-all"
                           >
-                            Tax Receipts 📁
+                            Donation Receipts 📁
                           </button>
                         </div>
                       </div>
@@ -548,7 +548,7 @@ const UserDashboard = () => {
                 <ErrorBoundary title="Impact Statistics Summary" name="UserDashboardKPIs">
                   <motion.div variants={itemVariants} className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
                     {[
-                      { label: "Total Contributions", value: totalDonated, isCurrency: true, icon: "💎", sub: "Tax-exempt donations", accent: "border-l-4 border-l-brand-gold" },
+                      { label: "Total Contributions", value: totalDonated, isCurrency: true, icon: "💎", sub: "Voluntary contributions", accent: "border-l-4 border-l-brand-gold" },
                       { label: "Gifts Rendered", value: successfulDonations.length, isCurrency: false, icon: "📈", sub: "Successful transactions", accent: "border-l-4 border-l-blue-500" },
                       { label: "Causes Supported", value: uniqueInitiatives, isCurrency: false, icon: "🎯", sub: "Impact verticals", accent: "border-l-4 border-l-emerald-600" },
                       { label: "Achievements", value: achievements.length, isCurrency: false, icon: "🏆", sub: "Activity badges", accent: "border-l-4 border-l-purple-600" },
@@ -755,7 +755,7 @@ const UserDashboard = () => {
                     </h3>
                     <div className="bg-white rounded-3xl p-5 border border-slate-100 grid grid-cols-2 gap-3">
                       {[
-                        { to: "/donation", emoji: "💝", label: "Donate Funds", sub: "Apply tax write-off", hover: "hover:border-amber-200 hover:bg-amber-500/5" },
+                        { to: "/donation", emoji: "💝", label: "Donate Funds", sub: "Voluntary donation", hover: "hover:border-amber-200 hover:bg-amber-500/5" },
                         { to: "/events", emoji: "📅", label: "Initiatives", sub: "Volunteer / Attend", hover: "hover:border-blue-200 hover:bg-blue-500/5" },
                         { to: "/volunteer", emoji: "🤝", label: "Join Roster", sub: "Volunteer drive", hover: "hover:border-emerald-200 hover:bg-emerald-500/5" },
                       ].map((item) => (
@@ -774,8 +774,8 @@ const UserDashboard = () => {
                         className="flex flex-col items-center justify-center p-4 bg-slate-50 hover:bg-purple-500/5 rounded-2xl hover:border-purple-200 border border-transparent transition-all group text-center"
                       >
                         <span className="text-2xl mb-1 group-hover:scale-110 transition-transform duration-300">📜</span>
-                        <span className="text-xs font-black text-slate-800">Certificate</span>
-                        <span className="text-[9px] text-slate-400 mt-0.5 leading-tight">Impact seal download</span>
+                        <span className="text-xs font-black text-slate-800">Receipts</span>
+                        <span className="text-[9px] text-slate-400 mt-0.5 leading-tight">Donation receipts</span>
                       </button>
                     </div>
                   </div>
@@ -963,15 +963,15 @@ const UserDashboard = () => {
                       </div>
                       <h2 className="text-2xl font-black leading-tight">Tax Certificate Center</h2>
                       <p className="text-amber-100/80 text-sm mt-1 max-w-md">
-                        Applications for 12A/80G registrations are filed and pending. Tax-exempt certificates will be auto-generated retrospectively on confirmed payments once received.
+                        The Trust's applicable tax registration/approval is currently under process. No tax benefit or deduction is being promised at this time.
                       </p>
                     </div>
                     <div className="bg-white/15 backdrop-blur rounded-2xl p-5 text-center min-w-[140px]">
-                      <p className="text-xs font-bold text-amber-100 uppercase tracking-wide">Eligible Deduction</p>
-                      <p className="text-3xl font-black mt-1">
-                        {formatRupee(Math.round(totalDonated * 0.5))}
+                      <p className="text-xs font-bold text-amber-100 uppercase tracking-wide">Status</p>
+                      <p className="text-xl font-black mt-1">
+                        PENDING
                       </p>
-                      <p className="text-[10px] text-amber-200 mt-1">50% of {formatRupee(totalDonated)}</p>
+                      <p className="text-[10px] text-amber-200 mt-1">12A & 80G Approval</p>
                     </div>
                   </div>
                 </div>
@@ -982,7 +982,7 @@ const UserDashboard = () => {
                     <WorkspacePremiumIcon sx={{ fontSize: 64, color: "#e2e8f0", mb: 2 }} />
                     <h3 className="text-lg font-bold text-slate-700">No certificates yet</h3>
                     <p className="text-slate-400 text-xs mt-2 max-w-sm mx-auto">
-                      Make a successful donation to generate your first 80G tax certificate.
+                      Make a successful donation to view your receipt.
                     </p>
                     <Link
                       to="/donation"
@@ -1014,7 +1014,7 @@ const UserDashboard = () => {
                           </span>
                           <div>
                             <p className="text-sm font-black text-slate-800">Total Donated: {formatRupee(yearTotal)}</p>
-                            <p className="text-[11px] text-emerald-600 font-bold">80G Deduction: {formatRupee(yearDeduction)}</p>
+                            <p className="text-[11px] text-slate-500 font-bold">Tax Exemption: Pending Approval</p>
                           </div>
                         </div>
                       </div>
@@ -1051,8 +1051,8 @@ const UserDashboard = () => {
                                   <p className="text-xl font-black text-slate-900">{formatRupee(don.amount)}</p>
                                 </div>
                                 <div className="text-right">
-                                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Tax Savings (50%)</p>
-                                  <p className="text-lg font-black text-emerald-600">{formatRupee(Math.round(don.amount * 0.5))}</p>
+                                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Tax Status</p>
+                                  <p className="text-[11px] font-bold text-amber-600 mt-1">Pending Approval</p>
                                 </div>
                               </div>
 
@@ -1108,12 +1108,12 @@ const UserDashboard = () => {
                                 {don.status === "SUCCESS" ? (
                                   <>
                                     <VerifiedIcon sx={{ fontSize: 16, color: "#059669" }} />
-                                    Receipt Ready — 80G Approval Pending
+                                    Receipt Ready — Exemption Pending
                                   </>
                                 ) : (
                                   <>
                                     <PendingIcon sx={{ fontSize: 16, color: "#94a3b8" }} />
-                                    Certificate pending payment confirmation
+                                    Receipt pending payment confirmation
                                   </>
                                 )}
                               </div>
@@ -1201,10 +1201,10 @@ const UserDashboard = () => {
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b-2 border-slate-900 pb-5 mb-6">
               <div>
                 <Typography variant="subtitle1" className="font-black text-amber-700 tracking-tight leading-tight">
-                  K.V.G SHANMUKA SAI CHARITABLE TRUST
+                  K.V.G. SHANMUKA SAI CHARITABLE TRUST
                 </Typography>
                 <Typography variant="caption" className="block text-slate-400 font-bold leading-normal">
-                  49a, Harischandrapuram, Thullur mandal, Guntur district, Andhra pradesh, India • Govt Exemption Code: NGO-TRUST-4122
+                  49a, Harischandrapuram, Thullur mandal, Guntur district, Andhra pradesh, India
                 </Typography>
               </div>
               <div className="text-left sm:text-right">
@@ -1251,13 +1251,13 @@ const UserDashboard = () => {
               </Grid>
             </Grid>
 
-            {/* 80G Exemption Box */}
+            {/* Donation Receipt Status Box */}
             <Box className="bg-amber-500/5 border border-amber-500/10 rounded-2xl p-4 mb-6 print:border print:border-black">
               <Typography variant="subtitle2" className="font-extrabold text-amber-800 leading-tight mb-1">
-                Tax Exemption Status: APPLICATION FILED
+                Donation Receipt Status: ACKNOWLEDGEMENT ONLY
               </Typography>
               <Typography variant="caption" className="leading-relaxed block text-slate-500 font-semibold">
-                This receipt serves as official proof of donation towards K.V.G Shanmuka Sai Charitable Trust. Please note: The trust has filed applications for the 12A and 80G tax exemption certificates, which are currently pending. Exemption benefits will be active retrospectively for eligible contributions once the certificates are officially received.
+                This receipt serves as a transaction acknowledgement of your donation to K.V.G. Shanmuka Sai Charitable Trust. Please note: The trust's applicable tax registration/approval is currently under process. No tax benefit or deduction is being promised at this time.
               </Typography>
             </Box>
 
@@ -1279,7 +1279,7 @@ const UserDashboard = () => {
             </div>
 
             <div className="text-center mt-6 hidden print:block border-t border-slate-200 pt-4 text-[10px] text-slate-450 font-bold">
-              Thank you for supporting K.V.G Shanmuka Sai Charitable Trust. This is a computer-generated tax receipt. No physical signature required.
+              Thank you for supporting K.V.G. Shanmuka Sai Charitable Trust. This is a computer-generated donation receipt. No physical signature required.
             </div>
           </div>
 

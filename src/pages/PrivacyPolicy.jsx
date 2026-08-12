@@ -32,7 +32,7 @@ function PrivacyPolicy() {
             Privacy Policy
           </Typography>
           <Typography variant="body1" color="text.secondary" sx={{ maxWidth: 600, mx: 'auto' }}>
-            Effective Date: August 11, 2026. This policy outlines how K.V.G. Shanmukha Sai Charitable Trust collects, uses, and safeguards your information.
+            Effective Date: August 11, 2026. This policy outlines how K.V.G. Shanmuka Sai Charitable Trust collects, uses, and safeguards your information.
           </Typography>
         </motion.div>
 
@@ -49,7 +49,7 @@ function PrivacyPolicy() {
                 1. Introduction
               </Typography>
               <Typography variant="body2" color="text.secondary" className="mb-2">
-                K.V.G. Shanmukha Sai Charitable Trust ("we", "us", "our") is dedicated to protecting the privacy of our website visitors, donors, volunteers, and assistance applicants. This Privacy Policy details our practices concerning the collection, usage, processing, and protection of your personal and technical data.
+                K.V.G. Shanmuka Sai Charitable Trust ("we", "us", "our") is dedicated to protecting the privacy of our website visitors, donors, volunteers, and assistance applicants. This Privacy Policy details our practices concerning the collection, usage, processing, and protection of your personal and technical data.
               </Typography>
             </div>
 
@@ -242,7 +242,7 @@ function PrivacyPolicy() {
                 For questions regarding this policy or to request updates to your records, please contact us at:
               </Typography>
               <div className="bg-slate-50 mt-4 p-5 rounded-2xl border border-slate-100 text-xs md:text-sm text-slate-600 space-y-1 font-medium">
-                <p className="text-slate-800 font-bold">K.V.G. Shanmukha Sai Charitable Trust</p>
+                <p className="text-slate-800 font-bold">K.V.G. Shanmuka Sai Charitable Trust</p>
                 <p><strong>Address:</strong> 49a, Harischandrapuram, Thullur mandal, Guntur district, Andhra pradesh, India</p>
                 <p><strong>Email:</strong> kvgshanmukhsaitrust@gmail.com</p>
                 <p><strong>Phone:</strong> 8919493436, 9121603777, 9390564417</p>

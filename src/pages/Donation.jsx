@@ -61,27 +61,28 @@ function Donation() {
   const [paymentFailed, setPaymentFailed] = useState(false);
   const [failureReason, setFailureReason] = useState("");
 
-  // Dynamically load Cloudflare Turnstile script
+  // Dynamically load Cloudflare Turnstile script and handle initialization/render
   useEffect(() => {
-    if (!document.getElementById("turnstile-script")) {
-      const script = document.createElement("script");
-      script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
-      script.id = "turnstile-script";
-      script.async = true;
-      script.defer = true;
-      document.body.appendChild(script);
-    }
-  }, []);
+    let widgetId = null;
 
-  // Initialize/Render Turnstile widget
-  useEffect(() => {
     const initTurnstile = () => {
       if (window.turnstile && document.getElementById("turnstile-container")) {
         try {
-          window.turnstile.render("#turnstile-container", {
+          const container = document.getElementById("turnstile-container");
+          if (container) {
+            container.innerHTML = "";
+          }
+
+          widgetId = window.turnstile.render("#turnstile-container", {
             sitekey: import.meta.env.VITE_TURNSTILE_SITE_KEY || "1x00000000000000000000AA",
             callback: (token) => {
               setTurnstileToken(token);
+            },
+            "expired-callback": () => {
+              setTurnstileToken("");
+            },
+            "error-callback": () => {
+              setTurnstileToken("");
             },
           });
         } catch (e) {
@@ -90,11 +91,45 @@ function Donation() {
       }
     };
 
-    if (window.turnstile) {
+    // Global callback for Turnstile
+    window.onloadTurnstileCallback = () => {
       initTurnstile();
+    };
+
+    const existingScript = document.getElementById("turnstile-script");
+    if (!existingScript) {
+      const script = document.createElement("script");
+      script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=onloadTurnstileCallback";
+      script.id = "turnstile-script";
+      script.async = true;
+      script.defer = true;
+      document.body.appendChild(script);
     } else {
-      window.onloadTurnstileCallback = initTurnstile;
+      if (window.turnstile) {
+        initTurnstile();
+      } else {
+        existingScript.addEventListener("load", initTurnstile);
+      }
     }
+
+    return () => {
+      if (window.turnstile && widgetId !== null) {
+        try {
+          window.turnstile.remove(widgetId);
+        } catch (e) {
+          console.warn("Turnstile remove warning:", e);
+        }
+      }
+
+      const script = document.getElementById("turnstile-script");
+      if (script) {
+        script.removeEventListener("load", initTurnstile);
+      }
+
+      if (window.onloadTurnstileCallback) {
+        delete window.onloadTurnstileCallback;
+      }
+    };
   }, [successReceipt]);
 
   const resetTurnstile = () => {
@@ -199,6 +234,11 @@ function Donation() {
     }
     if (!donorEmail.trim()) {
       setError("Please specify a valid contact email.");
+      return;
+    }
+
+    if (!turnstileToken) {
+      setError("Please complete the security verification before continuing.");
       return;
     }
 

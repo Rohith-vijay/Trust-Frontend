@@ -19,6 +19,9 @@ function About() {
         <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-6 text-primary">
           Our Story
         </h1>
+        <p className="text-gray-500 italic max-w-xl mx-auto mb-8">
+          Continuing a legacy of compassion, service, and meaningful change.
+        </p>
 
         <div className="text-lg text-gray-700 leading-relaxed max-w-3xl mx-auto space-y-6 text-left md:text-center">
           <p>

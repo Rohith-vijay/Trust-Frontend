@@ -31,9 +31,39 @@ function Login() {
     // Hydrate session if redirected from successful Google OAuth
     if (oauthSuccess === "true") {
       setOauthHydrating(true);
+
+      const token = searchParams.get("token");
+      const oauthName = searchParams.get("name");
+      const oauthEmail = searchParams.get("email");
+      const oauthRole = searchParams.get("role");
+
+      if (token && oauthEmail) {
+        // Token was passed directly in the URL (cross-origin / Vercel deployment)
+        const userObj = {
+          name: oauthName || "",
+          email: oauthEmail,
+          role: oauthRole || "USER",
+        };
+        // Store the JWT token so future API requests include Authorization header
+        localStorage.setItem("trustcore_access_token", token);
+        oauthLogin(token, null, userObj);
+
+        // Clean the URL before navigating
+        if (oauthRole === "ADMIN") {
+          navigate("/admin", { replace: true });
+        } else if (oauthRole === "VOLUNTEER") {
+          navigate("/dashboard/volunteer", { replace: true });
+        } else if (oauthRole === "APPLICANT") {
+          navigate("/dashboard/applicant", { replace: true });
+        } else {
+          navigate("/dashboard", { replace: true });
+        }
+        return;
+      }
+
+      // Fallback: same-origin / localhost — cookies are available, fetch user via /auth/me
       authService.getMe()
-        .then((res) => {
-          const userObj = res.data;
+        .then((userObj) => {
           oauthLogin(null, null, userObj);
           
           // Dynamic dashboard routing depending on roles

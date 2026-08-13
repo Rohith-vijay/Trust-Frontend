@@ -7,7 +7,7 @@ import { useAuth } from "../../hooks/useAuth";
 import databaseService from "../../services/databaseService";
 import ErrorBoundary from "../../components/ErrorBoundary";
 import { UserDashboardOverviewSkeleton } from "../../components/SkeletonLoader";
-import { stripHtml } from "../../utils";
+import { stripHtml, updatePageSEO } from "../../utils";
 import SecurityPanel from "../../components/SecurityPanel";
 
 import {
@@ -84,6 +84,7 @@ const UserDashboard = () => {
   const [newlyUnlocked, setNewlyUnlocked] = useState([]);
 
   useEffect(() => {
+    updatePageSEO("Donor Dashboard", "", "", true);
     let isMounted = true;
     const fetchDashboardData = async () => {
       try {
@@ -303,15 +304,15 @@ const UserDashboard = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [totalDonated, uniqueInitiatives, successfulDonations.length, loading]);
 
-  // AI Impact Summary
-  const getAiGeneratedSummary = () => {
+  // Programmatic Impact Summary
+  const getImpactSummary = () => {
     if (totalDonated === 0) {
-      return "Welcome to the K.V.G. Shanmuka Sai family! Make your first secure contribution to unlock a metric-grounded impact synthesis. Our Director's AI Agent automatically computes resource allocation maps representing how your donation funds clean water filters and village schools.";
+      return "Welcome to the K.V.G. Shanmuka Sai family! Make your first secure contribution to unlock a metric-grounded impact synthesis. Our platform automatically computes resource allocation maps representing how your donation funds clean water filters and village schools.";
     }
     const educationAllocation = Math.round(totalDonated * 0.4);
     const foodAllocation = Math.round(totalDonated * 0.25);
     const medicalAllocation = Math.round(totalDonated * 0.2);
-    return `Director's AI Impact Synthesis: Based on your cumulative lifetime contribution of ${formatRupee(totalDonated)}, you have funded approximately ${formatRupee(educationAllocation)} for Education Expansion (delivering evening coaching and study kits to ~${livesImpacted || 1} village kids) and ${formatRupee(foodAllocation)} for Food & Nutrition programs (furnishing ~${mealsEnabled || 5} meals). Another ${formatRupee(medicalAllocation)} has been allocated directly towards primary village medical diagnostics. Your funds operate with 100% verified integrity inside Guntur's regional hubs.`;
+    return `Operational Impact Synthesis: Based on your cumulative lifetime contribution of ${formatRupee(totalDonated)}, you have funded approximately ${formatRupee(educationAllocation)} for Education Expansion (delivering evening coaching and study kits to ~${livesImpacted || 1} village kids) and ${formatRupee(foodAllocation)} for Food & Nutrition programs (furnishing ~${mealsEnabled || 5} meals). Another ${formatRupee(medicalAllocation)} has been allocated directly towards primary village medical diagnostics. Your funds operate with 100% verified integrity inside Guntur's regional hubs.`;
   };
 
   // PDF Download handler
@@ -576,7 +577,7 @@ const UserDashboard = () => {
                   </motion.div>
                 </ErrorBoundary>
 
-                <ErrorBoundary title="AI Impact Assessment" name="UserDashboardAISynthesis">
+                <ErrorBoundary title="Impact Assessment" name="UserDashboardOperationalSynthesis">
                   <motion.div
                     variants={itemVariants}
                     className="bg-gradient-to-r from-amber-500/5 via-indigo-500/5 to-transparent border border-amber-500/10 rounded-3xl p-6 relative overflow-hidden group shadow-sm"
@@ -585,12 +586,12 @@ const UserDashboard = () => {
                     <div className="flex items-center gap-3 mb-4">
                       <span className="text-2xl animate-pulse select-none">✨</span>
                       <div>
-                        <h4 className="text-sm font-black text-brand-navy-dark tracking-tight">Personalized AI Impact Assessment</h4>
+                        <h4 className="text-sm font-black text-brand-navy-dark tracking-tight">Personalized Impact Assessment</h4>
                         <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Dynamic operational synthesis of your financial investments</p>
                       </div>
                     </div>
                     <Typography variant="body2" sx={{ fontWeight: 500, lineHeight: 1.7 }} className="text-slate-600 max-w-5xl">
-                      {getAiGeneratedSummary()}
+                      {getImpactSummary()}
                     </Typography>
                   </motion.div>
                 </ErrorBoundary>
@@ -951,7 +952,7 @@ const UserDashboard = () => {
                 exit={{ opacity: 0, y: -10 }}
                 className="space-y-8"
               >
-                {/* 80G Summary Banner */}
+                {/* Donation Summary Banner */}
                 <div className="rounded-3xl bg-gradient-to-r from-amber-600 to-amber-500 p-8 text-white relative overflow-hidden shadow-2xl">
                   <div className="absolute right-0 top-0 w-48 h-48 bg-white/5 rounded-full blur-2xl -mr-10 -mt-10" />
                   <div className="absolute left-10 bottom-0 w-32 h-32 bg-white/5 rounded-full blur-2xl -mb-8" />
@@ -959,9 +960,9 @@ const UserDashboard = () => {
                     <div>
                       <div className="flex items-center gap-2 mb-2">
                         <VerifiedIcon sx={{ fontSize: 20, color: "rgba(255,255,255,0.9)" }} />
-                        <span className="text-xs font-extrabold uppercase tracking-widest text-amber-100">Section 80G — Income Tax Act, 1961</span>
+                        <span className="text-xs font-extrabold uppercase tracking-widest text-amber-100">Donation Receipt — K.V.G. Shanmuka Sai Charitable Trust</span>
                       </div>
-                      <h2 className="text-2xl font-black leading-tight">Tax Certificate Center</h2>
+                      <h2 className="text-2xl font-black leading-tight">Donation Receipt Center</h2>
                       <p className="text-amber-100/80 text-sm mt-1 max-w-md">
                         The Trust's applicable tax registration/approval is currently under process. No tax benefit or deduction is being promised at this time.
                       </p>
@@ -979,6 +980,7 @@ const UserDashboard = () => {
                 {/* If no successful donations */}
                 {successfulDonations.length === 0 && (
                   <div className="bg-white rounded-3xl border border-slate-100 p-16 text-center shadow-sm">
+
                     <WorkspacePremiumIcon sx={{ fontSize: 64, color: "#e2e8f0", mb: 2 }} />
                     <h3 className="text-lg font-bold text-slate-700">No certificates yet</h3>
                     <p className="text-slate-400 text-xs mt-2 max-w-sm mx-auto">
@@ -1193,7 +1195,7 @@ const UserDashboard = () => {
             <Box className="text-center mb-6 print:hidden">
               <CheckCircleIcon color="success" sx={{ fontSize: 52, mb: 1 }} />
               <Typography variant="h6" className="font-extrabold text-slate-800">
-                Official 80G Receipt Reconciled
+                Official Donation Receipt Reconciled
               </Typography>
             </Box>
 

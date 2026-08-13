@@ -8,7 +8,7 @@ import GalleryFooterCTA from "../components/gallery/GalleryFooterCTA";
 import defaultShowcaseConfig from "../data/defaultShowcaseConfig";
 import { premiumEase } from "../constants/motionVariants";
 import databaseService from "../services/databaseService";
-import { getBackendUrl } from "../utils";
+import { getBackendUrl, updatePageSEO } from "../utils";
 
 /**
  * ImpactShowcase — /impact-showcase
@@ -25,7 +25,7 @@ function ImpactShowcase() {
 
   // Set document title for SEO & fetch settings
   useEffect(() => {
-    document.title = "Impact Showcase | KVGS Sai Charitable Trust";
+    updatePageSEO("Impact Showcase", "View interactive stories and quantified metrics of community transformation achieved by K.V.G. Shanmuka Sai Charitable Trust.", "/impact-showcase");
     
     const loadCMSConfig = async () => {
       try {

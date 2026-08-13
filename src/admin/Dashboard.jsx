@@ -5,6 +5,7 @@ import { pageVariants, pageTransition } from "../constants/motionVariants";
 import { useAuth } from "../hooks/useAuth";
 import databaseService from "../services/databaseService";
 import notificationService from "../services/notificationService";
+import { updatePageSEO } from "../utils";
 import {
   getMessages,
   markAsRead,
@@ -322,6 +323,7 @@ const Dashboard = () => {
   }, []);
 
   useEffect(() => {
+    updatePageSEO("Admin Dashboard", "", "", true);
     refreshCore();
     loadDashboard();
     const interval = setInterval(refreshCore, 15000);

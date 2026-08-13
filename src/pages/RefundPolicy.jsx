@@ -1,10 +1,14 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { updatePageSEO } from "../utils";
 import { motion } from "framer-motion";
 import { pageVariants, pageTransition } from "../constants/motionVariants";
 import { Typography, Card, Box, Divider } from "@mui/material";
 import PaidOutlinedIcon from '@mui/icons-material/PaidOutlined';
 
 function RefundPolicy() {
+  useEffect(() => {
+    updatePageSEO("Refund Policy", "Read the Refund and Cancellation Policy of K.V.G. Shanmuka Sai Charitable Trust regarding online donations.", "/refund-policy");
+  }, []);
   return (
     <motion.div
       variants={pageVariants}

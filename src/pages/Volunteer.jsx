@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { pageVariants, pageTransition, sectionVariants } from "../constants/motionVariants";
 import { submitVolunteerApplication } from "../services/messageService";
 import databaseService from "../services/databaseService";
+import { updatePageSEO } from "../utils";
 import { useAuth } from "../hooks/useAuth";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Typography, Card, CardContent, Button, TextField, MenuItem, CircularProgress, Alert } from "@mui/material";
@@ -23,6 +24,7 @@ function Volunteer() {
   const [error, setError] = useState("");
 
   useEffect(() => {
+    updatePageSEO("Volunteer With Us", "Join hands with K.V.G. Shanmuka Sai Charitable Trust. Become a volunteer and help us make a meaningful impact in education, community water access, and environmental care.", "/volunteer");
     const qEventId = searchParams.get("eventId");
     if (qEventId) {
       setSelectedEventId(qEventId);

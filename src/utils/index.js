@@ -100,3 +100,39 @@ export const resolveIconEmoji = (icon) => {
       return icon;
   }
 };
+
+/**
+ * Utility helper to set page-specific SEO parameters dynamically in React.
+ */
+export const updatePageSEO = (title, description, path = "", noindex = false) => {
+  if (typeof document === "undefined") return;
+
+  const fullTitle = `${title} | K.V.G. Shanmuka Sai Charitable Trust`;
+  document.title = fullTitle;
+
+  const updateMeta = (name, content, attr = "name") => {
+    let el = document.querySelector(`meta[${attr}="${name}"]`);
+    if (!el) {
+      el = document.createElement("meta");
+      el.setAttribute(attr, name);
+      document.head.appendChild(el);
+    }
+    el.setAttribute("content", content);
+  };
+
+  updateMeta("description", description);
+  updateMeta("og:title", fullTitle, "property");
+  updateMeta("og:description", description, "property");
+  updateMeta("robots", noindex ? "noindex, nofollow" : "index, follow");
+  
+  const fullUrl = `https://shanmukasaitrust.org${path}`;
+  updateMeta("og:url", fullUrl, "property");
+
+  let canonical = document.querySelector("link[rel='canonical']");
+  if (!canonical) {
+    canonical = document.createElement("link");
+    canonical.setAttribute("rel", "canonical");
+    document.head.appendChild(canonical);
+  }
+  canonical.setAttribute("href", fullUrl);
+};

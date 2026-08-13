@@ -228,32 +228,6 @@ const databaseService = {
     return response.data;
   },
 
-  // ─── AI & Automation Layer (Admin) ──────────────────────────
-  generateAiReport: async (scope) => {
-    const response = await api.post(`/admin/ai/impact-report?scope=${scope}`);
-    return response.data;
-  },
-
-  enhanceStoryAi: async (content, styleProfile) => {
-    const response = await api.post("/admin/ai/enhance-story", { content, styleProfile });
-    return response.data;
-  },
-
-  summarizeAnalyticsAi: async () => {
-    const response = await api.post("/admin/ai/summarize-analytics");
-    return response.data;
-  },
-
-  matchVolunteerAi: async (volunteerSkills, volunteerExperience, eventTitle, eventSkillsNeeded) => {
-    const response = await api.post("/admin/ai/match-volunteers", {
-      volunteerSkills,
-      volunteerExperience,
-      eventTitle,
-      eventSkillsNeeded
-    });
-    return response.data;
-  },
-
   // ─── Users (Admin) ──────────────────────────────────────────
   getUsers: async () => {
     const response = await api.get("/admin/users");

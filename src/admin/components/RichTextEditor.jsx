@@ -107,14 +107,7 @@ const MenuBar = ({ editor, onPreview, onAiAssist }) => {
       
       <div className="flex-1" />
       
-      {/* glowing AI Assist Button */}
-      <button
-        type="button"
-        onClick={onAiAssist}
-        className="mr-2 px-3 py-1 bg-gradient-to-r from-amber-500 to-indigo-600 text-white text-xs font-black rounded-lg hover:brightness-95 transition flex items-center gap-1.5 shadow-sm select-none"
-      >
-        <span>✨</span> AI Assist
-      </button>
+
       
       <button 
         type="button" 
@@ -129,10 +122,6 @@ const MenuBar = ({ editor, onPreview, onAiAssist }) => {
 
 const RichTextEditor = ({ content, onChange, placeholder }) => {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
-  const [isAiOpen, setIsAiOpen] = useState(false);
-  const [styleProfile, setStyleProfile] = useState("professional");
-  const [aiLoading, setAiLoading] = useState(false);
-  const [enhancedContent, setEnhancedContent] = useState("");
 
   const editor = useEditor({
     extensions: [
@@ -158,26 +147,7 @@ const RichTextEditor = ({ content, onChange, placeholder }) => {
     },
   });
 
-  const handleEnhance = async () => {
-    if (!editor) return;
-    try {
-      setAiLoading(true);
-      const res = await databaseService.enhanceStoryAi(editor.getHTML(), styleProfile);
-      setEnhancedContent(res.data || res);
-    } catch (e) {
-      console.error("[AiAssist] Enhancement call failed:", e);
-      alert("AI Enhancement failed. Falling back gracefully.");
-    } finally {
-      setAiLoading(false);
-    }
-  };
 
-  const handleAcceptReplace = () => {
-    if (!editor || !enhancedContent) return;
-    editor.commands.setContent(enhancedContent);
-    setIsAiOpen(false);
-    setEnhancedContent("");
-  };
 
   return (
     <>
@@ -185,7 +155,6 @@ const RichTextEditor = ({ content, onChange, placeholder }) => {
         <MenuBar 
           editor={editor} 
           onPreview={() => setIsPreviewOpen(true)} 
-          onAiAssist={() => setIsAiOpen(true)}
         />
         <EditorContent editor={editor} />
       </div>
@@ -196,119 +165,7 @@ const RichTextEditor = ({ content, onChange, placeholder }) => {
         content={editor ? editor.getHTML() : ''} 
       />
 
-      {/* Premium AI Assist Diff-Style Overlay Modal */}
-      {isAiOpen && (
-        <div className="fixed inset-0 bg-brand-navy-dark/40 backdrop-blur-sm flex items-center justify-center p-4 z-[9999] animate-fade-in">
-          <div className="bg-white border border-gray-100 rounded-3xl w-full max-w-4xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden animate-slide-up">
-            
-            {/* Modal Header */}
-            <div className="bg-gradient-to-r from-amber-500/10 via-indigo-500/5 to-transparent p-5 border-b border-gray-150 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <span className="text-2xl animate-pulse select-none">✨</span>
-                <div>
-                  <h3 className="text-base font-black text-brand-navy-dark tracking-tight">AI Story Enhancement Assistant</h3>
-                  <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Tone optimization, grammar structures, and outcomes accentuation</p>
-                </div>
-              </div>
-              <button 
-                onClick={() => { setIsAiOpen(false); setEnhancedContent(""); }}
-                className="text-gray-400 hover:text-gray-600 text-xl font-bold select-none"
-              >
-                ✕
-              </button>
-            </div>
 
-            {/* Modal Controls Bar */}
-            <div className="bg-gray-50/50 p-4 border-b border-gray-100 flex flex-wrap items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <span className="text-xs font-bold text-gray-500">Stylistic Profile:</span>
-                <select
-                  value={styleProfile}
-                  onChange={(e) => setStyleProfile(e.target.value)}
-                  className="text-xs bg-white border border-gray-200 rounded-full py-1.5 px-4 font-bold text-gray-600 focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer"
-                >
-                  <option value="professional">Professional Copywriter (Clear & Strategic)</option>
-                  <option value="immersive">Immersive Narrative (Resilience & Compassion)</option>
-                  <option value="impact">Impact Focused (Quantified Metrics & Targets)</option>
-                  <option value="shorten">Shorten / Condense (Sleek & Concise)</option>
-                </select>
-              </div>
-              <button
-                onClick={handleEnhance}
-                disabled={aiLoading}
-                className="text-xs font-black text-white bg-gradient-to-r from-amber-500 to-indigo-600 hover:brightness-95 disabled:opacity-50 px-5 py-2.5 rounded-full transition shadow-sm flex items-center gap-1.5"
-              >
-                {aiLoading ? (
-                  <>
-                    <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>
-                    Writing Proposal...
-                  </>
-                ) : (
-                  <>
-                    <span>🪄</span> Generate Enhanced Draft
-                  </>
-                )}
-              </button>
-            </div>
-
-            {/* Comparison Workspace */}
-            <div className="flex-1 p-6 overflow-y-auto grid md:grid-cols-2 gap-6 bg-gray-50/20">
-              
-              {/* Left Column: Original Draft */}
-              <div className="flex flex-col">
-                <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-2">Current CMS Draft</span>
-                <div 
-                  className="flex-1 bg-white border border-gray-150 rounded-2xl p-4 prose prose-sm max-w-none text-gray-600 select-none overflow-y-auto max-h-[40vh] md:max-h-full"
-                  dangerouslySetInnerHTML={{ __html: editor ? editor.getHTML() : "" }}
-                />
-              </div>
-
-              {/* Right Column: AI Proposed Revision */}
-              <div className="flex flex-col">
-                <span className="text-[10px] text-indigo-500 font-bold uppercase tracking-wider mb-2">AI Proposed Proposal (Vetted Revision)</span>
-                {aiLoading ? (
-                  <div className="flex-1 bg-white border border-dashed border-indigo-200 rounded-2xl p-6 flex flex-col items-center justify-center text-center">
-                    <span className="text-3xl animate-bounce mb-3 select-none">✍️</span>
-                    <p className="text-xs font-bold text-indigo-600">Re-shaping vocabulary structures...</p>
-                    <p className="text-[10px] text-gray-400 mt-1 max-w-[200px]">Generating GFM paragraphs and styled blockquotes aligned to style targets.</p>
-                  </div>
-                ) : enhancedContent ? (
-                  <div 
-                    className="flex-1 bg-gradient-to-br from-indigo-50/50 via-white to-white border border-indigo-150 rounded-2xl p-4 prose prose-sm max-w-none text-gray-700 overflow-y-auto max-h-[40vh] md:max-h-full"
-                    dangerouslySetInnerHTML={{ __html: enhancedContent }}
-                  />
-                ) : (
-                  <div className="flex-1 bg-white border border-dashed border-gray-200 rounded-2xl p-6 flex flex-col items-center justify-center text-center text-gray-400 font-medium text-xs">
-                    <span className="text-2xl mb-2 select-none">💡</span>
-                    No proposal drafted yet. Select a style profile and click "Generate Enhanced Draft".
-                  </div>
-                )}
-              </div>
-
-            </div>
-
-            {/* Modal Footer Controls */}
-            <div className="bg-white p-4 border-t border-gray-100 flex items-center justify-end gap-3">
-              <button
-                type="button"
-                onClick={() => { setIsAiOpen(false); setEnhancedContent(""); }}
-                className="px-4 py-2 border border-gray-200 rounded-full text-xs font-bold text-gray-500 hover:bg-gray-50 transition"
-              >
-                Discard Proposal
-              </button>
-              <button
-                type="button"
-                onClick={handleAcceptReplace}
-                disabled={!enhancedContent}
-                className="px-5 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:brightness-95 disabled:opacity-50 text-white text-xs font-black rounded-full transition shadow-md flex items-center gap-1.5"
-              >
-                Accept & Replace Content
-              </button>
-            </div>
-
-          </div>
-        </div>
-      )}
     </>
   );
 };

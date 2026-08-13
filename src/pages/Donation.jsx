@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { pageVariants, pageTransition } from "../constants/motionVariants";
 import { useAuth } from "../hooks/useAuth";
 import databaseService from "../services/databaseService";
+import { updatePageSEO } from "../utils";
 import {
   Typography,
   Card,
@@ -145,6 +146,7 @@ function Donation() {
 
   // Fetch events list on mount
   useEffect(() => {
+    updatePageSEO("Donate Now", "Support K.V.G. Shanmuka Sai Charitable Trust by making a donation. Every contribution directly funds education support, native tree care, and clean water delivery in Harischandrapuram.", "/donation");
     const fetchEvents = async () => {
       try {
         const res = await databaseService.getEvents(0, 100);
@@ -290,7 +292,16 @@ function Donation() {
       }
     } catch (err) {
       console.error("[DonationPage] Initiation failed:", err);
-      setError(err.response?.data?.message || err.message || "Checkout initiation failed. Please try again.");
+      const rawMsg = err.response?.data?.message || err.message || "";
+      let userFriendlyMsg = "Checkout initiation failed. Please try again.";
+      if (rawMsg.includes("Network Error") || rawMsg.includes("ERR_CONNECTION_REFUSED")) {
+        userFriendlyMsg = "The donation service is temporarily offline. Please check your network or try again later.";
+      } else if (err.response?.status === 500) {
+        userFriendlyMsg = "An internal server error occurred while processing your request. Please try again later.";
+      } else if (rawMsg) {
+        userFriendlyMsg = rawMsg;
+      }
+      setError(userFriendlyMsg);
       resetTurnstile();
     } finally {
       setLoading(false);

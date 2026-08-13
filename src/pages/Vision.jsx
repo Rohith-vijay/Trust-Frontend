@@ -4,6 +4,7 @@ import { pageVariants, pageTransition } from "../constants/motionVariants";
 import { useNavigate } from "react-router-dom";
 import databaseService from "../services/databaseService";
 import { Typography, Card, CardContent, Button, CircularProgress } from "@mui/material";
+import { updatePageSEO } from "../utils";
 import VolunteerActivismIcon from '@mui/icons-material/VolunteerActivism';
 import HandshakeIcon from '@mui/icons-material/Handshake';
 
@@ -43,6 +44,7 @@ function Vision() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    updatePageSEO("Our Vision", "Explore our vision for long-term rural empowerment and sustainable development. We believe in building self-reliant communities through education, water accessibility, and green initiatives.", "/vision");
     const fetchContent = async () => {
       try {
         const content = await databaseService.getAllPageContent();

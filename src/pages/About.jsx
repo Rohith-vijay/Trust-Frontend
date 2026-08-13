@@ -1,8 +1,13 @@
+import React, { useEffect } from "react";
 import { motion } from "framer-motion";
 import { pageVariants, pageTransition } from "../constants/motionVariants";
 import TeamSection from "../components/TeamSection";
+import { updatePageSEO } from "../utils";
 
 function About() {
+  useEffect(() => {
+    updatePageSEO("About Us", "Discover the story, mission, and leadership of K.V.G. Shanmuka Sai Charitable Trust. Founded in loving memory of Mr. KVG Shanmuka Sai to carry forward his spirit of service.", "/about");
+  }, []);
   return (
     <motion.div
       variants={pageVariants}

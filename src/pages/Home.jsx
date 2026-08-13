@@ -12,7 +12,7 @@ import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 
 import databaseService from "../services/databaseService";
 import { AppContext } from "../context/AppContext";
-import { stripHtml, resolveIconEmoji } from "../utils";
+import { stripHtml, resolveIconEmoji, updatePageSEO } from "../utils";
 
 // additional sections
 import TeamSection from "../components/TeamSection";
@@ -31,6 +31,11 @@ function Home() {
   const navigate = useNavigate();
 
   React.useEffect(() => {
+    updatePageSEO(
+      "Home",
+      "Welcome to K.V.G. Shanmuka Sai Charitable Trust. We empower rural communities in Andhra Pradesh through quality education, environmental conservation, animal welfare, and clean water access.",
+      "/"
+    );
     const fetchData = async () => {
       // Keep global loading false to use skeletal shimmers for homepage content
       setGlobalLoading(false);

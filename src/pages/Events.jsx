@@ -7,7 +7,7 @@ import GroupsIcon from '@mui/icons-material/Groups';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import { ScrollStagger } from '../components/MotionContainer';
 import { CardGridSkeleton } from '../components/SkeletonLoader';
-import { stripHtml, resolveMediaUrl } from '../utils';
+import { stripHtml, resolveMediaUrl, updatePageSEO } from '../utils';
 
 export default function Events() {
   const [events, setEvents] = useState([]);
@@ -17,6 +17,7 @@ export default function Events() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    updatePageSEO("Events & Campaigns", "Stay updated on the active campaigns, community welfare camps, tree plantation drives, and food donation programs hosted by K.V.G. Shanmuka Sai Charitable Trust.", "/events");
     api.get('/events?size=100') // Fetch a larger set to handle client-side filtering robustly
       .then(res => {
         const dataPayload = res.data || res;

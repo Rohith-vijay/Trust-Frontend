@@ -7,6 +7,7 @@ import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import SiteContainer from "../components/SiteContainer";
 import databaseService from "../services/databaseService";
+import { updatePageSEO } from "../utils";
 
 function MediaGallery() {
   const [items, setItems] = useState([]);
@@ -17,6 +18,7 @@ function MediaGallery() {
   const categories = ["ALL", "EDUCATION", "WATER RELIEF", "GREEN CAMPS", "HEALTHCARE"];
 
   useEffect(() => {
+    updatePageSEO("Media Gallery", "View photographs and campaign snapshots of K.V.G. Shanmuka Sai Charitable Trust's community water projects, schools, and green plantation programs.", "/gallery");
     databaseService.getMediaAssets("ALL")
       .then(res => {
         const galleryCategories = ["GENERAL", "EDUCATION", "WATER RELIEF", "GREEN CAMPS", "HEALTHCARE"];

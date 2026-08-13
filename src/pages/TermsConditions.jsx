@@ -1,10 +1,14 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { updatePageSEO } from "../utils";
 import { motion } from "framer-motion";
 import { pageVariants, pageTransition } from "../constants/motionVariants";
 import { Typography, Card, Box, Divider } from "@mui/material";
 import GavelOutlinedIcon from '@mui/icons-material/GavelOutlined';
 
 function TermsConditions() {
+  useEffect(() => {
+    updatePageSEO("Terms and Conditions", "Read the official Terms and Conditions governing website usage, donor behavior, and administrative rules of K.V.G. Shanmuka Sai Charitable Trust.", "/terms-and-conditions");
+  }, []);
   return (
     <motion.div
       variants={pageVariants}

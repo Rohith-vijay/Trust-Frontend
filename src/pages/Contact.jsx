@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { pageVariants, pageTransition } from "../constants/motionVariants";
 import { submitMessage } from "../services/messageService";
 import { Typography, TextField, Button, Card, IconButton, CircularProgress } from "@mui/material";
+import { updatePageSEO } from "../utils";
 import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
 import PhoneOutlinedIcon from '@mui/icons-material/PhoneOutlined';
 import PlaceOutlinedIcon from '@mui/icons-material/PlaceOutlined';
@@ -13,6 +14,9 @@ import SendIcon from '@mui/icons-material/Send';
 import CheckCircleOutlinedIcon from "@mui/icons-material/CheckCircleOutlined";
 
 function Contact() {
+  useEffect(() => {
+    updatePageSEO("Contact Us", "Get in touch with K.V.G. Shanmuka Sai Charitable Trust. Contact our team in Harischandrapuram, Guntur district, Andhra Pradesh for queries, suggestions, or support.", "/contact");
+  }, []);
   const [form, setForm] = useState({ name: "", email: "", message: "" });
   const [errors, setErrors] = useState({});
   const [sent, setSent] = useState(false);

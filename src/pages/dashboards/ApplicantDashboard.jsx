@@ -7,6 +7,7 @@ import databaseService from "../../services/databaseService";
 import notificationService from "../../services/notificationService";
 import MediaUploader from "../../components/MediaUploader";
 import ErrorBoundary from "../../components/ErrorBoundary";
+import { updatePageSEO } from "../../utils";
 import { TextField, Button, Box, Typography, CircularProgress, Alert, MenuItem } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
@@ -152,6 +153,7 @@ const ApplicantDashboard = () => {
   };
 
   useEffect(() => {
+    updatePageSEO("Applicant Dashboard", "", "", true);
     fetchCases();
   }, []);
 
@@ -575,7 +577,7 @@ const ApplicantDashboard = () => {
                   <CheckCircleIcon color="success" sx={{ fontSize: 72 }} />
                   <Typography variant="h5" className="font-extrabold text-slate-800">Application Submitted!</Typography>
                   <Typography variant="body2" color="text.secondary" className="max-w-md mx-auto leading-relaxed">
-                    We've received your request. The system has initiated an AI case review. A coordinator will evaluate the details and get back to you shortly.
+                    We've received your request. The system has initiated a case review. A coordinator will evaluate the details and get back to you shortly.
                   </Typography>
                   <div className="pt-4 flex justify-center gap-3">
                     <Button 
@@ -998,21 +1000,7 @@ const ApplicantDashboard = () => {
                     )}
                   </div>
 
-                  {/* AI Summary Section */}
-                  <div className="bg-gradient-to-br from-indigo-50/30 to-violet-50/20 border border-indigo-100/60 rounded-3xl p-6 shadow-sm relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 rounded-full blur-xl -mr-10 -mt-10" />
-                    <div className="flex items-center gap-2 mb-3">
-                      <span className="text-xl">✨</span>
-                      <Typography variant="subtitle2" className="font-black text-indigo-950 uppercase tracking-wider">AI Case Summary & Analysis</Typography>
-                    </div>
-                    {activeCase.aiSummary ? (
-                      <div className="prose prose-sm text-indigo-900 text-xs font-medium leading-relaxed whitespace-pre-wrap">
-                        {activeCase.aiSummary}
-                      </div>
-                    ) : (
-                      <Typography variant="caption" className="text-slate-400 italic">Summary evaluation is in progress. The system will index your documents shortly.</Typography>
-                    )}
-                  </div>
+
 
                   {/* Step Timeline */}
                   <div className="bg-white border border-gray-100 rounded-3xl p-6 shadow-sm space-y-6">

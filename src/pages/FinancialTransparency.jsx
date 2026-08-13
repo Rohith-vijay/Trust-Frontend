@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { updatePageSEO } from "../utils";
 import { motion } from "framer-motion";
 import { pageVariants, pageTransition, sectionVariants } from "../constants/motionVariants";
 import { Typography, Card, CardContent, Grid, Box } from "@mui/material";
@@ -8,6 +9,9 @@ import SecurityIcon from "@mui/icons-material/Security";
 import SiteContainer from "../components/SiteContainer";
 
 function FinancialTransparency() {
+  useEffect(() => {
+    updatePageSEO("Financial Transparency", "Review the transparent financial records, audit summaries, and programmatic expense breakdowns of K.V.G. Shanmuka Sai Charitable Trust.", "/transparency");
+  }, []);
   // Financial breakdown values
   const financialData = [
     { title: "Direct Relief & Campaigns", value: 85, color: "#B07A3F", desc: "Clean water borewells, school books distributions, tree plantations, mobile medical clinic operations." },

@@ -1,10 +1,14 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { updatePageSEO } from "../utils";
 import { motion } from "framer-motion";
 import { pageVariants, pageTransition } from "../constants/motionVariants";
 import { Typography, Card, Box, Divider } from "@mui/material";
 import ShieldOutlinedIcon from '@mui/icons-material/ShieldOutlined';
 
 function PrivacyPolicy() {
+  useEffect(() => {
+    updatePageSEO("Privacy Policy", "Read the Privacy Policy of K.V.G. Shanmuka Sai Charitable Trust regarding data protection, user privacy, and transaction security.", "/privacy-policy");
+  }, []);
   return (
     <motion.div
       variants={pageVariants}

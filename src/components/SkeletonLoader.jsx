@@ -153,7 +153,7 @@ export const UserDashboardOverviewSkeleton = React.memo(() => {
         ))}
       </div>
 
-      {/* AI Assessment Banner */}
+
       <div className="bg-white border border-slate-200 rounded-3xl p-6 space-y-3 shadow-sm">
         <div className="flex items-center gap-2">
           <div className="w-6 h-6 rounded-full shimmer-bg-gold" />

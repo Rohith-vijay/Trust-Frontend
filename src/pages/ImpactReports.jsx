@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import api from '../services/api';
-import { resolveIconEmoji } from '../utils';
+import { resolveIconEmoji, updatePageSEO } from '../utils';
 
 export default function ImpactReports() {
   const [reports, setReports] = useState([]);
@@ -16,6 +16,7 @@ export default function ImpactReports() {
   ];
 
   useEffect(() => {
+    updatePageSEO("Impact Reports", "Read the detailed impact metrics, statistics, and outcomes of K.V.G. Shanmuka Sai Charitable Trust's operations in Andhra Pradesh.", "/reports");
     api.get('/impact-stats', { skipGlobalToast: true })
       .then(res => {
         const dataPayload = res.data || res;

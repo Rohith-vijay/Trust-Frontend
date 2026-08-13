@@ -428,7 +428,6 @@ const CasesPanel = ({ formatDate, LoadingSpinner, EmptyState }) => {
               <Tab label="👤 Profile" />
               <Tab label="📋 Details" />
               <Tab label="📑 Documents" />
-              <Tab label="✨ AI Report" />
               <Tab label="⚙️ Milestones" />
             </Tabs>
 
@@ -536,22 +535,6 @@ const CasesPanel = ({ formatDate, LoadingSpinner, EmptyState }) => {
                   )}
 
                   {workspaceTab === 3 && (
-                    <div className="space-y-4">
-                      <div className="bg-gradient-to-br from-indigo-50/20 to-violet-50/20 border border-indigo-100 rounded-2xl p-4">
-                        <div className="flex items-center gap-2 mb-2">
-                          <span className="text-lg">✨</span>
-                          <Typography variant="subtitle2" className="font-black text-indigo-950 uppercase tracking-wider">AI Case Urgency & Suggestion</Typography>
-                        </div>
-                        {activeCase.aiSummary ? (
-                          <div className="leading-relaxed whitespace-pre-wrap">{activeCase.aiSummary}</div>
-                        ) : (
-                          <Typography variant="caption" className="text-slate-400 italic">No summary available. AI evaluation failed during submission.</Typography>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  {workspaceTab === 4 && (
                     <div className="space-y-4">
                       <Typography variant="subtitle2" className="font-bold text-slate-800">Timeline Milestones</Typography>
                       <div className="space-y-3 pl-2 border-l-2 border-slate-100 ml-1">

@@ -13,6 +13,7 @@ import {
     getVolunteerLeaderboard 
 } from "../../services/messageService";
 import ErrorBoundary from "../../components/ErrorBoundary";
+import { updatePageSEO } from "../../utils";
 import { VolunteerDashboardOverviewSkeleton } from "../../components/SkeletonLoader";
 
 const VolunteerDashboard = () => {
@@ -53,6 +54,7 @@ const VolunteerDashboard = () => {
     };
 
     useEffect(() => {
+        updatePageSEO("Volunteer Dashboard", "", "", true);
         fetchAllData();
     }, []);
 

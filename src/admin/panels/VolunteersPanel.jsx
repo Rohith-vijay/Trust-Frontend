@@ -4,55 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { assignVolunteerRole, verifyVolunteerAttendance } from "../../services/messageService";
 
 const VolunteersPanel = ({ volunteerApps, onApproveVolunteer, onRejectVolunteer, formatDate, EmptyState, onRefresh }) => {
-  const [matchData, setMatchData] = useState({}); // { [appId]: { score, reasoning, loading } }
 
-  const handleMatchCheck = async (app) => {
-    try {
-      setMatchData(prev => ({ 
-        ...prev, 
-        [app.id]: { ...prev[app.id], loading: true } 
-      }));
-
-      // Heuristically supply skills targets matching the event title context
-      let eventSkills = "Community support, Coordination, Teamwork";
-      const titleLower = app.eventTitle ? app.eventTitle.toLowerCase() : "";
-      
-      if (titleLower.includes("medic") || titleLower.includes("health") || titleLower.includes("camp")) {
-        eventSkills = "First Aid, Clinical care, Triage, Medical assistance";
-      } else if (titleLower.includes("educat") || titleLower.includes("school") || titleLower.includes("teach")) {
-        eventSkills = "Teaching, Mentorship, Communication, Childcare";
-      } else if (titleLower.includes("food") || titleLower.includes("relief") || titleLower.includes("drive")) {
-        eventSkills = "Logistics, Food safety, Heavy lifting, Packing";
-      }
-
-      const res = await databaseService.matchVolunteerAi(
-        app.interest || "General Support",
-        app.message || "Willing to serve and assist the team.",
-        app.eventTitle || "Initiative Campaign",
-        eventSkills
-      );
-
-      // Parse the JSON string from response if returned as a string wrapper
-      const responseData = res.data || res;
-      const data = typeof responseData === "string" ? JSON.parse(responseData) : responseData;
-
-      setMatchData(prev => ({ 
-        ...prev, 
-        [app.id]: { 
-          score: data.score || 70, 
-          reasoning: data.reasoning || "• General Contribution: Strong willingness to serve aligns with active capacity demands.", 
-          loading: false 
-        } 
-      }));
-    } catch (e) {
-      console.error("[AiSmartMatch] Alignment analysis failed:", e);
-      setMatchData(prev => ({ 
-        ...prev, 
-        [app.id]: { ...prev[app.id], loading: false } 
-      }));
-      alert("Smart Match analysis failed. Safe fallback activated.");
-    }
-  };
 
   return (
     <div className="pb-12">
@@ -66,17 +18,7 @@ const VolunteersPanel = ({ volunteerApps, onApproveVolunteer, onRejectVolunteer,
       ) : (
         <div className="space-y-4">
           {Array.isArray(volunteerApps) && volunteerApps.map((app) => {
-            const appMatch = matchData[app.id];
-            
-            // Glowing pill attributes based on score percentile
-            let pillColor = "bg-indigo-50/50 text-indigo-700 border-indigo-100 hover:bg-indigo-100/50 cursor-help";
-            if (appMatch && !appMatch.loading) {
-              if (appMatch.score >= 80) {
-                pillColor = "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100 cursor-help";
-              } else if (appMatch.score >= 60) {
-                pillColor = "bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100 cursor-help";
-              }
-            }
+
 
             return (
               <motion.div
@@ -118,44 +60,7 @@ const VolunteersPanel = ({ volunteerApps, onApproveVolunteer, onRejectVolunteer,
                       </p>
                     )}
 
-                    {/* AI Smart Match Element */}
-                    <div className="pt-1 flex items-center min-h-[28px]">
-                      {!appMatch ? (
-                        <button
-                          type="button"
-                          onClick={() => handleMatchCheck(app)}
-                          className="text-[10px] font-black text-indigo-600 bg-indigo-50 hover:bg-indigo-100 border border-indigo-150 px-3.5 py-1.5 rounded-full transition flex items-center gap-1.5 select-none shadow-sm shadow-indigo-100/50 active:scale-95"
-                        >
-                          <span>✨</span> AI Smart Match
-                        </button>
-                      ) : appMatch.loading ? (
-                        <div className="flex items-center gap-2 text-[10px] font-semibold text-gray-400 select-none animate-pulse">
-                          <div className="animate-spin rounded-full h-3.5 w-3.5 border-b-2 border-indigo-600"></div>
-                          Analyzing candidate compatibility metrics...
-                        </div>
-                      ) : (
-                        <div className="relative group/tooltip inline-block overflow-visible">
-                          <span className={`text-[10px] font-black border px-3.5 py-1.5 rounded-full transition select-none flex items-center gap-1.5 ${pillColor}`}>
-                            <span>✨</span> AI Smart Match: {appMatch.score}% Compatibility
-                          </span>
-                          
-                          {/* Glassmorphic hover tooltip */}
-                          <AnimatePresence>
-                            <div className="absolute left-0 bottom-full mb-2 hidden group-hover/tooltip:block bg-brand-navy-dark text-white rounded-2xl p-4 shadow-xl border border-white/10 w-[320px] z-50 text-left pointer-events-none select-none animate-slide-up">
-                              <p className="text-[9px] text-amber-400 font-black uppercase tracking-wider mb-2 leading-none">✨ AI Match Rationale Analysis</p>
-                              <div className="text-[10px] text-gray-200 leading-relaxed space-y-1.5 font-medium">
-                                {appMatch.reasoning.split('\n').map((line, idx) => (
-                                  <p key={idx} className="flex items-start gap-1.5">
-                                    <span className="text-amber-400 select-none">•</span>
-                                    <span>{line.replace(/^[\*\-\s•]+/, "").trim()}</span>
-                                  </p>
-                                ))}
-                              </div>
-                            </div>
-                          </AnimatePresence>
-                        </div>
-                      )}
-                    </div>
+
 
                     {/* Management Controls for Approved Volunteers */}
                     {(app.status === "approved" || app.status === "APPROVED") && (

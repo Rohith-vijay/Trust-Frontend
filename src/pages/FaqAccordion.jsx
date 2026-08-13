@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { pageVariants, pageTransition, sectionVariants } from "../constants/motionVariants";
 import { Typography, TextField, Accordion, AccordionSummary, AccordionDetails, Box, Chip } from "@mui/material";
+import { updatePageSEO } from "../utils";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import SearchIcon from "@mui/icons-material/Search";
 import SiteContainer from "../components/SiteContainer";
@@ -40,6 +41,9 @@ const faqs = [
 ];
 
 function FaqAccordion() {
+  useEffect(() => {
+    updatePageSEO("FAQ & Support", "Find answers to frequently asked questions about donations, volunteering, and operations of K.V.G. Shanmuka Sai Charitable Trust.", "/faq");
+  }, []);
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("ALL");
   const [expanded, setExpanded] = useState(false);

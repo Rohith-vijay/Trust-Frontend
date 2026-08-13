@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { pageVariants, pageTransition } from "../constants/motionVariants";
 import databaseService from "../services/databaseService";
 import { Typography, Paper, CircularProgress } from "@mui/material";
+import { updatePageSEO } from "../utils";
 
 const DEFAULT_MILESTONES = [
   { date: "24 October 2025", event: "Trust Founded", description: "K.V.G. Shanmuka Sai Charitable Trust was officially founded with a mission to bring hope, education, clean water, and essential resources to communities in need." },
@@ -18,6 +19,7 @@ function History() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    updatePageSEO("Our History", "Trace the journey and key milestones of K.V.G. Shanmuka Sai Charitable Trust. From our initial community support drives to our current structured initiatives in Harischandrapuram.", "/history");
     const fetchContent = async () => {
       try {
         const content = await databaseService.getAllPageContent();

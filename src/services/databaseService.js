@@ -207,6 +207,16 @@ const databaseService = {
     return response.data;
   },
 
+  getPageContentVersions: async (key) => {
+    const response = await api.get(`/admin/pages/${key}/versions`);
+    return response.data;
+  },
+
+  rollbackPageContent: async (key, versionId) => {
+    const response = await api.post(`/admin/pages/${key}/rollback/${versionId}`);
+    return response.data;
+  },
+
   // ─── Dashboard (Admin) ───────────────────────────────────────
   getDashboardSummary: async () => {
     const response = await api.get("/dashboard");

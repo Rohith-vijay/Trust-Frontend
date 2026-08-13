@@ -32,9 +32,13 @@ function ImpactShowcase() {
         // Load general layout configurations
         let currentConfig = { ...defaultShowcaseConfig };
         try {
-          const settings = await databaseService.getAllPublicSettings();
-          if (settings && settings.IMPACT_SHOWCASE_CONFIG) {
-            const parsed = JSON.parse(settings.IMPACT_SHOWCASE_CONFIG);
+          const [content, settings] = await Promise.all([
+            databaseService.getAllPageContent(),
+            databaseService.getAllPublicSettings()
+          ]);
+          const configJson = content.IMPACT_SHOWCASE_CONFIG || settings.IMPACT_SHOWCASE_CONFIG;
+          if (configJson) {
+            const parsed = JSON.parse(configJson);
             if (parsed && typeof parsed === "object") {
               currentConfig = {
                 hero: { ...defaultShowcaseConfig.hero, ...parsed.hero },
@@ -46,15 +50,16 @@ function ImpactShowcase() {
             }
           }
         } catch (settingsErr) {
-          console.warn("[ImpactShowcase] Public settings load skipped/failed:", settingsErr);
+          console.warn("[ImpactShowcase] Public configurations load skipped/failed:", settingsErr);
         }
 
         // Fetch dynamic CMS impact cards from database
         try {
           const response = await fetch(getBackendUrl() + "/public/impact-showcase/all");
           if (response.ok) {
-            const dbCards = await response.json();
-            if (dbCards && dbCards.length > 0) {
+            const apiResponse = await response.json();
+            const dbCards = apiResponse.data || apiResponse;
+            if (dbCards && Array.isArray(dbCards) && dbCards.length > 0) {
               // Map backend entities to what GalleryCard expects
               const mappedCards = dbCards.map(item => ({
                 id: item.id.toString(),

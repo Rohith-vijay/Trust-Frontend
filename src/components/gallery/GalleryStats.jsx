@@ -19,6 +19,8 @@ function GalleryStats({ config }) {
     { value: "5,200+",  label: "Women Empowered"   },
   ];
 
+  const eyebrow = config?.eyebrow || "Numbers that speak";
+
   return (
     <section
       ref={ref}
@@ -44,7 +46,7 @@ function GalleryStats({ config }) {
           className="text-center text-[10px] font-bold uppercase tracking-[0.4em] mb-12"
           style={{ color: "rgba(245,158,11,0.6)" }}
         >
-          Numbers that speak
+          {eyebrow}
         </motion.p>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-8 lg:gap-4 justify-center">

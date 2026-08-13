@@ -25,13 +25,13 @@ function About() {
 
         <div className="text-lg text-gray-700 leading-relaxed max-w-3xl mx-auto space-y-6 text-left md:text-center">
           <p>
-            K.V.G. Shanmuka Sai Charitable Trust was established...
+            KVG Shanmuka Sai Charitable Trust was founded in the loving memory of my brother, Mr. KVG Shanmuka Sai, who left us far too soon. He was a kind, compassionate, and thoughtful person who always cared deeply for others and had a genuine desire to help people in need and make society a better place. Though his life was short, his values and dreams continue to inspire us. Through this charitable trust, we strive to carry forward his kindness, compassion, and spirit of service by working for the betterment of communities and creating a positive and lasting social impact.
           </p>
           <p>
-            His belief that even a single individual can create meaningful change...
+            Our work focuses on Education, Environmental Conservation, Animal Welfare, and Health & Community Welfare. We currently provide free education and tuition support to nearly 50 children in Harischandrapuram, Guntur district, have planted over 100 trees while ensuring their survival, and are working to make clean drinking water more accessible to the village at half the regular price, contributing nearly 1 lakh litres of water to date. We have also conducted food donation and community support initiatives for people in need.
           </p>
           <p>
-            This trust stands as a continuation of his thoughts...
+            We believe that meaningful community development and social change begin with small acts of kindness. Every child given an opportunity to learn, every tree nurtured, every person given access to clean water, and every helping hand extended brings us closer to the society Shanmuka Sai dreamed of. Through this trust, we hope to keep his spirit alive—not just in memory, but through the lives we touch and the communities we serve.
           </p>
         </div>
 

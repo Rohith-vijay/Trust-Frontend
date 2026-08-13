@@ -58,7 +58,11 @@ export const resolveMediaUrl = (url) => {
   if (url.startsWith('http://') || url.startsWith('https://')) return url;
   // Relative path from local fallback — prefix with backend base URL (strip /api suffix)
   if (url.startsWith('/uploads/') || url.startsWith('uploads/')) {
-    const backendBase = getBackendUrl().replace(/\/api$/, '');
+    let backendBase = getBackendUrl().replace(/\/api$/, '');
+    if (!backendBase && typeof window !== "undefined") {
+      // Fallback: If backendBase is empty (because URL was relative /api), point to port 8080
+      backendBase = `http://${window.location.hostname}:8080`;
+    }
     return `${backendBase}${url.startsWith('/') ? '' : '/'}${url}`;
   }
   return url;

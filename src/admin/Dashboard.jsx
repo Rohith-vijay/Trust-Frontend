@@ -316,7 +316,7 @@ const Dashboard = () => {
         VISION_PILLARS: content.VISION_PILLARS || "",
         VISION_ROADMAP: content.VISION_ROADMAP || "",
         VISION_IMPACTS: content.VISION_IMPACTS || "",
-        IMPACT_SHOWCASE_CONFIG: settings.IMPACT_SHOWCASE_CONFIG || ""
+        IMPACT_SHOWCASE_CONFIG: content.IMPACT_SHOWCASE_CONFIG || settings.IMPACT_SHOWCASE_CONFIG || ""
       }));
     } catch (e) { console.error("Failed to load page content:", e); }
   }, []);

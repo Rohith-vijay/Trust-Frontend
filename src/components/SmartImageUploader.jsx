@@ -47,7 +47,7 @@ const SmartImageUploader = ({
       case "event":
         return { ratio: 16 / 9, text: "16:9 (Cover Image)" };
       case "gallery":
-        return { ratio: 4 / 3, text: "4:3 (Gallery Card)" };
+        return { ratio: 16 / 10, text: "16:10 (Gallery Card)" };
       case "team":
         return { ratio: 3 / 4, text: "3:4 (Team Member)" };
       case "avatar":
@@ -59,34 +59,50 @@ const SmartImageUploader = ({
 
   const preset = getAspectPreset();
 
+  const processFile = (file) => {
+    if (!file) return;
+    fileNameRef.current = file.name;
+    fileTypeRef.current = file.type;
+
+    // Extract original metadata via runtime Image constructor
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        const width = img.width;
+        const height = img.height;
+        const ratio = width / height;
+        const orientation = ratio > 1.15 ? "Landscape" : ratio < 0.85 ? "Portrait" : "Square";
+        
+        setOriginalMetadata({
+          width,
+          height,
+          aspectRatio: ratio.toFixed(2),
+          orientation
+        });
+      };
+      img.src = reader.result;
+      setImageSrc(reader.result);
+      setIsCroppingOpen(true);
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleFileChange = async (e) => {
     if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      fileNameRef.current = file.name;
-      fileTypeRef.current = file.type;
+      processFile(e.target.files[0]);
+    }
+  };
 
-      // Extract original metadata via runtime Image constructor
-      const reader = new FileReader();
-      reader.onload = () => {
-        const img = new Image();
-        img.onload = () => {
-          const width = img.width;
-          const height = img.height;
-          const ratio = width / height;
-          const orientation = ratio > 1.15 ? "Landscape" : ratio < 0.85 ? "Portrait" : "Square";
-          
-          setOriginalMetadata({
-            width,
-            height,
-            aspectRatio: ratio.toFixed(2),
-            orientation
-          });
-        };
-        img.src = reader.result;
-        setImageSrc(reader.result);
-        setIsCroppingOpen(true);
-      };
-      reader.readAsDataURL(file);
+  const handleDragOver = (e) => {
+    e.preventDefault();
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    if (isUploading) return;
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      processFile(e.dataTransfer.files[0]);
     }
   };
 
@@ -209,7 +225,16 @@ const SmartImageUploader = ({
             </div>
           </div>
         );
-      default: // story, event, gallery
+      case "gallery":
+        return (
+          <div className="flex flex-col items-center justify-center p-4 bg-gray-50 border border-gray-150 rounded-2xl space-y-2">
+            <Typography variant="caption" className="font-bold text-gray-500 uppercase tracking-wider">Live Gallery Card Preview</Typography>
+            <div className="relative w-48 h-30 rounded-xl overflow-hidden border border-gray-200 shadow-sm bg-white" style={{ aspectRatio: "16/10" }}>
+              <img src={imageSrc} style={previewStyle} alt="Gallery Preview" />
+            </div>
+          </div>
+        );
+      default: // story, event
         return (
           <div className="flex flex-col items-center justify-center p-4 bg-gray-50 border border-gray-150 rounded-2xl space-y-2">
             <Typography variant="caption" className="font-bold text-gray-500 uppercase tracking-wider">Live Card Preview</Typography>
@@ -228,6 +253,8 @@ const SmartImageUploader = ({
       {/* Main Trigger Uploader Box */}
       <div
         onClick={() => !isUploading && fileInputRef.current?.click()}
+        onDragOver={handleDragOver}
+        onDrop={handleDrop}
         className="border-2 border-dashed rounded-2xl p-5 text-center cursor-pointer border-gray-250 hover:border-amber-500/30 hover:bg-gray-50/50 transition duration-300 min-h-[140px] flex flex-col items-center justify-center bg-white relative"
       >
         <input
@@ -257,10 +284,20 @@ const SmartImageUploader = ({
       </div>
 
       {/* Output Link display matching original uploader design */}
-      {value && !isUploading && (
-        <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-xl border border-gray-100 text-[10px] text-gray-500 font-mono break-all truncate">
-          <span className="font-bold text-amber-600 shrink-0">URL:</span>
-          <span>{value}</span>
+      {!isUploading && (
+        <div className="flex items-center gap-2 p-1.5 bg-gray-50 rounded-xl border border-gray-150 text-xs shadow-inner">
+          <span className="font-bold text-amber-600 shrink-0 select-none px-1">URL Link:</span>
+          <input
+            type="text"
+            value={value || ""}
+            onChange={(e) => {
+              if (onUploadSuccess) {
+                onUploadSuccess({ secure_url: e.target.value });
+              }
+            }}
+            placeholder="Paste direct image link..."
+            className="w-full bg-transparent outline-none font-mono text-[10px] text-gray-700"
+          />
         </div>
       )}
 
@@ -318,7 +355,7 @@ const SmartImageUploader = ({
                 <Typography variant="caption" className="font-bold text-gray-500 block mb-1">Zoom (Drag or Slider)</Typography>
                 <Slider
                   value={zoom}
-                  min={1}
+                  min={0.1}
                   max={3}
                   step={0.05}
                   color="warning"

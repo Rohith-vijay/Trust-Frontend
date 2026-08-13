@@ -1,5 +1,6 @@
 import React, { useRef, useState, useCallback, useEffect } from "react";
 import { motion, useReducedMotion } from "framer-motion";
+import { resolveMediaUrl } from "../../utils";
 
 /**
  * CursorReveal
@@ -189,7 +190,7 @@ const CursorReveal = React.memo(function CursorReveal({
 
       {/* ── Base image layer ── */}
       <img
-        src={baseImage}
+        src={resolveMediaUrl(baseImage)}
         alt={alt}
         loading="lazy"
         decoding="async"
@@ -208,7 +209,7 @@ const CursorReveal = React.memo(function CursorReveal({
         aria-hidden="true"
       >
         <img
-          src={revealImage}
+          src={resolveMediaUrl(revealImage)}
           alt=""
           loading="lazy"
           decoding="async"

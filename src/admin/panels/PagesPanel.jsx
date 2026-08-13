@@ -2,6 +2,7 @@ import React, { useState, useMemo } from "react";
 import databaseService from "../../services/databaseService";
 import RichTextEditor from "../components/RichTextEditor";
 import defaultShowcaseConfig from "../../data/defaultShowcaseConfig";
+import SmartImageUploader from "../../components/SmartImageUploader";
 
 const PagesPanel = ({ settingInputs, setSettingInputs }) => {
   const [pageSaveStatus, setPageSaveStatus] = useState("");
@@ -11,9 +12,25 @@ const PagesPanel = ({ settingInputs, setSettingInputs }) => {
   const [showcaseEditorTab, setShowcaseEditorTab] = useState("visual");
   const [visualSubTab, setVisualSubTab] = useState("hero");
 
+  const [showcaseVersions, setShowcaseVersions] = useState([]);
+  const [selectedVersion, setSelectedVersion] = useState("");
+
+  const fetchShowcaseVersions = async () => {
+    try {
+      const data = await databaseService.getPageContentVersions("IMPACT_SHOWCASE_CONFIG");
+      setShowcaseVersions(data || []);
+    } catch (err) {
+      console.error("[PagesPanel] Failed to load showcase config versions:", err);
+    }
+  };
+
   const parsedShowcaseConfig = useMemo(() => {
     try {
-      return JSON.parse(settingInputs.IMPACT_SHOWCASE_CONFIG || "{}");
+      const raw = settingInputs.IMPACT_SHOWCASE_CONFIG;
+      if (!raw || raw.trim() === "" || raw.trim() === "{}") {
+        return defaultShowcaseConfig;
+      }
+      return JSON.parse(raw);
     } catch (e) {
       return null;
     }
@@ -21,7 +38,11 @@ const PagesPanel = ({ settingInputs, setSettingInputs }) => {
 
   const updateShowcasePart = (section, keyOrValue, value) => {
     try {
-      const configObj = JSON.parse(settingInputs.IMPACT_SHOWCASE_CONFIG || "{}");
+      let raw = settingInputs.IMPACT_SHOWCASE_CONFIG || "";
+      if (!raw || raw.trim() === "" || raw.trim() === "{}") {
+        raw = JSON.stringify(defaultShowcaseConfig, null, 2);
+      }
+      const configObj = JSON.parse(raw);
       if (keyOrValue === null) {
         configObj[section] = value;
       } else if (section) {
@@ -40,7 +61,11 @@ const PagesPanel = ({ settingInputs, setSettingInputs }) => {
 
   const updateStatItem = (index, key, value) => {
     try {
-      const configObj = JSON.parse(settingInputs.IMPACT_SHOWCASE_CONFIG || "{}");
+      let raw = settingInputs.IMPACT_SHOWCASE_CONFIG || "";
+      if (!raw || raw.trim() === "" || raw.trim() === "{}") {
+        raw = JSON.stringify(defaultShowcaseConfig, null, 2);
+      }
+      const configObj = JSON.parse(raw);
       if (!configObj.stats) configObj.stats = { items: [] };
       if (!configObj.stats.items) configObj.stats.items = [];
       if (!configObj.stats.items[index]) configObj.stats.items[index] = {};
@@ -58,7 +83,7 @@ const PagesPanel = ({ settingInputs, setSettingInputs }) => {
   const [dbCards, setDbCards] = useState([]);
   const [deletedCardIds, setDeletedCardIds] = useState([]);
 
-  // Fetch showcase cards on component mount
+  // Fetch showcase cards and config versions on component mount
   React.useEffect(() => {
     const fetchCards = async () => {
       try {
@@ -69,6 +94,7 @@ const PagesPanel = ({ settingInputs, setSettingInputs }) => {
       }
     };
     fetchCards();
+    fetchShowcaseVersions();
   }, []);
 
   // Synchronize JSON card changes to visual dbCards state when switching back to visual mode or after template resets
@@ -267,6 +293,9 @@ const PagesPanel = ({ settingInputs, setSettingInputs }) => {
   const handleSaveShowcase = async () => {
     setShowcaseSaveStatus("Validating schema...");
     let configStr = settingInputs.IMPACT_SHOWCASE_CONFIG || "";
+    if (!configStr || configStr.trim() === "" || configStr.trim() === "{}") {
+      configStr = JSON.stringify(defaultShowcaseConfig, null, 2);
+    }
     
     // In visual mode, we must first sync our local state cards back to the JSON payload before validation
     if (showcaseEditorTab === "visual") {
@@ -329,8 +358,8 @@ const PagesPanel = ({ settingInputs, setSettingInputs }) => {
         }));
       }
 
-      // 2. Save general layout configuration settings to the settings table
-      await databaseService.upsertSetting("IMPACT_SHOWCASE_CONFIG", configStr);
+      // 2. Save general layout configuration settings to the page content table (with versioning)
+      await databaseService.savePageContent("IMPACT_SHOWCASE_CONFIG", configStr);
 
       // 3. Delete deleted cards from database
       for (const id of deletedCardIds) {
@@ -380,12 +409,34 @@ const PagesPanel = ({ settingInputs, setSettingInputs }) => {
       // Sync state and empty delete cache
       setDbCards(freshCardsList);
       setDeletedCardIds([]);
+      await fetchShowcaseVersions();
 
       setShowcaseSaveStatus("Showcase configuration and database cards published successfully!");
       setTimeout(() => setShowcaseSaveStatus(""), 4000);
     } catch (err) {
       console.error(err);
       setShowcaseSaveStatus("Failed to save showcase settings or database cards.");
+    }
+  };
+
+  const handleRollbackShowcase = async (versionId) => {
+    if (!versionId) return;
+    if (!window.confirm("Are you sure you want to roll back the showcase configuration to this version?")) return;
+
+    setShowcaseSaveStatus("Rolling back showcase config...");
+    try {
+      const rolledBackValue = await databaseService.rollbackPageContent("IMPACT_SHOWCASE_CONFIG", versionId);
+      setSettingInputs(p => ({
+        ...p,
+        IMPACT_SHOWCASE_CONFIG: rolledBackValue
+      }));
+      await fetchShowcaseVersions();
+      setSelectedVersion("");
+      setShowcaseSaveStatus("Showcase config successfully rolled back!");
+      setTimeout(() => setShowcaseSaveStatus(""), 4000);
+    } catch (err) {
+      console.error(err);
+      setShowcaseSaveStatus("Failed to roll back showcase config.");
     }
   };
 
@@ -489,7 +540,8 @@ const PagesPanel = ({ settingInputs, setSettingInputs }) => {
                       {[
                         { id: "hero", label: "Hero Banner" },
                         { id: "stats", label: "Statistics" },
-                        { id: "cards", label: "Interactive Cards" }
+                        { id: "cards", label: "Interactive Cards" },
+                        { id: "footerCta", label: "Footer CTA" }
                       ].map(t => (
                         <button
                           key={t.id}
@@ -525,54 +577,54 @@ const PagesPanel = ({ settingInputs, setSettingInputs }) => {
 
                         <div className="grid sm:grid-cols-2 gap-4">
                           <div className="space-y-1">
-                            <label className="block text-xs font-bold text-gray-500">Hero Section Headline</label>
+                            <label className="block text-xs font-bold text-gray-500">Eyebrow Tagline</label>
                             <input
                               type="text"
-                              value={parsedShowcaseConfig.hero?.title || ""}
-                              onChange={(e) => updateShowcasePart("hero", "title", e.target.value)}
+                              value={parsedShowcaseConfig.hero?.eyebrow || ""}
+                              onChange={(e) => updateShowcasePart("hero", "eyebrow", e.target.value)}
                               className="w-full border rounded-lg px-3.5 py-2 text-sm outline-none bg-white focus:ring-2 focus:ring-primary/20"
                             />
                           </div>
                           <div className="space-y-1">
-                            <label className="block text-xs font-bold text-gray-500">Hero Video / Cover Filepath</label>
+                            <label className="block text-xs font-bold text-gray-500">Scroll Down Hint Label</label>
                             <input
                               type="text"
-                              value={parsedShowcaseConfig.hero?.videoUrl || ""}
-                              onChange={(e) => updateShowcasePart("hero", "videoUrl", e.target.value)}
+                              value={parsedShowcaseConfig.hero?.scrollLabel || ""}
+                              onChange={(e) => updateShowcasePart("hero", "scrollLabel", e.target.value)}
+                              className="w-full border rounded-lg px-3.5 py-2 text-sm outline-none bg-white focus:ring-2 focus:ring-primary/20"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="grid sm:grid-cols-2 gap-4">
+                          <div className="space-y-1">
+                            <label className="block text-xs font-bold text-gray-500">Headline - Part 1 (Standard)</label>
+                            <input
+                              type="text"
+                              value={parsedShowcaseConfig.hero?.titlePart1 || ""}
+                              onChange={(e) => updateShowcasePart("hero", "titlePart1", e.target.value)}
+                              className="w-full border rounded-lg px-3.5 py-2 text-sm outline-none bg-white focus:ring-2 focus:ring-primary/20"
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <label className="block text-xs font-bold text-gray-500">Headline - Part 2 (Highlighted/Gold)</label>
+                            <input
+                              type="text"
+                              value={parsedShowcaseConfig.hero?.titlePart2 || ""}
+                              onChange={(e) => updateShowcasePart("hero", "titlePart2", e.target.value)}
                               className="w-full border rounded-lg px-3.5 py-2 text-sm outline-none bg-white focus:ring-2 focus:ring-primary/20"
                             />
                           </div>
                         </div>
 
                         <div className="space-y-1">
-                          <label className="block text-xs font-bold text-gray-500">Hero Supporting Subtitle</label>
+                          <label className="block text-xs font-bold text-gray-500">Hero Narrative Description</label>
                           <textarea
-                            value={parsedShowcaseConfig.hero?.subtitle || ""}
-                            onChange={(e) => updateShowcasePart("hero", "subtitle", e.target.value)}
+                            value={parsedShowcaseConfig.hero?.description || ""}
+                            onChange={(e) => updateShowcasePart("hero", "description", e.target.value)}
                             rows={3}
                             className="w-full border rounded-lg px-3.5 py-2 text-sm outline-none bg-white focus:ring-2 focus:ring-primary/20"
                           />
-                        </div>
-
-                        <div className="grid sm:grid-cols-2 gap-4">
-                          <div className="space-y-1">
-                            <label className="block text-xs font-bold text-gray-500">CTA Button Text</label>
-                            <input
-                              type="text"
-                              value={parsedShowcaseConfig.hero?.ctaText || ""}
-                              onChange={(e) => updateShowcasePart("hero", "ctaText", e.target.value)}
-                              className="w-full border rounded-lg px-3.5 py-2 text-sm outline-none bg-white focus:ring-2 focus:ring-primary/20"
-                            />
-                          </div>
-                          <div className="space-y-1">
-                            <label className="block text-xs font-bold text-gray-500">CTA Redirect Route</label>
-                            <input
-                              type="text"
-                              value={parsedShowcaseConfig.hero?.ctaLink || ""}
-                              onChange={(e) => updateShowcasePart("hero", "ctaLink", e.target.value)}
-                              className="w-full border rounded-lg px-3.5 py-2 text-sm outline-none bg-white focus:ring-2 focus:ring-primary/20"
-                            />
-                          </div>
                         </div>
                       </div>
                     )}
@@ -594,25 +646,15 @@ const PagesPanel = ({ settingInputs, setSettingInputs }) => {
                           </label>
                         </div>
 
-                        <div className="grid sm:grid-cols-2 gap-4 mb-4">
-                          <div className="space-y-1">
-                            <label className="block text-xs font-bold text-gray-500">Stats Section Title (Optional)</label>
-                            <input
-                              type="text"
-                              value={parsedShowcaseConfig.stats?.title || ""}
-                              onChange={(e) => updateShowcasePart("stats", "title", e.target.value)}
-                              className="w-full border rounded-lg px-3.5 py-2 text-sm outline-none bg-white focus:ring-2 focus:ring-primary/20"
-                            />
-                          </div>
-                          <div className="space-y-1">
-                            <label className="block text-xs font-bold text-gray-500">Stats Description (Optional)</label>
-                            <input
-                              type="text"
-                              value={parsedShowcaseConfig.stats?.description || ""}
-                              onChange={(e) => updateShowcasePart("stats", "description", e.target.value)}
-                              className="w-full border rounded-lg px-3.5 py-2 text-sm outline-none bg-white focus:ring-2 focus:ring-primary/20"
-                            />
-                          </div>
+                        <div className="space-y-1 mb-4">
+                          <label className="block text-xs font-bold text-gray-500">Stats Section Eyebrow (Tagline)</label>
+                          <input
+                            type="text"
+                            value={parsedShowcaseConfig.stats?.eyebrow || ""}
+                            onChange={(e) => updateShowcasePart("stats", "eyebrow", e.target.value)}
+                            placeholder="e.g. Numbers that speak"
+                            className="w-full border rounded-lg px-3.5 py-2 text-sm outline-none bg-white focus:ring-2 focus:ring-primary/20"
+                          />
                         </div>
 
                         <label className="block text-xs font-extrabold uppercase tracking-widest text-slate-400">Telemetry Numeric Indicators</label>
@@ -631,25 +673,14 @@ const PagesPanel = ({ settingInputs, setSettingInputs }) => {
                                 />
                               </div>
 
-                              <div className="grid grid-cols-2 gap-2">
-                                <div className="space-y-1">
-                                  <label className="block text-[9px] font-bold text-gray-400 uppercase">Value</label>
-                                  <input
-                                    type="text"
-                                    value={item.value || ""}
-                                    onChange={(e) => updateStatItem(idx, "value", e.target.value)}
-                                    className="w-full border rounded px-2 py-1 text-xs outline-none bg-gray-50 focus:ring-1 focus:ring-primary/50"
-                                  />
-                                </div>
-                                <div className="space-y-1">
-                                  <label className="block text-[9px] font-bold text-gray-400 uppercase">Icon (Emoji)</label>
-                                  <input
-                                    type="text"
-                                    value={item.icon || ""}
-                                    onChange={(e) => updateStatItem(idx, "icon", e.target.value)}
-                                    className="w-full border rounded px-2 py-1 text-xs outline-none bg-gray-50 text-center focus:ring-1 focus:ring-primary/50"
-                                  />
-                                </div>
+                              <div className="space-y-1">
+                                <label className="block text-[9px] font-bold text-gray-400 uppercase">Value</label>
+                                <input
+                                  type="text"
+                                  value={item.value || ""}
+                                  onChange={(e) => updateStatItem(idx, "value", e.target.value)}
+                                  className="w-full border rounded px-2 py-1 text-xs outline-none bg-gray-50 focus:ring-1 focus:ring-primary/50"
+                                />
                               </div>
                             </div>
                           ))}
@@ -830,28 +861,93 @@ const PagesPanel = ({ settingInputs, setSettingInputs }) => {
                                 </div>
                               </div>
 
-                              <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-1">
-                                  <label className="block text-[10px] font-bold text-gray-400 uppercase">Base Image (Before reveal)</label>
-                                  <input
-                                    type="text"
-                                    value={card.baseImage || ""}
-                                    onChange={(e) => updateDbCardItem(idx, "baseImage", e.target.value)}
-                                    className="w-full border rounded px-3 py-1.5 text-xs outline-none bg-gray-50 focus:ring-1 focus:ring-primary/50"
-                                  />
-                                </div>
-                                <div className="space-y-1">
-                                  <label className="block text-[10px] font-bold text-gray-400 uppercase">Reveal Image (After hover)</label>
-                                  <input
-                                    type="text"
-                                    value={card.revealImage || ""}
-                                    onChange={(e) => updateDbCardItem(idx, "revealImage", e.target.value)}
-                                    className="w-full border rounded px-3 py-1.5 text-xs outline-none bg-gray-50 focus:ring-1 focus:ring-primary/50"
-                                  />
-                                </div>
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <SmartImageUploader
+                                  label="Base Image (Before reveal)"
+                                  imageType="gallery"
+                                  value={card.baseImage || ""}
+                                  onUploadSuccess={(metadata) => updateDbCardItem(idx, "baseImage", metadata.secure_url)}
+                                />
+                                <SmartImageUploader
+                                  label="Reveal Image (After hover)"
+                                  imageType="gallery"
+                                  value={card.revealImage || ""}
+                                  onUploadSuccess={(metadata) => updateDbCardItem(idx, "revealImage", metadata.secure_url)}
+                                />
                               </div>
                             </div>
                           ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* SUBTAB: FOOTER CTA */}
+                    {visualSubTab === "footerCta" && (
+                      <div className="grid grid-cols-1 gap-4 bg-gray-50/50 p-5 rounded-2xl border border-gray-150">
+                        <div className="flex items-center justify-between border-b border-gray-100 pb-3 mb-2">
+                          <label className="text-xs font-black text-brand-navy-dark uppercase tracking-wider">Footer CTA Section Visibility</label>
+                          <label className="relative inline-flex items-center cursor-pointer select-none">
+                            <input 
+                              type="checkbox" 
+                              checked={parsedShowcaseConfig.footerCta?.enabled !== false} 
+                              onChange={(e) => updateShowcasePart("footerCta", "enabled", e.target.checked)}
+                              className="sr-only peer"
+                            />
+                            <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-500"></div>
+                            <span className="ml-2.5 text-xs font-bold text-gray-600">{parsedShowcaseConfig.footerCta?.enabled !== false ? "Section Enabled" : "Section Hidden"}</span>
+                          </label>
+                        </div>
+
+                        <div className="grid sm:grid-cols-2 gap-4">
+                          <div className="space-y-1">
+                            <label className="block text-xs font-bold text-gray-500">Eyebrow / Subtitle</label>
+                            <input
+                              type="text"
+                              value={parsedShowcaseConfig.footerCta?.subtitle || ""}
+                              onChange={(e) => updateShowcasePart("footerCta", "subtitle", e.target.value)}
+                              className="w-full border rounded-lg px-3.5 py-2 text-sm outline-none bg-white focus:ring-2 focus:ring-primary/20"
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <label className="block text-xs font-bold text-gray-500">CTA Section Headline / Title</label>
+                            <input
+                              type="text"
+                              value={parsedShowcaseConfig.footerCta?.title || ""}
+                              onChange={(e) => updateShowcasePart("footerCta", "title", e.target.value)}
+                              className="w-full border rounded-lg px-3.5 py-2 text-sm outline-none bg-white focus:ring-2 focus:ring-primary/20"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="space-y-1">
+                          <label className="block text-xs font-bold text-gray-500">Section Description Narrative</label>
+                          <textarea
+                            value={parsedShowcaseConfig.footerCta?.description || ""}
+                            onChange={(e) => updateShowcasePart("footerCta", "description", e.target.value)}
+                            rows={3}
+                            className="w-full border rounded-lg px-3.5 py-2 text-sm outline-none bg-white focus:ring-2 focus:ring-primary/20"
+                          />
+                        </div>
+
+                        <div className="grid sm:grid-cols-2 gap-4">
+                          <div className="space-y-1">
+                            <label className="block text-xs font-bold text-gray-500">Button Text</label>
+                            <input
+                              type="text"
+                              value={parsedShowcaseConfig.footerCta?.btnText || ""}
+                              onChange={(e) => updateShowcasePart("footerCta", "btnText", e.target.value)}
+                              className="w-full border rounded-lg px-3.5 py-2 text-sm outline-none bg-white focus:ring-2 focus:ring-primary/20"
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <label className="block text-xs font-bold text-gray-500">Button Redirect Link</label>
+                            <input
+                              type="text"
+                              value={parsedShowcaseConfig.footerCta?.btnLink || ""}
+                              onChange={(e) => updateShowcasePart("footerCta", "btnLink", e.target.value)}
+                              className="w-full border rounded-lg px-3.5 py-2 text-sm outline-none bg-white focus:ring-2 focus:ring-primary/20"
+                            />
+                          </div>
                         </div>
                       </div>
                     )}
@@ -914,17 +1010,60 @@ const PagesPanel = ({ settingInputs, setSettingInputs }) => {
             )}
 
             {/* Persistent Action Save Bar */}
-            <div className="border-t border-gray-150 pt-4 flex items-center gap-4 flex-wrap">
-              <button
-                onClick={handleSaveShowcase}
-                className="bg-primary hover:bg-amber-700 text-white px-7 py-3 rounded-xl text-xs font-black tracking-wider transition-all duration-200 shadow-sm hover:shadow-md hover:-translate-y-0.5"
-              >
-                Save & Live Publish Showcase Config
-              </button>
-              {showcaseSaveStatus && (
-                <span className="text-xs font-bold text-primary animate-pulse">{showcaseSaveStatus}</span>
+            <div className="border-t border-gray-150 pt-4 flex items-center justify-between gap-4 flex-wrap">
+              <div className="flex items-center gap-4 flex-wrap">
+                <button
+                  type="button"
+                  onClick={handleSaveShowcase}
+                  className="bg-primary hover:bg-amber-700 text-white px-7 py-3 rounded-xl text-xs font-black tracking-wider transition-all duration-200 shadow-sm hover:shadow-md hover:-translate-y-0.5"
+                >
+                  Save & Live Publish Showcase Config
+                </button>
+                {showcaseSaveStatus && (
+                  <span className="text-xs font-bold text-primary animate-pulse">{showcaseSaveStatus}</span>
+                )}
+              </div>
+
+              {/* Version Rollback Dropdown */}
+              {showcaseVersions.length > 0 && (
+                <div className="flex items-center gap-2">
+                  <label className="text-xs font-bold text-gray-500">Restore Snapshot:</label>
+                  <select
+                    value={selectedVersion}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setSelectedVersion(val);
+                      if (val) {
+                        handleRollbackShowcase(Number(val));
+                      }
+                    }}
+                    className="border border-gray-200 rounded-xl px-3 py-2 text-xs outline-none bg-white text-gray-700 font-semibold focus:ring-2 focus:ring-primary/20"
+                  >
+                    <option value="">Select past version...</option>
+                    {showcaseVersions.map((v) => {
+                      const date = new Date(v.createdAt).toLocaleString();
+                      return (
+                        <option key={v.id} value={v.id}>
+                          Version {v.versionNumber} ({date})
+                        </option>
+                      );
+                    })}
+                  </select>
+                </div>
               )}
             </div>
+
+            {/* Visual Workspace Validation Errors Box */}
+            {jsonErrors.length > 0 && (
+              <div className="mt-5 p-4 bg-rose-50 border border-rose-100 rounded-2xl text-rose-950 space-y-1.5 animate-pulse">
+                <h5 className="text-xs font-black uppercase tracking-wider text-rose-700">Schema Validation Errors ({jsonErrors.length})</h5>
+                <ul className="list-disc list-inside text-[11px] font-medium space-y-0.5">
+                  {jsonErrors.map((err, i) => (
+                    <li key={i}>{err}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
         </div>
 

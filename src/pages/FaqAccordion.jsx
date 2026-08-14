@@ -10,8 +10,8 @@ import SiteContainer from "../components/SiteContainer";
 const faqs = [
   {
     category: "General",
-    q: "What is the mission of Trust NGO?",
-    a: "Our core mission is to create sustainable community ecosystems in undeveloped regions through targeted green forest planting, schools clean water access setups, student books aid, and professional healthcare clinics.",
+    q: "What is the mission of K.V.G. Shanmuka Sai Charitable Trust?",
+    a: "Our core mission focuses on Education, Environmental Conservation, Animal Welfare, and Health & Community Welfare. We provide free tuition support to children, plant and maintain native trees, and make clean drinking water accessible to rural communities in Harischandrapuram, Guntur district, Andhra Pradesh.",
   },
   {
     category: "Donations",
@@ -35,8 +35,8 @@ const faqs = [
   },
   {
     category: "General",
-    q: "Where is the NGO headquarters located?",
-    a: "Our central trust command office is located at 12, Golden Canopy Square, Bangalore, India, with field coordinators deployed across various regional locations.",
+    q: "Where is the trust's head office located?",
+    a: "Our registered head office is located at 49a, Harischandrapuram, Thullur mandal, Guntur district, Andhra Pradesh, India.",
   },
 ];
 

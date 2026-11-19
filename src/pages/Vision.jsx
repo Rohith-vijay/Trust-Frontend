@@ -8,6 +8,7 @@ import { updatePageSEO } from "../utils";
 import VolunteerActivismIcon from '@mui/icons-material/VolunteerActivism';
 import HandshakeIcon from '@mui/icons-material/Handshake';
 
+import { safeHtml } from "../utils/safeHtml";
 const DEFAULT_PILLARS = [
   { title: "Education Expansion", desc: "Increasing access to quality education in underserved regions." },
   { title: "Rural Development", desc: "Empowering villages with infrastructure and resources." },
@@ -135,7 +136,7 @@ function Vision() {
               variant="h5" 
               component="div"
               sx={{ fontStyle: 'italic', color: 'text.primary', lineHeight: 1.8, textAlign: 'center', fontWeight: 500 }}
-              dangerouslySetInnerHTML={{ __html: mission }}
+              dangerouslySetInnerHTML={safeHtml(mission)}
             />
           </Card>
         </motion.section>

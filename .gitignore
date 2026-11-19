@@ -29,3 +29,10 @@ dist-ssr
 !.dev.vars.example
 .env*
 !.env.example
+
+# Test/diagnostic output
+playwright-report/
+test-results/
+diag_*.txt
+backend*.log
+*.mp4.tmp

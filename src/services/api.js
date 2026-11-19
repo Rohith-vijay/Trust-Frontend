@@ -67,6 +67,11 @@ api.interceptors.response.use(
     async (error) => {
         const originalRequest = error.config;
 
+        // A request we cancelled ourselves (AbortController / unmount) is not a failure
+        if (axios.isCancel(error)) {
+            return Promise.reject(error);
+        }
+
         if (error.response?.status === 401 && !originalRequest._retry) {
             // Don't intercept 401s for login/auth endpoints, let them handle it
             if (originalRequest.url?.includes("/auth/")) {

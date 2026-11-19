@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
 
 /**
@@ -15,7 +15,8 @@ function GalleryHero({ config }) {
   const opacity = useTransform(scrollYProgress, [0, 0.6], [1, 0]);
 
   // Floating particles config
-  const particles = Array.from({ length: 18 }, (_, i) => ({
+  // Generated once per mount (lazy state init) so particles do not re-randomise on every render
+  const [particles] = useState(() => Array.from({ length: 18 }, (_, i) => ({
     id: i,
     x: Math.random() * 100,
     y: Math.random() * 100,
@@ -23,7 +24,7 @@ function GalleryHero({ config }) {
     duration: Math.random() * 8 + 6,
     delay: Math.random() * 4,
     opacity: Math.random() * 0.4 + 0.1,
-  }));
+  })));
 
   const eyebrow = config?.eyebrow || "K.V.G. Shanmuka Sai Charitable Trust";
   const titlePart1 = config?.titlePart1 || "Impact";

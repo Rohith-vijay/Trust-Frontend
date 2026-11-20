@@ -5,6 +5,7 @@ import databaseService from "../services/databaseService";
 import { Typography, Paper, CircularProgress } from "@mui/material";
 import { updatePageSEO } from "../utils";
 
+import { safeHtml } from "../utils/safeHtml";
 const DEFAULT_MILESTONES = [
   { date: "24 October 2025", event: "Trust Founded", description: "K.V.G. Shanmuka Sai Charitable Trust was officially founded with a mission to bring hope, education, clean water, and essential resources to communities in need." },
   { date: "30 October 2025", event: "First Major Event", description: "Free tuition classes for underprivileged children were inaugurated on this day, marking the beginning of the trust's education mission." },
@@ -120,7 +121,7 @@ function History() {
                         component="div"
                         color="text.secondary" 
                         sx={{ lineHeight: 1.7 }}
-                        dangerouslySetInnerHTML={{ __html: item.description || "" }}
+                        dangerouslySetInnerHTML={safeHtml(item.description || "")}
                       />
                       {item.imageUrl && (
                         <div className="mt-4 overflow-hidden rounded-xl">

@@ -25,6 +25,7 @@ import "swiper/css/navigation";
 import "swiper/css/pagination";
 import { resolveMediaUrl } from "../utils";
 
+import { safeHtml } from "../utils/safeHtml";
 function EventDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -194,7 +195,7 @@ function EventDetails() {
                   variant="body1" 
                   component="div" 
                   sx={{ fontSize: '1.05rem', lineHeight: 1.85, color: 'text.secondary' }}
-                  dangerouslySetInnerHTML={{ __html: event.description || "" }}
+                  dangerouslySetInnerHTML={safeHtml(event.description || "")}
                 />
               </CardContent>
             </Card>

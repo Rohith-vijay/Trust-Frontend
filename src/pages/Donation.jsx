@@ -350,7 +350,21 @@ function Donation() {
             razorpaySignature: response.razorpay_signature,
           };
           
-          await databaseService.verifyPayment(verifyPayload);
+          // Money has already left the account here. A dropped connection or a cold server must not turn
+          // into a "failed" screen, so retry (the verify call is idempotent) before giving up.
+          let verifyErr;
+          for (let attempt = 0; attempt < 4; attempt++) {
+            try {
+              await databaseService.verifyPayment(verifyPayload);
+              verifyErr = null;
+              break;
+            } catch (e) {
+              verifyErr = e;
+              if (e.response && e.response.status >= 400 && e.response.status < 500) break; // real rejection: don't retry
+              await new Promise((r) => setTimeout(r, 1500 * (attempt + 1)));
+            }
+          }
+          if (verifyErr) throw verifyErr;
 
           // Success Outcome
           setSuccessReceipt({
@@ -371,7 +385,12 @@ function Donation() {
         } catch (err) {
           console.error("[DonationPage] Real Payment verify failed:", err);
           setPaymentFailed(true);
-          setFailureReason(err.response?.data?.message || err.message || "Cryptographic signature validation failed.");
+          const rejected = err.response && err.response.status >= 400 && err.response.status < 500;
+          setFailureReason(
+            rejected
+              ? err.response?.data?.message || "Payment could not be verified."
+              : `We could not confirm your payment right now. If money was deducted (payment id ${response.razorpay_payment_id}), it is safe: your donation will be confirmed automatically within a few minutes and the receipt emailed to you.`
+          );
         } finally {
           setLoading(false);
         }

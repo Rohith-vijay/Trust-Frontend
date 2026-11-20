@@ -1,6 +1,7 @@
 import React from 'react';
 import CloseIcon from '@mui/icons-material/Close';
 
+import { safeHtml } from "../../utils/safeHtml";
 export default function LivePreviewModal({ isOpen, onClose, content, title = "Live Preview" }) {
   if (!isOpen) return null;
 
@@ -22,7 +23,7 @@ export default function LivePreviewModal({ isOpen, onClose, content, title = "Li
         <div className="flex-1 overflow-y-auto p-8 bg-white">
           <div className="prose prose-sm sm:prose-base lg:prose-lg max-w-none text-gray-700">
             {/* Inject raw HTML securely (since it's from our own Tiptap editor) */}
-            <div dangerouslySetInnerHTML={{ __html: content || "<p class='text-gray-400 italic'>No content to preview.</p>" }} />
+            <div dangerouslySetInnerHTML={safeHtml(content || "<p class='text-gray-400 italic'>No content to preview.</p>")} />
           </div>
         </div>
       </div>

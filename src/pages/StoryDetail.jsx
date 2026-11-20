@@ -18,6 +18,7 @@ import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import CloseIcon from "@mui/icons-material/Close";
 import { resolveMediaUrl } from "../utils";
 
+import { safeHtml } from "../utils/safeHtml";
 export default function StoryDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -198,7 +199,7 @@ export default function StoryDetail() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="prose prose-lg max-w-none text-gray-700 leading-relaxed"
           >
-            <div dangerouslySetInnerHTML={{ __html: story.description || "" }} />
+            <div dangerouslySetInnerHTML={safeHtml(story.description || "")} />
           </motion.section>
 
           {/* Before/After Interactive Slider */}
